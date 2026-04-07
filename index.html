@@ -51,6 +51,14 @@ body.ar{font-family:'Tajawal',sans-serif;direction:rtl}
 body.ar .co-close{right:auto;left:16px}
 .co-close:hover{background:var(--parchment);color:var(--dark)}
 
+
+/* ─── USER AVATAR IN NAV ─── */
+.nav-user{display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;padding:5px 10px;border-radius:50px;transition:background .2s}
+.nav-user:hover{background:rgba(13,110,110,.07)}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;border:2px solid rgba(13,110,110,.2)}
+.nav-user-name{font-size:.78rem;font-weight:500;color:var(--teal);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-user-hint{font-size:.65rem;color:var(--muted)}
+
 /* ─── GRAIN ─── */
 body::after{content:'';position:fixed;inset:0;z-index:8000;pointer-events:none;opacity:.022;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");}
@@ -417,7 +425,16 @@ footer{background:var(--dark);padding:70px 60px 36px}
   <div class="nav-center">
     <a onclick="scrollToSection('section-shop')" id="nav-shop">Shop</a>
     <a onclick="scrollToSection('section-about')" id="nav-about">About</a>
-    <a href="account.html" id="nav-account">My Account</a>
+    <a href="account.html" id="nav-account-link">
+      <span id="nav-account-guest">My Account</span>
+      <span id="nav-account-user" style="display:none" class="nav-user">
+        <div class="nav-avatar" id="nav-avatar-letter">?</div>
+        <div>
+          <div class="nav-user-name" id="nav-user-name"></div>
+          <div class="nav-user-hint" id="nav-user-hint">My Account</div>
+        </div>
+      </span>
+    </a>
   </div>
   <div class="nav-right">
     <button class="search-btn" onclick="openSearch()" id="search-btn" title="Search">
@@ -1364,6 +1381,29 @@ function scrollToSection(id){document.getElementById(id)?.scrollIntoView({behavi
 // ═══════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════
+async function checkSession(){
+  try {
+    const { data: { session } } = await _supa.auth.getSession();
+    const guestEl = document.getElementById('nav-account-guest');
+    const userEl  = document.getElementById('nav-account-user');
+    const avatarEl = document.getElementById('nav-avatar-letter');
+    const nameEl  = document.getElementById('nav-user-name');
+    const hintEl  = document.getElementById('nav-user-hint');
+    if (session && session.user) {
+      const meta = session.user.user_metadata || {};
+      const name = meta.full_name || session.user.email.split('@')[0];
+      if(guestEl) guestEl.style.display='none';
+      if(userEl)  userEl.style.display='flex';
+      if(avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+      if(nameEl)   nameEl.textContent = name.split(' ')[0];
+      if(hintEl)   hintEl.textContent = isAr?'حسابي':'My Account';
+    } else {
+      if(guestEl) guestEl.style.display='';
+      if(userEl)  userEl.style.display='none';
+    }
+  } catch(e){}
+}
+
 async function init(){
   applyHomepage();
   renderCategories();renderFilterTabs();renderProducts();renderReviews();updateCartUI();
@@ -1371,6 +1411,7 @@ async function init(){
   // Load from Supabase and re-render if data arrives
   await loadFromSupabase();
   renderCategories();renderFilterTabs();renderProducts();updateCartUI();
+  checkSession();
 }
 
 // ═══════════════════════════════════════════════════════════

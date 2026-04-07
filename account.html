@@ -500,6 +500,7 @@ body.ar .tab-title{direction:rtl}
           <div class="prof-name-disp" id="prof-name-disp">Mohammed</div>
           <div class="prof-email-disp" id="prof-email-disp">—</div>
           <div style="text-align:center"><div class="prof-badge-disp">⭐ <span id="prof-badge-lbl">Loyal Member</span></div></div>
+          <div style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:8px">Member since <span id="prof-joined">—</span></div>
         </div>
       </div>
       <div class="prof-card">
@@ -821,16 +822,20 @@ function loadProfile() {
   set('prof-name-disp', name);
   set('prof-email-disp', email);
 
+  // Joined date
+  const joinedEl = document.getElementById('prof-joined');
+  if(joinedEl) joinedEl.textContent = joined;
+
   // Settings fields
   const parts = name.split(' ');
   if(s('set-fn')) s('set-fn').value = parts[0] || '';
   if(s('set-ln')) s('set-ln').value = parts.slice(1).join(' ') || '';
   if(s('set-email')) s('set-email').value = email;
+  if(s('set-phone')) s('set-phone').value = meta.phone || '';
 
   // Load orders and wishlist
   renderOrders();
   renderWishlist();
-  renderOverviewOrders();
 }
 
 // ══════════════════════════════════════════════
