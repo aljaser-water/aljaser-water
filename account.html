@@ -660,7 +660,7 @@ body.ar .tab-title{direction:rtl}
 
 <script>
 // ══════════════════════════════════════════════
-//  SUPABASE INIT
+//  SUPABASE
 // ══════════════════════════════════════════════
 const _supa = window.supabase.createClient(
   'https://zpscjsufkqxvckdsohrj.supabase.co',
@@ -673,14 +673,12 @@ const _supa = window.supabase.createClient(
 let currentUser = null;
 let isAr = false;
 
-// Orders are loaded from Supabase in renderOrders()
-
 const wishlistItems = [
-  {emoji:'🌹', en:'Rose Water',  ar:'ماء الورد',   price:12},
-  {emoji:'🌼', en:'Chamomile Water', ar:'ماء البابونج', price:14},
-  {emoji:'💜', en:'Lavender Water',  ar:'ماء اللافندر', price:16},
+  {emoji:'🌹', en:'Rose Water',        ar:'ماء الورد',        price:12},
+  {emoji:'🌼', en:'Chamomile Water',   ar:'ماء البابونج',     price:14},
+  {emoji:'💜', en:'Lavender Water',    ar:'ماء اللافندر',     price:16},
   {emoji:'🌸', en:'Jasmine Concentrate', ar:'مركّز الياسمين', price:28},
-  {emoji:'🟢', en:'Mint Water',      ar:'ماء النعناع',  price:11},
+  {emoji:'🟢', en:'Mint Water',        ar:'ماء النعناع',      price:11},
 ];
 
 // ══════════════════════════════════════════════
@@ -688,12 +686,31 @@ const wishlistItems = [
 // ══════════════════════════════════════════════
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
   window.scrollTo(0, 0);
 }
 
 // ══════════════════════════════════════════════
-//  SUPABASE AUTH — LOGIN
+//  TAB SWITCHING — matches ptab / pnav-item
+// ══════════════════════════════════════════════
+function switchTab(name) {
+  // Hide all tabs
+  document.querySelectorAll('.ptab').forEach(p => p.classList.remove('active'));
+  // Deactivate all nav items
+  document.querySelectorAll('.pnav-item').forEach(b => b.classList.remove('active'));
+  // Show selected tab
+  const tab = document.getElementById('ptab-' + name);
+  if (tab) tab.classList.add('active');
+  // Activate nav item
+  const nav = document.getElementById('pn-' + name);
+  if (nav) nav.classList.add('active');
+  // Load orders when switching to orders tab
+  if (name === 'orders') renderOrders();
+}
+
+// ══════════════════════════════════════════════
+//  AUTH — LOGIN
 // ══════════════════════════════════════════════
 async function doLogin() {
   const email = document.getElementById('l-email').value.trim();
@@ -706,24 +723,19 @@ async function doLogin() {
   if (!pass)                 { document.getElementById('l-pass-err').classList.add('show'); return; }
 
   setLoading('login-btn','login-btn-txt',true);
-
   const { data, error } = await _supa.auth.signInWithPassword({ email, password: pass });
-
   setLoading('login-btn','login-btn-txt',false, isAr?'تسجيل الدخول':'Sign In');
 
-  if (error) {
-    toast(isAr ? '❌ البريد أو كلمة المرور غير صحيحة' : '❌ Incorrect email or password');
-    return;
-  }
+  if (error) { toast(isAr?'❌ البريد أو كلمة المرور غير صحيحة':'❌ Incorrect email or password'); return; }
 
   currentUser = data.user;
   loadProfile();
   showPage('profile');
-  toast(isAr ? '✅ مرحباً بعودتك!' : '✅ Welcome back!');
+  toast(isAr?'✅ مرحباً بعودتك!':'✅ Welcome back!');
 }
 
 // ══════════════════════════════════════════════
-//  SUPABASE AUTH — SIGN UP
+//  AUTH — SIGN UP
 // ══════════════════════════════════════════════
 async function doSignup() {
   const fn    = document.getElementById('s-fn').value.trim();
@@ -739,68 +751,56 @@ async function doSignup() {
   if (!fn)                  { document.getElementById('s-fn-err').classList.add('show'); ok = false; }
   if (!email.includes('@')) { document.getElementById('s-email-err').classList.add('show'); ok = false; }
   if (pass.length < 8)      { document.getElementById('s-pass-err').classList.add('show'); ok = false; }
-  if (!terms)               { toast(isAr ? '⚠️ يجب الموافقة على الشروط' : '⚠️ Please accept the terms'); ok = false; }
+  if (!terms)               { toast(isAr?'⚠️ يجب الموافقة على الشروط':'⚠️ Please accept the terms'); ok = false; }
   if (!ok) return;
 
   setLoading('signup-btn','signup-btn-txt',true);
-
   const { data, error } = await _supa.auth.signUp({
-    email,
-    password: pass,
+    email, password: pass,
     options: { data: { full_name: fn } }
   });
-
   setLoading('signup-btn','signup-btn-txt',false, isAr?'إنشاء الحساب':'Create Account');
 
-  if (error) {
-    toast('❌ ' + (error.message || (isAr ? 'خطأ في إنشاء الحساب' : 'Could not create account')));
-    return;
-  }
+  if (error) { toast('❌ ' + error.message); return; }
 
-  // If session exists, user is logged in immediately (email confirm disabled)
-  // Otherwise show the confirm page
   const { data: { session } } = await _supa.auth.getSession();
   if (session && session.user) {
     currentUser = session.user;
     loadProfile();
     showPage('profile');
-    toast(isAr ? '✅ مرحباً بك في الجسر!' : '✅ Welcome to Aljaser!');
+    toast(isAr?'✅ مرحباً بك في الجسر!':'✅ Welcome to Aljaser!');
   } else {
-    toast(isAr ? '📧 تحقق من بريدك لتأكيد الحساب!' : '📧 Check your email to confirm your account!');
+    toast(isAr?'📧 تحقق من بريدك لتأكيد الحساب!':'📧 Check your email to confirm your account!');
     showPage('signup-confirm');
   }
 }
 
 // ══════════════════════════════════════════════
-//  SUPABASE AUTH — FORGOT PASSWORD
+//  AUTH — FORGOT PASSWORD
 // ══════════════════════════════════════════════
 async function doForgot() {
   const email = document.getElementById('f-email').value.trim();
-  if (!email.includes('@')) { toast(isAr ? '⚠️ أدخل بريداً صحيحاً' : '⚠️ Enter a valid email'); return; }
+  if (!email.includes('@')) { toast(isAr?'⚠️ أدخل بريداً صحيحاً':'⚠️ Enter a valid email'); return; }
 
   setLoading('forgot-btn','forgot-btn-txt',true);
-
   const { error } = await _supa.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin + '/account.html'
   });
-
   setLoading('forgot-btn','forgot-btn-txt',false, isAr?'إرسال رابط الاسترداد':'Send Reset Link');
 
   if (error) { toast('❌ ' + error.message); return; }
-  toast(isAr ? '📧 تم إرسال رابط الاسترداد! تحقق من بريدك.' : '📧 Reset link sent! Check your inbox.');
+  toast(isAr?'📧 تم إرسال رابط الاسترداد! تحقق من بريدك.':'📧 Reset link sent! Check your inbox.');
   showPage('login');
 }
 
 // ══════════════════════════════════════════════
-//  SUPABASE AUTH — LOGOUT
+//  AUTH — LOGOUT
 // ══════════════════════════════════════════════
 async function doLogout() {
   await _supa.auth.signOut();
   currentUser = null;
-  document.getElementById('l-email').value = '';
-  document.getElementById('l-pass').value  = '';
   showPage('login');
-  toast(isAr ? '👋 تم تسجيل الخروج بنجاح' : '👋 Logged out successfully');
+  toast(isAr?'👋 تم تسجيل الخروج بنجاح':'👋 Logged out successfully');
 }
 
 // ══════════════════════════════════════════════
@@ -808,32 +808,37 @@ async function doLogout() {
 // ══════════════════════════════════════════════
 function loadProfile() {
   if (!currentUser) return;
-  const meta = currentUser.user_metadata || {};
-  const name = meta.full_name || currentUser.email.split('@')[0];
-  const email = currentUser.email;
+  const meta   = currentUser.user_metadata || {};
+  const name   = meta.full_name || currentUser.email.split('@')[0];
+  const email  = currentUser.email;
   const joined = new Date(currentUser.created_at).toLocaleDateString('en-GB',{year:'numeric',month:'long'});
 
-  // Header
-  const el = id => document.getElementById(id);
-  if(el('prof-avatar-letter')) el('prof-avatar-letter').textContent = name.charAt(0).toUpperCase();
-  if(el('prof-name'))  el('prof-name').textContent  = name;
-  if(el('prof-email')) el('prof-email').textContent = email;
-  if(el('prof-joined-val')) el('prof-joined-val').textContent = joined;
-  if(el('prof-orders-val')) el('prof-orders-val').textContent = sampleOrders.length;
-  if(el('prof-spent-val'))  el('prof-spent-val').textContent = sampleOrders.reduce((s,o)=>s+o.total,0) + ' SAR';
+  const s = id => document.getElementById(id);
+  const set = (id, val) => { if(s(id)) s(id).textContent = val; };
+
+  // Avatar & sidebar info
+  set('prof-av', name.charAt(0).toUpperCase());
+  set('prof-name-disp', name);
+  set('prof-email-disp', email);
 
   // Settings fields
-  const nameParts = name.split(' ');
-  if(el('set-fname')) el('set-fname').value = nameParts[0] || '';
-  if(el('set-lname')) el('set-lname').value = nameParts.slice(1).join(' ') || '';
-  if(el('set-email')) el('set-email').value = email;
+  const parts = name.split(' ');
+  if(s('set-fn')) s('set-fn').value = parts[0] || '';
+  if(s('set-ln')) s('set-ln').value = parts.slice(1).join(' ') || '';
+  if(s('set-email')) s('set-email').value = email;
 
-  renderOrders();  // async — loads from Supabase
+  // Load orders and wishlist
+  renderOrders();
   renderWishlist();
+  renderOverviewOrders();
 }
 
+// ══════════════════════════════════════════════
+//  ORDERS — from Supabase
+// ══════════════════════════════════════════════
 async function renderOrders() {
-  const el = document.getElementById('orders-list');
+  const el = document.getElementById('all-orders');
+  const ovEl = document.getElementById('ov-orders');
   if (!el) return;
 
   if (!currentUser) {
@@ -841,10 +846,9 @@ async function renderOrders() {
     return;
   }
 
-  el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:24px">Loading orders...</p>`;
+  el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:24px">⏳ Loading...</p>`;
 
   try {
-    // Fetch orders from Supabase where email matches
     const { data: rows, error } = await _supa
       .from('orders')
       .select('data, created_at')
@@ -852,31 +856,27 @@ async function renderOrders() {
 
     if (error) throw error;
 
-    // Filter by current user email
-    const userOrders = (rows || [])
+    const userOrders = (rows||[])
       .map(r => r.data)
       .filter(o => o && o.email && o.email.toLowerCase() === currentUser.email.toLowerCase());
 
-    if (userOrders.length === 0) {
-      el.innerHTML = `<div style="text-align:center;padding:48px;color:var(--muted)">
-        <div style="font-size:2.5rem;margin-bottom:12px">📦</div>
-        <p>${isAr?'لا توجد طلبات بعد':'No orders yet'}</p>
-        <a href="/" style="color:var(--teal);font-weight:500;font-size:.85rem">${isAr?'تسوّق الآن →':'Shop Now →'}</a>
-      </div>`;
-      // Update stats
-      const spentEl = document.getElementById('prof-spent-val');
-      const ordersEl = document.getElementById('prof-orders-val');
-      if(spentEl) spentEl.textContent = '0 SAR';
-      if(ordersEl) ordersEl.textContent = '0';
-      return;
-    }
-
     // Update stats
     const totalSpent = userOrders.reduce((s,o)=>s+(o.total||0),0);
-    const spentEl = document.getElementById('prof-spent-val');
-    const ordersEl = document.getElementById('prof-orders-val');
-    if(spentEl) spentEl.textContent = totalSpent.toFixed(0) + ' SAR';
-    if(ordersEl) ordersEl.textContent = userOrders.length;
+    const sOrders = document.getElementById('stat-orders');
+    const sSpent  = document.getElementById('stat-spent');
+    if(sOrders) sOrders.textContent = userOrders.length;
+    if(sSpent)  sSpent.textContent  = totalSpent.toFixed(0);
+
+    if (userOrders.length === 0) {
+      const empty = `<div style="text-align:center;padding:48px;color:var(--muted)">
+        <div style="font-size:2.5rem;margin-bottom:12px">📦</div>
+        <p style="margin-bottom:12px">${isAr?'لا توجد طلبات بعد':'No orders yet'}</p>
+        <a href="/" style="color:var(--teal);font-weight:500;font-size:.85rem">${isAr?'تسوّق الآن →':'Shop Now →'}</a>
+      </div>`;
+      el.innerHTML = empty;
+      if(ovEl) ovEl.innerHTML = empty;
+      return;
+    }
 
     const statusColor = {pending:'#c9a84c',processing:'#3b82f6',shipped:'#8b5cf6',delivered:'#27ae60',cancelled:'#e05252'};
     const getItems = o => {
@@ -885,47 +885,105 @@ async function renderOrders() {
       return o.itemsText || '—';
     };
 
-    el.innerHTML = userOrders.map(o => {
+    const orderHTML = userOrders.map(o => {
       const st = o.status || 'pending';
       const color = statusColor[st] || '#666';
-      return `
-      <div class="order-card">
+      return `<div class="order-card">
         <div class="order-header">
           <div>
             <div class="order-id">${o.id}</div>
-            <div class="order-date">${o.date || '—'}${o.city?' · '+o.city:''}</div>
+            <div class="order-date">${o.date||'—'}${o.city?' · '+o.city:''}</div>
           </div>
-          <div class="order-status" style="background:${color}20;color:${color};border:1px solid ${color}40;padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em">
+          <div class="order-status" style="background:${color}18;color:${color};border:1px solid ${color}35;padding:4px 12px;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase">
             ${st.charAt(0).toUpperCase()+st.slice(1)}
           </div>
         </div>
         <div class="order-items">${getItems(o)}</div>
         <div class="order-total">${isAr?'الإجمالي':'Total'}: <strong>${o.total} SAR</strong></div>
-        ${o.note?`<div style="font-size:.75rem;color:var(--muted);margin-top:6px;font-style:italic">📝 ${o.note}</div>`:''}
+        ${o.note?`<div style="font-size:.74rem;color:var(--muted);margin-top:7px;font-style:italic;padding-top:7px;border-top:1px solid var(--border)">📝 ${o.note}</div>`:''}
+      </div>`;
+    }).join('');
+
+    el.innerHTML = orderHTML;
+    if(ovEl) ovEl.innerHTML = userOrders.slice(0,2).map(o => {
+      const st = o.status || 'pending';
+      const color = statusColor[st] || '#666';
+      return `<div class="order-card">
+        <div class="order-header">
+          <div><div class="order-id">${o.id}</div><div class="order-date">${o.date||'—'}</div></div>
+          <div style="background:${color}18;color:${color};border:1px solid ${color}35;padding:3px 10px;border-radius:50px;font-size:.68rem;font-weight:700;text-transform:uppercase">${st}</div>
+        </div>
+        <div class="order-items">${getItems(o)}</div>
+        <div class="order-total">${isAr?'الإجمالي':'Total'}: <strong>${o.total} SAR</strong></div>
       </div>`;
     }).join('');
 
   } catch(e) {
-    console.error('Orders load failed:', e);
+    console.error('Orders load error:', e);
     el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:24px">Could not load orders</p>`;
   }
 }
 
+function renderOverviewOrders() { renderOrders(); }
+
+// ══════════════════════════════════════════════
+//  WISHLIST
+// ══════════════════════════════════════════════
 function renderWishlist() {
-  const el = document.getElementById('wishlist-grid');
+  const el = document.getElementById('wish-grid');
   if (!el) return;
   el.innerHTML = wishlistItems.map(w => `
     <div class="wish-card">
       <div class="wish-emoji">${w.emoji}</div>
       <div class="wish-name">${isAr?w.ar:w.en}</div>
       <div class="wish-price">${w.price} SAR</div>
-      <button class="wish-add" onclick="toast(isAr?'✅ أُضيف للسلة':'✅ Added to cart!')">${isAr?'أضف للسلة':'Add to Cart'}</button>
+      <button class="wish-add" onclick="toast('✅ ${isAr?'أُضيف للسلة':'Added to cart!'}')">${isAr?'أضف للسلة':'Add to Cart'}</button>
     </div>`).join('');
 }
 
-function saveProfile() {
-  toast(isAr ? '✅ تم حفظ الملف الشخصي' : '✅ Profile saved!');
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+async function saveSettings() {
+  const fn    = document.getElementById('set-fn')?.value.trim() || '';
+  const ln    = document.getElementById('set-ln')?.value.trim() || '';
+  const phone = document.getElementById('set-phone')?.value.trim() || '';
+
+  if (!currentUser) return;
+
+  const { error } = await _supa.auth.updateUser({
+    data: { full_name: (fn + ' ' + ln).trim(), phone }
+  });
+
+  if (error) { toast('❌ ' + error.message); return; }
+  toast(isAr?'✅ تم حفظ الملف الشخصي':'✅ Profile saved!');
+
+  // Refresh user
+  const { data: { user } } = await _supa.auth.getUser();
+  if (user) { currentUser = user; loadProfile(); }
 }
+
+async function changePassword() {
+  const newPass  = document.getElementById('set-newp')?.value;
+  const confPass = document.getElementById('set-confp')?.value;
+
+  if (!newPass || newPass.length < 8) { toast(isAr?'⚠️ كلمة المرور قصيرة جداً':'⚠️ Password too short'); return; }
+  if (newPass !== confPass) { toast(isAr?'⚠️ كلمتا المرور غير متطابقتين':'⚠️ Passwords do not match'); return; }
+
+  const { error } = await _supa.auth.updateUser({ password: newPass });
+  if (error) { toast('❌ ' + error.message); return; }
+  toast(isAr?'✅ تم تغيير كلمة المرور':'✅ Password changed!');
+}
+
+// ══════════════════════════════════════════════
+//  MISC
+// ══════════════════════════════════════════════
+function copyCode() {
+  navigator.clipboard?.writeText('WELCOME10').then(()=>toast('📋 Code copied!')).catch(()=>toast('Code: WELCOME10'));
+}
+
+function openAddrModal() { toast(isAr?'قريباً — إضافة العناوين':'Coming soon — address management'); }
+function openDeleteModal() { toast(isAr?'تواصل معنا لحذف حسابك':'Contact us to delete your account'); }
 
 // ══════════════════════════════════════════════
 //  PASSWORD STRENGTH
@@ -962,16 +1020,7 @@ function toast(msg) {
   if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.getElementById('pane-' + name).classList.add('active');
-  const btn = document.querySelector(`[onclick="switchTab('${name}')"]`);
-  if (btn) btn.classList.add('active');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 // ══════════════════════════════════════════════
@@ -999,17 +1048,15 @@ function applyLang(lang) {
   document.documentElement.setAttribute('lang', lang);
   document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
   isAr ? document.body.classList.add('ar') : document.body.classList.remove('ar');
-  const t = T[lang];
-  Object.keys(t).forEach(k => { const el=document.getElementById(k); if(el) el.textContent=t[k]; });
+  Object.keys(T[lang]).forEach(k => { const el=document.getElementById(k); if(el) el.textContent=T[lang][k]; });
   if (currentUser) { renderOrders(); renderWishlist(); }
 }
 function toggleLang() { applyLang(isAr ? 'en' : 'ar'); }
 
 // ══════════════════════════════════════════════
-//  INIT — Check existing session
+//  INIT
 // ══════════════════════════════════════════════
 async function init() {
-  // Check if user already has a session
   const { data: { session } } = await _supa.auth.getSession();
   if (session && session.user) {
     currentUser = session.user;
@@ -1019,13 +1066,12 @@ async function init() {
     showPage('login');
   }
 
-  // Listen for auth state changes (e.g. email confirmation redirect)
   _supa.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       loadProfile();
       showPage('profile');
-      toast(isAr ? '✅ مرحباً بك!' : '✅ Welcome!');
+      if(event !== 'INITIAL_SESSION') toast(isAr?'✅ مرحباً بك!':'✅ Welcome!');
     }
     if (event === 'SIGNED_OUT') {
       currentUser = null;

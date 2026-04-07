@@ -463,7 +463,7 @@ footer{background:var(--dark);padding:70px 60px 36px}
     </div>
     <div class="hero-trust">
       <div class="trust-pill"><span>✅</span><span id="trust1">100% Natural</span></div>
-      <div class="trust-pill"><span>🚚</span><span id="trust2">Free shipping over 50 SAR</span></div>
+      <div class="trust-pill"><span>🚚</span><span id="trust2">Fast delivery across KSA</span></div>
       <div class="trust-pill"><span>🏅</span><span id="trust3">Award-winning since 1978</span></div>
     </div>
   </div>
@@ -476,19 +476,19 @@ footer{background:var(--dark);padding:70px 60px 36px}
 <!-- MARQUEE -->
 <div class="marquee-wrap">
   <div class="marquee-inner" id="marquee-inner">
-    <div class="m-item">Free Shipping Over 50 SAR <span class="m-dot"></span></div>
+    
     <div class="m-item">100% Chemical-Free <span class="m-dot"></span></div>
     <div class="m-item">Traditionally Distilled Since 1978 <span class="m-dot"></span></div>
     <div class="m-item">7-Day Returns Guaranteed <span class="m-dot"></span></div>
-    <div class="m-item">شحن مجاني فوق ٥٠ ريال <span class="m-dot"></span></div>
+    
     <div class="m-item">١٠٠٪ طبيعي خالٍ من الكيماويات <span class="m-dot"></span></div>
     <div class="m-item">مقطّرة بالطريقة التقليدية منذ ١٩٧٨ <span class="m-dot"></span></div>
     <div class="m-item">ضمان الإرجاع خلال ٧ أيام <span class="m-dot"></span></div>
-    <div class="m-item">Free Shipping Over 50 SAR <span class="m-dot"></span></div>
+    
     <div class="m-item">100% Chemical-Free <span class="m-dot"></span></div>
     <div class="m-item">Traditionally Distilled Since 1978 <span class="m-dot"></span></div>
     <div class="m-item">7-Day Returns Guaranteed <span class="m-dot"></span></div>
-    <div class="m-item">شحن مجاني فوق ٥٠ ريال <span class="m-dot"></span></div>
+    
     <div class="m-item">١٠٠٪ طبيعي خالٍ من الكيماويات <span class="m-dot"></span></div>
     <div class="m-item">مقطّرة بالطريقة التقليدية منذ ١٩٧٨ <span class="m-dot"></span></div>
     <div class="m-item">ضمان الإرجاع خلال ٧ أيام <span class="m-dot"></span></div>
@@ -1006,7 +1006,7 @@ function changeQty(id,d){
   if(item.qty<=0) removeFromCart(id); else updateCartUI();
 }
 function getSub(){return cart.reduce((s,i)=>s+i.price*i.qty,0);}
-function getShip(sub){return sub>=FREE_SHIP||sub===0?0:SHIP_COST;}
+function getShip(sub){return sub===0?0:SHIP_COST;} // No free shipping
 function getTotal(){const s=getSub();return s+getShip(s);}
 
 function updateCartUI(){
@@ -1020,19 +1020,9 @@ function updateCartUI(){
 
   const sub=getSub(), ship=getShip(sub);
 
+  // Shipping progress bar hidden (no free shipping)
   const sw=document.getElementById('ship-progress-wrap');
-  const sf=document.getElementById('ship-bar-fill');
-  const st=document.getElementById('ship-bar-text');
-  if(sub>0&&sub<FREE_SHIP){
-    sw.style.display='block';
-    sf.style.width=Math.min(100,(sub/FREE_SHIP)*100)+'%';
-    const left=(FREE_SHIP-sub).toFixed(0);
-    st.innerHTML=isAr?`أضف <span>${left} ريال</span> للشحن المجاني`:`Add <span>${left} SAR</span> for free shipping`;
-  } else if(sub>=FREE_SHIP){
-    sw.style.display='block';
-    sf.style.width='100%';
-    st.innerHTML=isAr?`🎉 <span>شحن مجاني</span> لك!`:`🎉 You qualify for <span>free shipping!</span>`;
-  } else { sw.style.display='none'; }
+  if(sw) sw.style.display='none';
 
   const totalsEl=document.getElementById('cart-totals');
   if(sub>0){
@@ -1092,7 +1082,7 @@ function openCheckoutModal(){
   const summaryEl = document.getElementById('co-summary');
   const itemLines = cart.map(i=>`<div class="co-row"><span>${isAr?i.ar:i.en} ×${i.qty}</span><span>${(i.price*i.qty).toFixed(2)} SAR</span></div>`).join('');
   summaryEl.innerHTML = itemLines +
-    `<div class="co-row"><span>${isAr?'الشحن':'Shipping'}</span><span>${ship===0?(isAr?'مجاني':'Free'):`${ship} SAR`}</span></div>` +
+    `<div class="co-row"><span>${isAr?'الشحن':'Shipping'}</span><span>${`${SHIP_COST} SAR`}</span></div>` +
     `<div class="co-row total"><span>${isAr?'الإجمالي':'Total'}</span><span>${total.toFixed(2)} SAR</span></div>`;
 
   // i18n
@@ -1160,8 +1150,8 @@ async function submitOrder(){
   // Build WhatsApp message
   const lines = cart.map(i=>isAr?`• ${i.ar} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} ريال`:`• ${i.en} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} SAR`).join('%0A');
   const msg = isAr
-    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${ship===0?'مجاني':ship+' ريال'}%0A*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالمدينة: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
-    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${ship===0?'Free':ship+' SAR'}%0A*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ACity: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
+    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالمدينة: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
+    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ACity: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
 
   closeCheckoutModal();
   cart = [];
@@ -1196,7 +1186,7 @@ const T={
     'hero-title-1':"Nature's",'hero-title-2':'Finest Waters',
     'hero-sub':"From the heart of Bahrain since 1978 — chemical-free herbal waters distilled from nature's finest herbs.",
     'hero-cta1':'Shop Now','hero-cta2':'Our Story','scroll-lbl':'scroll',
-    'trust1':'100% Natural','trust2':'Free shipping over 50 SAR','trust3':'Award-winning since 1978',
+    'trust1':'100% Natural','trust2':'Fast delivery across KSA','trust3':'Award-winning since 1978',
     'cat-lbl':'Our Collection','cat-t1':'Browse','cat-t2':'by Category',
     'cat-sub':'From refreshing drinking waters to powerful herbal concentrates',
     'shop-lbl':'Handpicked for You','shop-t1':'Our','shop-t2':'Products',
@@ -1231,7 +1221,7 @@ const T={
     'hero-title-1':'أجود','hero-title-2':'مياه الطبيعة',
     'hero-sub':'من قلب البحرين منذ ١٩٧٨ — مياه عشبية خالية من الكيماويات، مقطّرة من أفضل الأعشاب الطبيعية.',
     'hero-cta1':'تسوّق الآن','hero-cta2':'قصتنا','scroll-lbl':'مرر',
-    'trust1':'١٠٠٪ طبيعي','trust2':'شحن مجاني فوق ٥٠ ريال','trust3':'جائزة تميّز منذ ١٩٧٨',
+    'trust1':'١٠٠٪ طبيعي','trust2':'توصيل سريع في أنحاء المملكة','trust3':'جائزة تميّز منذ ١٩٧٨',
     'cat-lbl':'مجموعتنا','cat-t1':'تصفّح','cat-t2':'حسب الفئة',
     'cat-sub':'من المياه المنعشة إلى المركّزات العشبية القوية',
     'shop-lbl':'مختارة لك','shop-t1':'منتجاتنا','shop-t2':'',
@@ -1281,8 +1271,8 @@ function toggleLang(){applyLang(isAr?'en':'ar');}
 function applyHomepage(){
   const DEFAULTS = {
     announceShow:'1', announceColor:'var(--teal)',
-    announceEn:'Free shipping on orders over 50 SAR 🚚',
-    announceAr:'شحن مجاني للطلبات فوق ٥٠ ريال 🚚',
+    announceEn:'Pure herbal waters from Bahrain since 1978 🌿',
+    announceAr:'مياه عشبية طبيعية من البحرين منذ ١٩٧٨ 🌿',
     eyebrowEn:'Pure · Natural · Herbal', eyebrowAr:'نقي · طبيعي · عشبي',
     title1En:"Nature's", title1Ar:'أجود',
     title2En:'Finest Waters', title2Ar:'مياه الطبيعة',
@@ -1291,7 +1281,7 @@ function applyHomepage(){
     btn1En:'Shop Now', btn1Ar:'تسوّق الآن',
     btn2En:'Our Story', btn2Ar:'قصتنا',
     t1Icon:'✅', t1En:'100% Natural', t1Ar:'١٠٠٪ طبيعي',
-    t2Icon:'🚚', t2En:'Free shipping over 50 SAR', t2Ar:'شحن مجاني فوق ٥٠ ريال',
+    t2Icon:'🚚', t2En:'Fast delivery across KSA', t2Ar:'توصيل سريع في أنحاء المملكة',
     t3Icon:'🏅', t3En:'Award-winning since 1978', t3Ar:'حائزون على جوائز منذ ١٩٧٨',
     catTEn:'Browse by Category', catTAr:'تصفح حسب الفئة',
     catSEn:'From refreshing drinking waters to powerful herbal concentrates', catSAr:'من المياه المنعشة إلى المركّزات العشبية القوية',
