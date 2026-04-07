@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Aljaser Water — My Account | حسابي</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0d6e6e;--teal2:#0a5252;--aqua:#4ecdc4;
+  --sand:#f5f0e8;--cream:#fdfaf4;--gold:#c9a84c;
+  --dark:#0f1f1f;--text:#2c3e35;--muted:#7a9090;
+  --red:#e05252;--green:#2ecc71;--border:rgba(13,110,110,.15);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;overflow-x:hidden}
+body.ar{font-family:'Tajawal',sans-serif}
+
+/* NAV */
+.topnav{position:fixed;top:0;width:100%;z-index:999;display:flex;align-items:center;justify-content:space-between;padding:16px 60px;background:rgba(253,250,244,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--teal);cursor:pointer;text-decoration:none}
+.logo span{color:var(--gold);font-style:italic}
+.nav-right{display:flex;align-items:center;gap:12px}
+.lang-btn{background:none;border:1.5px solid var(--teal);color:var(--teal);border-radius:50px;padding:6px 16px;font-size:.78rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.lang-btn:hover{background:var(--teal);color:#fff}
+.back-btn{background:var(--sand);border:none;border-radius:50px;padding:8px 20px;font-size:.78rem;cursor:pointer;font-family:inherit;color:var(--muted);transition:all .2s;text-decoration:none}
+.back-btn:hover{color:var(--teal)}
+
+/* PAGES */
+.page{display:none;min-height:100vh;padding-top:72px}
+.page.active{display:block}
+
+/* AUTH SPLIT LAYOUT */
+.auth-wrap{min-height:calc(100vh - 72px);display:grid;grid-template-columns:1fr 1fr}
+.auth-visual{background:linear-gradient(145deg,var(--teal) 0%,var(--teal2) 55%,#072e2e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;position:relative;overflow:hidden}
+.auth-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(78,205,196,.25),transparent 60%);pointer-events:none}
+.av-bg-text{position:absolute;bottom:-20px;right:-10px;font-family:'Cormorant Garamond',serif;font-size:15vw;font-weight:300;color:rgba(255,255,255,.04);line-height:1;user-select:none;pointer-events:none}
+.av-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:600;color:#fff;margin-bottom:6px;z-index:1}
+.av-logo span{color:var(--gold);font-style:italic}
+.av-tag{color:rgba(255,255,255,.7);font-size:.88rem;z-index:1;margin-bottom:44px;text-align:center}
+.av-feats{display:flex;flex-direction:column;gap:16px;z-index:1;width:100%;max-width:280px}
+.av-feat{display:flex;align-items:center;gap:13px;background:rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;border:1px solid rgba(255,255,255,.1)}
+.av-feat-icon{font-size:1.2rem;flex-shrink:0}
+.av-feat-title{color:#fff;font-size:.83rem;font-weight:500}
+.av-feat-sub{color:rgba(255,255,255,.6);font-size:.73rem;margin-top:2px}
+
+/* FORM SIDE */
+.auth-form-side{display:flex;align-items:center;justify-content:center;padding:48px 40px;background:var(--cream);overflow-y:auto}
+.auth-box{width:100%;max-width:420px}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--dark);margin-bottom:6px}
+.auth-sub{color:var(--muted);font-size:.87rem;margin-bottom:32px;line-height:1.6}
+.auth-sub a{color:var(--teal);cursor:pointer;font-weight:500}
+.auth-sub a:hover{text-decoration:underline}
+
+/* FORM ELEMENTS */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.fg label{font-size:.74rem;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;font-weight:500}
+.inp-wrap{position:relative}
+.inp-wrap input,.inp-wrap select{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:13px 44px 13px 16px;font-size:.88rem;font-family:inherit;color:var(--dark);outline:none;background:#fff;transition:border .2s;appearance:none}
+body.ar .inp-wrap input,body.ar .inp-wrap select{padding:13px 16px 13px 44px}
+.inp-wrap input:focus,.inp-wrap select:focus{border-color:var(--teal)}
+.inp-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;line-height:1}
+body.ar .inp-icon{right:auto;left:14px}
+.eye-icon{pointer-events:all;cursor:pointer}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.err{font-size:.73rem;color:var(--red);margin-top:3px;display:none}
+.err.show{display:block}
+
+/* Password strength */
+.pw-bars{display:flex;gap:4px;margin:6px 0 3px}
+.pw-bar{flex:1;height:4px;border-radius:4px;background:rgba(13,110,110,.1);transition:background .3s}
+.pw-bar.weak{background:var(--red)}
+.pw-bar.fair{background:var(--gold)}
+.pw-bar.strong{background:var(--green)}
+.pw-lbl{font-size:.71rem;color:var(--muted)}
+
+/* Social */
+.social-btns{display:flex;gap:10px;margin-bottom:20px}
+.social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--border);border-radius:12px;padding:10px;font-size:.8rem;cursor:pointer;font-family:inherit;background:#fff;color:var(--text);transition:all .2s}
+.social-btn:hover{border-color:var(--teal);color:var(--teal)}
+.divider{display:flex;align-items:center;gap:12px;margin:0 0 20px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:.74rem;color:var(--muted);white-space:nowrap}
+
+/* Buttons */
+.btn-main{width:100%;background:var(--teal);color:#fff;border:none;border-radius:50px;padding:14px;font-size:.88rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:500}
+.btn-main:hover{background:var(--teal2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(13,110,110,.22)}
+.btn-main:disabled{background:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
+.btn-link{background:none;border:none;color:var(--teal);cursor:pointer;font-size:.82rem;font-family:inherit;text-decoration:underline;padding:0}
+
+/* Checkbox */
+.chk-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px}
+.chk-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--teal);margin-top:2px;flex-shrink:0;cursor:pointer}
+.chk-row label{font-size:.8rem;color:var(--muted);cursor:pointer;line-height:1.5}
+.chk-row label a{color:var(--teal)}
+
+/* OTP */
+.otp-row{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.otp-box{width:50px;height:54px;border:1.5px solid var(--border);border-radius:12px;text-align:center;font-size:1.3rem;font-weight:600;font-family:inherit;color:var(--dark);outline:none;transition:border .2s;background:#fff}
+.otp-box:focus{border-color:var(--teal)}
+
+/* PROFILE LAYOUT */
+.prof-wrap{max-width:1060px;margin:0 auto;padding:32px 48px 80px;display:grid;grid-template-columns:260px 1fr;gap:28px;min-height:calc(100vh - 72px)}
+.prof-sidebar{display:flex;flex-direction:column;gap:14px}
+.prof-card{background:#fff;border-radius:22px;padding:26px;box-shadow:0 2px 20px rgba(13,110,110,.06)}
+.avatar{width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,var(--aqua),var(--teal));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;margin:0 auto 11px}
+.prof-name-disp{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:var(--dark);text-align:center}
+.prof-email-disp{font-size:.76rem;color:var(--muted);text-align:center;margin-top:2px}
+.prof-badge-disp{display:inline-flex;align-items:center;gap:5px;background:rgba(13,110,110,.08);color:var(--teal);border-radius:50px;padding:4px 13px;font-size:.72rem;margin-top:10px}
+.avatar-wrap{text-align:center;margin-bottom:16px}
+.pnav{display:flex;flex-direction:column;gap:2px}
+.pnav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:11px;cursor:pointer;font-size:.84rem;color:var(--muted);transition:all .2s}
+.pnav-item:hover{background:rgba(13,110,110,.05);color:var(--text)}
+.pnav-item.active{background:rgba(13,110,110,.08);color:var(--teal);font-weight:500}
+.pnav-icon{font-size:.95rem;width:18px;text-align:center;flex-shrink:0}
+
+/* Profile tabs */
+.ptab{display:none}
+.ptab.active{display:block}
+.tab-card{background:#fff;border-radius:22px;padding:28px;box-shadow:0 2px 20px rgba(13,110,110,.06);margin-bottom:18px}
+.tab-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--dark);margin-bottom:22px}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.mini-stat{background:var(--sand);border-radius:14px;padding:16px;text-align:center}
+.mini-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--teal);line-height:1}
+.mini-lbl{font-size:.72rem;color:var(--muted);margin-top:4px}
+
+/* Orders */
+.order-card{border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;transition:border .2s}
+.order-card:hover{border-color:rgba(13,110,110,.3)}
+.order-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.order-num{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--teal)}
+.order-dt{font-size:.74rem;color:var(--muted)}
+.order-prods{font-size:.8rem;color:var(--muted);margin-bottom:9px;line-height:1.6}
+.order-bot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.order-tot{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--dark)}
+.pill{display:inline-block;border-radius:50px;padding:2px 11px;font-size:.69rem;font-weight:600}
+.pill-green{background:rgba(46,204,113,.12);color:#1a7a4a}
+.pill-gold{background:rgba(201,168,76,.12);color:#8a6020}
+.pill-blue{background:rgba(13,110,110,.1);color:var(--teal)}
+.pill-muted{background:rgba(107,153,153,.1);color:var(--muted)}
+.pill-red{background:rgba(224,82,82,.12);color:var(--red)}
+.act-btn{background:none;border:1.5px solid var(--border);border-radius:50px;padding:6px 16px;font-size:.74rem;cursor:pointer;color:var(--teal);font-family:inherit;transition:all .2s}
+.act-btn:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
+
+/* Wishlist */
+.wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.wish-card{border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s}
+.wish-card:hover{transform:translateY(-3px);border-color:rgba(13,110,110,.3)}
+.wish-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:linear-gradient(135deg,rgba(78,205,196,.14),rgba(13,110,110,.07))}
+.wish-body{padding:11px}
+.wish-name{font-size:.83rem;font-weight:500;color:var(--dark);margin-bottom:3px}
+.wish-price{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--teal);font-weight:600}
+.wish-add-btn{width:100%;background:var(--teal);color:#fff;border:none;border-radius:50px;padding:6px;font-size:.73rem;cursor:pointer;font-family:inherit;margin-top:7px;transition:background .2s}
+.wish-add-btn:hover{background:var(--teal2)}
+
+/* Addresses */
+.addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.addr-card{border:1.5px solid var(--border);border-radius:14px;padding:18px;position:relative;transition:border .2s}
+.addr-card.default{border-color:var(--teal);background:rgba(13,110,110,.03)}
+.addr-def-badge{position:absolute;top:11px;right:11px;background:var(--teal);color:#fff;border-radius:50px;padding:2px 9px;font-size:.67rem;font-weight:600}
+body.ar .addr-def-badge{right:auto;left:11px}
+.addr-name-txt{font-weight:500;font-size:.86rem;margin-bottom:5px}
+.addr-detail-txt{font-size:.79rem;color:var(--muted);line-height:1.7}
+.addr-acts{display:flex;gap:7px;margin-top:11px}
+.addr-act-btn{background:none;border:1px solid var(--border);border-radius:50px;padding:4px 12px;font-size:.73rem;cursor:pointer;font-family:inherit;color:var(--muted);transition:all .2s}
+.addr-act-btn:hover{border-color:var(--teal);color:var(--teal)}
+.addr-add{border:1.5px dashed var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:all .2s;min-height:130px}
+.addr-add:hover{border-color:var(--teal);background:rgba(13,110,110,.03)}
+.addr-add-icon{font-size:1.6rem;color:var(--muted)}
+.addr-add-txt{font-size:.8rem;color:var(--muted)}
+
+/* Settings */
+.set-section{margin-bottom:26px}
+.set-section-title{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,.2)}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(13,110,110,.06)}
+.tgl-row:last-child{border:none}
+.tgl-lbl{font-size:.84rem;color:var(--text)}
+.tgl-sub{font-size:.73rem;color:var(--muted);margin-top:2px}
+.tgl{position:relative;width:40px;height:22px;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0}
+.tgl-slider{position:absolute;inset:0;background:rgba(13,110,110,.12);border-radius:50px;cursor:pointer;transition:.28s}
+.tgl-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.28s}
+.tgl input:checked+.tgl-slider{background:var(--teal)}
+.tgl input:checked+.tgl-slider::before{transform:translateX(18px);background:#fff}
+.danger-zone{background:rgba(224,82,82,.05);border:1.5px solid rgba(224,82,82,.2);border-radius:14px;padding:20px;margin-top:18px}
+.btn-danger{background:none;border:1.5px solid var(--red);color:var(--red);border-radius:50px;padding:8px 22px;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-danger:hover{background:var(--red);color:#fff}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:#fff;border-radius:13px;padding:12px 18px;font-size:.82rem;z-index:9999;transform:translateY(60px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:9px;box-shadow:0 8px 32px rgba(0,0,0,.25);max-width:320px}
+body.ar .toast{right:auto;left:24px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--cream);border-radius:20px;padding:32px;width:450px;max-width:95vw;transform:translateY(18px);transition:transform .25s;max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--dark);margin-bottom:18px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+.btn-sm{border-radius:50px;padding:9px 22px;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s;border:1.5px solid var(--border);background:#fff;color:var(--muted)}
+.btn-sm:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn-sm.primary:hover{background:var(--teal2)}
+
+/* Spinner */
+.spin{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RTL */
+body.ar .topnav{flex-direction:row-reverse}
+body.ar .nav-right{flex-direction:row-reverse}
+body.ar .auth-wrap{direction:rtl}
+body.ar .frow{direction:rtl}
+body.ar .chk-row{flex-direction:row-reverse}
+body.ar .social-btns{direction:rtl}
+body.ar .prof-wrap{direction:rtl}
+body.ar .pnav-item{flex-direction:row-reverse}
+body.ar .order-top,.body.ar .order-bot{flex-direction:row-reverse}
+body.ar .addr-acts,.body.ar .modal-footer{flex-direction:row-reverse}
+body.ar .tab-title{direction:rtl}
+
+@media(max-width:900px){
+  .topnav{padding:14px 20px}
+  .auth-wrap{grid-template-columns:1fr}
+  .auth-visual{display:none}
+  .prof-wrap{grid-template-columns:1fr;padding:16px 16px 60px}
+  .frow{grid-template-columns:1fr}
+  .wish-grid{grid-template-columns:1fr 1fr}
+  .addr-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TOPNAV ═══════════════ -->
+<div class="topnav">
+  <a class="logo" href="/">Al<span>jaser</span></a>
+  <div class="nav-right">
+    <button class="lang-btn" id="lang-btn" onclick="toggleLang()">🌐 العربية</button>
+    <a class="back-btn" href="/" id="back-link">← Back to Store</a>
+  </div>
+</div>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE: LOGIN
+════════════════════════════════════════════════════ -->
+<div class="page active" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-visual">
+      <div class="av-bg-text" id="av-wm1">Water</div>
+      <div class="av-logo">Al<span>jaser</span></div>
+      <div class="av-tag" id="av-tag1">Pure Nature. Delivered to Your Door.</div>
+      <div class="av-feats">
+        <div class="av-feat"><div class="av-feat-icon">📦</div><div><div class="av-feat-title" id="af1t">Track Your Orders</div><div class="av-feat-sub" id="af1s">Real-time delivery updates</div></div></div>
+        <div class="av-feat"><div class="av-feat-icon">❤️</div><div><div class="av-feat-title" id="af2t">Save Favourites</div><div class="av-feat-sub" id="af2s">Build your wishlist</div></div></div>
+        <div class="av-feat"><div class="av-feat-icon">🏷️</div><div><div class="av-feat-title" id="af3t">Exclusive Offers</div><div class="av-feat-sub" id="af3s">Members-only deals</div></div></div>
+      </div>
+    </div>
+    <div class="auth-form-side">
+      <div class="auth-box">
+        <div class="auth-title" id="login-h">Welcome Back</div>
+        <p class="auth-sub" id="login-sub">Don't have an account? <a onclick="showPage('signup')" id="go-signup">Create one free →</a></p>
+
+        <div class="social-btns">
+          <button class="social-btn" onclick="toast('🔗 Google login coming soon!')">🔴 <span id="g-txt">Google</span></button>
+          <button class="social-btn" onclick="toast('🔗 Apple login coming soon!')">⚫ <span id="a-txt">Apple</span></button>
+        </div>
+        <div class="divider"><span id="or1">or sign in with email</span></div>
+
+        <div class="fg">
+          <label id="ll-email">Email Address</label>
+          <div class="inp-wrap">
+            <input type="email" id="l-email" placeholder="your.email@domain.com" onkeydown="if(event.key==='Enter')doLogin()"/>
+            <span class="inp-icon">✉️</span>
+          </div>
+          <span class="err" id="l-email-err">Please enter a valid email</span>
+        </div>
+        <div class="fg">
+          <label id="ll-pass">Password</label>
+          <div class="inp-wrap">
+            <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+            <span class="inp-icon eye-icon" onclick="toggleEye('l-pass',this)">👁️</span>
+          </div>
+          <span class="err" id="l-pass-err">Password is required</span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:.8rem">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;color:var(--muted)">
+            <input type="checkbox" style="accent-color:var(--teal)"/> <span id="remember-lbl">Remember me</span>
+          </label>
+          <a onclick="showPage('forgot')" style="color:var(--teal);cursor:pointer;font-size:.8rem" id="forgot-lnk">Forgot password?</a>
+        </div>
+
+        <button class="btn-main" id="login-btn" onclick="doLogin()">
+          <span id="login-btn-txt">Sign In</span>
+        </button>
+        <p style="text-align:center;font-size:.74rem;color:var(--muted);margin-top:14px" id="demo-hint">Enter any email + any password</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE: SIGN UP
+════════════════════════════════════════════════════ -->
+<div class="page" id="page-signup">
+  <div class="auth-wrap">
+    <div class="auth-visual">
+      <div class="av-bg-text">Join</div>
+      <div class="av-logo">Al<span>jaser</span></div>
+      <div class="av-tag" id="av-tag2">Join thousands of happy customers</div>
+      <div class="av-feats">
+        <div class="av-feat"><div class="av-feat-icon">🚚</div><div><div class="av-feat-title" id="af4t">Free Shipping</div><div class="av-feat-sub" id="af4s">Orders over 50 SAR</div></div></div>
+        <div class="av-feat"><div class="av-feat-icon">🌿</div><div><div class="av-feat-title" id="af5t">100% Natural</div><div class="av-feat-sub" id="af5s">No chemicals, no additives</div></div></div>
+        <div class="av-feat"><div class="av-feat-icon">⭐</div><div><div class="av-feat-title" id="af6t">Loyalty Points</div><div class="av-feat-sub" id="af6s">Earn with every purchase</div></div></div>
+      </div>
+    </div>
+    <div class="auth-form-side">
+      <div class="auth-box">
+        <div class="auth-title" id="signup-h">Create Account</div>
+        <p class="auth-sub" id="signup-sub">Already have an account? <a onclick="showPage('login')" id="go-login">Sign in →</a></p>
+
+        <div class="social-btns">
+          <button class="social-btn" onclick="toast('🔗 Google login coming soon!')">🔴 <span id="g-txt2">Google</span></button>
+          <button class="social-btn" onclick="toast('🔗 Apple login coming soon!')">⚫ <span id="a-txt2">Apple</span></button>
+        </div>
+        <div class="divider"><span id="or2">or create with email</span></div>
+
+        <div class="frow">
+          <div class="fg">
+            <label id="sl-fn">First Name</label>
+            <div class="inp-wrap"><input type="text" id="s-fn" placeholder="Mohammed"/><span class="inp-icon">👤</span></div>
+            <span class="err" id="s-fn-err">Required</span>
+          </div>
+          <div class="fg">
+            <label id="sl-ln">Last Name</label>
+            <div class="inp-wrap"><input type="text" id="s-ln" placeholder="Al-Rashidi"/><span class="inp-icon">👤</span></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label id="sl-email">Email Address</label>
+          <div class="inp-wrap"><input type="email" id="s-email" placeholder="your.email@domain.com"/><span class="inp-icon">✉️</span></div>
+          <span class="err" id="s-email-err">Please enter a valid email</span>
+        </div>
+        <div class="fg">
+          <label id="sl-phone">Phone (WhatsApp)</label>
+          <div class="inp-wrap"><input type="tel" id="s-phone" placeholder="+966 5x xxx xxxx"/><span class="inp-icon">📱</span></div>
+        </div>
+        <div class="fg">
+          <label id="sl-pass">Password</label>
+          <div class="inp-wrap">
+            <input type="password" id="s-pass" placeholder="Min. 8 characters" oninput="strengthCheck(this.value)"/>
+            <span class="inp-icon eye-icon" onclick="toggleEye('s-pass',this)">👁️</span>
+          </div>
+          <div class="pw-bars"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div><div class="pw-bar" id="pb4"></div></div>
+          <div class="pw-lbl" id="pw-lbl">Enter a strong password</div>
+          <span class="err" id="s-pass-err">Min. 8 characters required</span>
+        </div>
+        <div class="fg">
+          <label id="sl-city">City</label>
+          <div class="inp-wrap">
+            <select id="s-city">
+              <option value="">Select city / اختر المدينة</option>
+              <option>Riyadh · الرياض</option>
+              <option>Jeddah · جدة</option>
+              <option>Dammam · الدمام</option>
+              <option>Khobar · الخبر</option>
+              <option>Mecca · مكة</option>
+              <option>Medina · المدينة</option>
+            </select>
+            <span class="inp-icon">📍</span>
+          </div>
+        </div>
+        <div class="chk-row">
+          <input type="checkbox" id="s-terms"/>
+          <label for="s-terms" id="sl-terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+        </div>
+        <div class="chk-row">
+          <input type="checkbox" id="s-news" checked/>
+          <label for="s-news" id="sl-news">Send me promotions and new product alerts</label>
+        </div>
+        <button class="btn-main" id="signup-btn" onclick="doSignup()">
+          <span id="signup-btn-txt">Create Account</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE: OTP
+════════════════════════════════════════════════════ -->
+<div class="page" id="page-otp">
+  <div class="auth-wrap">
+    <div class="auth-visual">
+      <div class="av-bg-text">OTP</div>
+      <div class="av-logo">Al<span>jaser</span></div>
+      <div class="av-tag" id="av-tag3">Your account is secure</div>
+      <div class="av-feats">
+        <div class="av-feat"><div class="av-feat-icon">🔒</div><div><div class="av-feat-title" id="af7t">Secure Verification</div><div class="av-feat-sub" id="af7s">Your data is always protected</div></div></div>
+      </div>
+    </div>
+    <div class="auth-form-side">
+      <div class="auth-box" style="text-align:center">
+        <div style="font-size:3.2rem;margin-bottom:14px">📱</div>
+        <div class="auth-title" id="otp-h">Verify Your Account</div>
+        <p class="auth-sub" id="otp-sub-p" style="text-align:center">We sent a 6-digit code to <strong id="otp-email-show" style="color:var(--teal)">your email</strong></p>
+        <div class="otp-row">
+          <input class="otp-box" type="text" maxlength="1" id="otp0" oninput="otpMove(0)"/>
+          <input class="otp-box" type="text" maxlength="1" id="otp1" oninput="otpMove(1)"/>
+          <input class="otp-box" type="text" maxlength="1" id="otp2" oninput="otpMove(2)"/>
+          <input class="otp-box" type="text" maxlength="1" id="otp3" oninput="otpMove(3)"/>
+          <input class="otp-box" type="text" maxlength="1" id="otp4" oninput="otpMove(4)"/>
+          <input class="otp-box" type="text" maxlength="1" id="otp5" oninput="otpMove(5)"/>
+        </div>
+        <p style="font-size:.76rem;color:var(--muted);margin-bottom:22px" id="otp-hint">💡 Enter any 6 digits for demo</p>
+        <button class="btn-main" id="otp-btn" onclick="doVerifyOTP()">
+          <span id="otp-btn-txt">Verify Code</span>
+        </button>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:16px">
+          <span id="resend-txt">Didn't receive it?</span>
+          <button class="btn-link" onclick="toast('📱 Code resent!')" id="resend-btn">Resend</button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE: FORGOT PASSWORD
+════════════════════════════════════════════════════ -->
+
+<!-- PAGE: SIGNUP CONFIRM -->
+<div class="page" id="page-signup-confirm">
+  <div class="auth-wrap">
+    <div class="auth-visual">
+      <div class="av-logo">Al<span>jaser</span></div>
+      <div class="av-tag" id="av-tag-3">Pure · Natural · Herbal</div>
+      <div style="font-size:5rem;z-index:1">📧</div>
+    </div>
+    <div class="auth-form-side">
+      <div class="auth-box" style="text-align:center">
+        <div style="font-size:4rem;margin-bottom:16px">✅</div>
+        <div class="auth-title" id="confirm-h">Check Your Email</div>
+        <p class="auth-sub" style="text-align:center" id="confirm-sub">We sent a confirmation link to your email address. Click it to activate your account, then come back to sign in.</p>
+        <button class="auth-btn" onclick="showPage('login')" style="margin-top:24px">
+          <span id="confirm-btn-txt">Back to Sign In</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-forgot">
+  <div class="auth-wrap">
+    <div class="auth-visual">
+      <div class="av-bg-text">Reset</div>
+      <div class="av-logo">Al<span>jaser</span></div>
+      <div class="av-tag" id="av-tag4">It happens to everyone</div>
+      <div class="av-feats">
+        <div class="av-feat"><div class="av-feat-icon">📧</div><div><div class="av-feat-title" id="af8t">Email Reset Link</div><div class="av-feat-sub" id="af8s">Check your inbox in seconds</div></div></div>
+      </div>
+    </div>
+    <div class="auth-form-side">
+      <div class="auth-box">
+        <div style="font-size:2.4rem;margin-bottom:14px">🔑</div>
+        <div class="auth-title" id="forgot-h">Reset Password</div>
+        <p class="auth-sub" id="forgot-sub">Enter your email and we'll send you a reset link. <a onclick="showPage('login')" id="forgot-back">Back to login →</a></p>
+        <div class="fg">
+          <label id="fl-email">Email Address</label>
+          <div class="inp-wrap"><input type="email" id="f-email" placeholder="your.email@domain.com" onkeydown="if(event.key==='Enter')doForgot()"/><span class="inp-icon">✉️</span></div>
+        </div>
+        <button class="btn-main" id="forgot-btn" onclick="doForgot()">
+          <span id="forgot-btn-txt">Send Reset Link</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE: PROFILE DASHBOARD
+════════════════════════════════════════════════════ -->
+<div class="page" id="page-profile">
+  <div class="prof-wrap">
+
+    <!-- SIDEBAR -->
+    <div class="prof-sidebar">
+      <div class="prof-card">
+        <div class="avatar-wrap">
+          <div class="avatar" id="prof-av">M</div>
+          <div class="prof-name-disp" id="prof-name-disp">Mohammed</div>
+          <div class="prof-email-disp" id="prof-email-disp">—</div>
+          <div style="text-align:center"><div class="prof-badge-disp">⭐ <span id="prof-badge-lbl">Loyal Member</span></div></div>
+        </div>
+      </div>
+      <div class="prof-card">
+        <div class="pnav">
+          <div class="pnav-item active" onclick="switchTab('overview')" id="pn-overview"><span class="pnav-icon">📊</span><span id="pn-lbl-overview">Overview</span></div>
+          <div class="pnav-item" onclick="switchTab('orders')" id="pn-orders"><span class="pnav-icon">📦</span><span id="pn-lbl-orders">My Orders</span></div>
+          <div class="pnav-item" onclick="switchTab('wishlist')" id="pn-wishlist"><span class="pnav-icon">❤️</span><span id="pn-lbl-wishlist">Wishlist</span></div>
+          <div class="pnav-item" onclick="switchTab('addresses')" id="pn-addresses"><span class="pnav-icon">📍</span><span id="pn-lbl-addresses">Addresses</span></div>
+          <div class="pnav-item" onclick="switchTab('settings')" id="pn-settings"><span class="pnav-icon">⚙️</span><span id="pn-lbl-settings">Settings</span></div>
+          <div class="pnav-item" onclick="doLogout()" style="color:var(--red);margin-top:6px"><span class="pnav-icon">🚪</span><span id="pn-lbl-logout">Logout</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div>
+
+      <!-- OVERVIEW -->
+      <div class="ptab active" id="ptab-overview">
+        <div class="stats-row">
+          <div class="mini-stat"><div class="mini-val" id="stat-orders">4</div><div class="mini-lbl" id="stat-orders-lbl">Orders</div></div>
+          <div class="mini-stat"><div class="mini-val" id="stat-spent">160</div><div class="mini-lbl" id="stat-spent-lbl">SAR Spent</div></div>
+          <div class="mini-stat"><div class="mini-val" id="stat-pts">320</div><div class="mini-lbl" id="stat-pts-lbl">Points</div></div>
+        </div>
+        <div class="tab-card">
+          <div class="tab-title" id="ov-orders-title">📦 Recent Orders</div>
+          <div id="ov-orders"></div>
+          <button class="act-btn" onclick="switchTab('orders')" id="view-all-btn" style="margin-top:4px">View All Orders →</button>
+        </div>
+        <div class="tab-card">
+          <div class="tab-title" id="ov-promo-title">🏷️ Your Promo Code</div>
+          <div style="background:var(--sand);border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:var(--teal);letter-spacing:2px">WELCOME10</div>
+              <div style="font-size:.76rem;color:var(--muted);margin-top:2px" id="promo-exp-txt">10% off your next order — expires Dec 2025</div>
+            </div>
+            <button class="act-btn" onclick="copyCode()" id="copy-code-btn">📋 Copy Code</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="ptab" id="ptab-orders">
+        <div class="tab-card">
+          <div class="tab-title" id="orders-tab-title">📦 My Orders</div>
+          <div id="all-orders"></div>
+        </div>
+      </div>
+
+      <!-- WISHLIST -->
+      <div class="ptab" id="ptab-wishlist">
+        <div class="tab-card">
+          <div class="tab-title" id="wish-tab-title">❤️ My Wishlist</div>
+          <div class="wish-grid" id="wish-grid"></div>
+        </div>
+      </div>
+
+      <!-- ADDRESSES -->
+      <div class="ptab" id="ptab-addresses">
+        <div class="tab-card">
+          <div class="tab-title" id="addr-tab-title">📍 My Addresses</div>
+          <div class="addr-grid">
+            <div class="addr-card default">
+              <div class="addr-def-badge" id="addr-default-badge">Default</div>
+              <div class="addr-name-txt" id="addr1-name">Mohammed Al-Rashidi</div>
+              <div class="addr-detail-txt" id="addr1-detail">Al-Olaya District<br>King Fahd Road, Building 7<br>Riyadh, 12345</div>
+              <div class="addr-acts">
+                <button class="addr-act-btn" onclick="toast('✏️ Edit address')"><span id="edit-lbl">✏️ Edit</span></button>
+                <button class="addr-act-btn" onclick="toast('🗑️ Address removed')"><span id="del-lbl">🗑️ Delete</span></button>
+              </div>
+            </div>
+            <div class="addr-add" onclick="openAddrModal()">
+              <div class="addr-add-icon">＋</div>
+              <div class="addr-add-txt" id="add-addr-lbl">Add New Address</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="ptab" id="ptab-settings">
+        <div class="tab-card">
+          <div class="tab-title" id="settings-tab-title">⚙️ Account Settings</div>
+
+          <div class="set-section">
+            <div class="set-section-title" id="set-personal-lbl">Personal Information</div>
+            <div class="frow">
+              <div class="fg"><label id="set-fn-lbl">First Name</label><div class="inp-wrap"><input type="text" id="set-fn" value="Mohammed"/><span class="inp-icon">👤</span></div></div>
+              <div class="fg"><label id="set-ln-lbl">Last Name</label><div class="inp-wrap"><input type="text" id="set-ln" value="Al-Rashidi"/><span class="inp-icon">👤</span></div></div>
+            </div>
+            <div class="fg"><label id="set-email-lbl">Email Address</label><div class="inp-wrap"><input type="email" id="set-email"/><span class="inp-icon">✉️</span></div></div>
+            <div class="fg"><label id="set-phone-lbl">Phone (WhatsApp)</label><div class="inp-wrap"><input type="tel" id="set-phone" value="+966 50 000 0000"/><span class="inp-icon">📱</span></div></div>
+          </div>
+
+          <div class="set-section">
+            <div class="set-section-title" id="set-pass-lbl">Change Password</div>
+            <div class="fg"><label id="set-oldp-lbl">Current Password</label><div class="inp-wrap"><input type="password" placeholder="••••••••"/><span class="inp-icon">🔒</span></div></div>
+            <div class="frow">
+              <div class="fg"><label id="set-newp-lbl">New Password</label><div class="inp-wrap"><input type="password" placeholder="••••••••"/><span class="inp-icon">🔑</span></div></div>
+              <div class="fg"><label id="set-confp-lbl">Confirm</label><div class="inp-wrap"><input type="password" placeholder="••••••••"/><span class="inp-icon">🔑</span></div></div>
+            </div>
+          </div>
+
+          <div class="set-section">
+            <div class="set-section-title" id="set-notif-lbl">Notifications</div>
+            <div class="tgl-row"><div><div class="tgl-lbl" id="n1-lbl">Order Updates</div><div class="tgl-sub" id="n1-sub">SMS & email when order status changes</div></div><label class="tgl"><input type="checkbox" checked/><span class="tgl-slider"></span></label></div>
+            <div class="tgl-row"><div><div class="tgl-lbl" id="n2-lbl">Promotions & Deals</div><div class="tgl-sub" id="n2-sub">Exclusive offers and new products</div></div><label class="tgl"><input type="checkbox" checked/><span class="tgl-slider"></span></label></div>
+            <div class="tgl-row"><div><div class="tgl-lbl" id="n3-lbl">WhatsApp Notifications</div><div class="tgl-sub" id="n3-sub">Receive updates via WhatsApp</div></div><label class="tgl"><input type="checkbox"/><span class="tgl-slider"></span></label></div>
+          </div>
+
+          <button class="btn-main" style="max-width:220px" onclick="saveSettings()" id="save-btn">💾 Save Changes</button>
+
+          <div class="danger-zone">
+            <div style="color:var(--red);font-size:.85rem;font-weight:500;margin-bottom:7px" id="danger-title">⚠️ Danger Zone</div>
+            <div style="font-size:.79rem;color:var(--muted);line-height:1.6;margin-bottom:13px" id="danger-sub">Deleting your account is permanent. All orders, wishlist and data will be removed.</div>
+            <button class="btn-danger" onclick="openDeleteModal()" id="del-acc-btn">Delete My Account</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end tabs wrapper -->
+  </div><!-- end prof-wrap -->
+</div>
+
+<!-- ADDRESS MODAL -->
+<div class="modal-overlay" id="addr-modal">
+  <div class="modal">
+    <div class="modal-title" id="addr-modal-title">Add New Address</div>
+    <div class="fg"><label id="am-name-lbl">Full Name</label><div class="inp-wrap"><input type="text" id="am-name" placeholder="Mohammed Al-Rashidi"/></div></div>
+    <div class="fg"><label id="am-city-lbl">City</label>
+      <div class="inp-wrap">
+        <select id="am-city">
+          <option>Riyadh · الرياض</option><option>Jeddah · جدة</option><option>Dammam · الدمام</option><option>Khobar · الخبر</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label id="am-dist-lbl">District</label><div class="inp-wrap"><input type="text" id="am-dist" placeholder="Al-Olaya / العليا"/></div></div>
+    <div class="fg"><label id="am-street-lbl">Street & Building</label><div class="inp-wrap"><input type="text" id="am-street" placeholder="King Fahd Rd, Building 7"/></div></div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('addr-modal')" id="am-cancel">Cancel</button>
+      <button class="btn-sm primary" onclick="saveAddr()" id="am-save">Save Address</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT MODAL -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal">
+    <div class="modal-title" id="del-modal-title" style="color:var(--red)">⚠️ Delete Account</div>
+    <p style="font-size:.86rem;color:var(--muted);line-height:1.7;margin-bottom:18px" id="del-modal-sub">This action is permanent and cannot be undone. Type <strong>DELETE</strong> to confirm.</p>
+    <div class="fg"><input type="text" id="del-confirm-inp" placeholder="Type DELETE to confirm"/></div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal('del-modal')" id="del-cancel">Cancel</button>
+      <button class="btn-sm" style="background:var(--red);color:#fff;border-color:var(--red)" onclick="confirmDelete()" id="del-confirm-btn">Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  SUPABASE INIT
+// ══════════════════════════════════════════════
+const _supa = window.supabase.createClient(
+  'https://zpscjsufkqxvckdsohrj.supabase.co',
+  'sb_publishable_oPIIHhEEK4i8qjfL1Iigzg_mdpDqeRo'
+);
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let currentUser = null;
+let isAr = false;
+
+// Orders are loaded from Supabase in renderOrders()
+
+const wishlistItems = [
+  {emoji:'🌹', en:'Rose Water',  ar:'ماء الورد',   price:12},
+  {emoji:'🌼', en:'Chamomile Water', ar:'ماء البابونج', price:14},
+  {emoji:'💜', en:'Lavender Water',  ar:'ماء اللافندر', price:16},
+  {emoji:'🌸', en:'Jasmine Concentrate', ar:'مركّز الياسمين', price:28},
+  {emoji:'🟢', en:'Mint Water',      ar:'ماء النعناع',  price:11},
+];
+
+// ══════════════════════════════════════════════
+//  PAGE NAVIGATION
+// ══════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════════
+//  SUPABASE AUTH — LOGIN
+// ══════════════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+
+  document.getElementById('l-email-err').classList.remove('show');
+  document.getElementById('l-pass-err').classList.remove('show');
+
+  if (!email.includes('@')) { document.getElementById('l-email-err').classList.add('show'); return; }
+  if (!pass)                 { document.getElementById('l-pass-err').classList.add('show'); return; }
+
+  setLoading('login-btn','login-btn-txt',true);
+
+  const { data, error } = await _supa.auth.signInWithPassword({ email, password: pass });
+
+  setLoading('login-btn','login-btn-txt',false, isAr?'تسجيل الدخول':'Sign In');
+
+  if (error) {
+    toast(isAr ? '❌ البريد أو كلمة المرور غير صحيحة' : '❌ Incorrect email or password');
+    return;
+  }
+
+  currentUser = data.user;
+  loadProfile();
+  showPage('profile');
+  toast(isAr ? '✅ مرحباً بعودتك!' : '✅ Welcome back!');
+}
+
+// ══════════════════════════════════════════════
+//  SUPABASE AUTH — SIGN UP
+// ══════════════════════════════════════════════
+async function doSignup() {
+  const fn    = document.getElementById('s-fn').value.trim();
+  const email = document.getElementById('s-email').value.trim();
+  const pass  = document.getElementById('s-pass').value;
+  const terms = document.getElementById('s-terms').checked;
+
+  document.getElementById('s-fn-err').classList.remove('show');
+  document.getElementById('s-email-err').classList.remove('show');
+  document.getElementById('s-pass-err').classList.remove('show');
+
+  let ok = true;
+  if (!fn)                  { document.getElementById('s-fn-err').classList.add('show'); ok = false; }
+  if (!email.includes('@')) { document.getElementById('s-email-err').classList.add('show'); ok = false; }
+  if (pass.length < 8)      { document.getElementById('s-pass-err').classList.add('show'); ok = false; }
+  if (!terms)               { toast(isAr ? '⚠️ يجب الموافقة على الشروط' : '⚠️ Please accept the terms'); ok = false; }
+  if (!ok) return;
+
+  setLoading('signup-btn','signup-btn-txt',true);
+
+  const { data, error } = await _supa.auth.signUp({
+    email,
+    password: pass,
+    options: { data: { full_name: fn } }
+  });
+
+  setLoading('signup-btn','signup-btn-txt',false, isAr?'إنشاء الحساب':'Create Account');
+
+  if (error) {
+    toast('❌ ' + (error.message || (isAr ? 'خطأ في إنشاء الحساب' : 'Could not create account')));
+    return;
+  }
+
+  // If session exists, user is logged in immediately (email confirm disabled)
+  // Otherwise show the confirm page
+  const { data: { session } } = await _supa.auth.getSession();
+  if (session && session.user) {
+    currentUser = session.user;
+    loadProfile();
+    showPage('profile');
+    toast(isAr ? '✅ مرحباً بك في الجسر!' : '✅ Welcome to Aljaser!');
+  } else {
+    toast(isAr ? '📧 تحقق من بريدك لتأكيد الحساب!' : '📧 Check your email to confirm your account!');
+    showPage('signup-confirm');
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SUPABASE AUTH — FORGOT PASSWORD
+// ══════════════════════════════════════════════
+async function doForgot() {
+  const email = document.getElementById('f-email').value.trim();
+  if (!email.includes('@')) { toast(isAr ? '⚠️ أدخل بريداً صحيحاً' : '⚠️ Enter a valid email'); return; }
+
+  setLoading('forgot-btn','forgot-btn-txt',true);
+
+  const { error } = await _supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/account.html'
+  });
+
+  setLoading('forgot-btn','forgot-btn-txt',false, isAr?'إرسال رابط الاسترداد':'Send Reset Link');
+
+  if (error) { toast('❌ ' + error.message); return; }
+  toast(isAr ? '📧 تم إرسال رابط الاسترداد! تحقق من بريدك.' : '📧 Reset link sent! Check your inbox.');
+  showPage('login');
+}
+
+// ══════════════════════════════════════════════
+//  SUPABASE AUTH — LOGOUT
+// ══════════════════════════════════════════════
+async function doLogout() {
+  await _supa.auth.signOut();
+  currentUser = null;
+  document.getElementById('l-email').value = '';
+  document.getElementById('l-pass').value  = '';
+  showPage('login');
+  toast(isAr ? '👋 تم تسجيل الخروج بنجاح' : '👋 Logged out successfully');
+}
+
+// ══════════════════════════════════════════════
+//  PROFILE
+// ══════════════════════════════════════════════
+function loadProfile() {
+  if (!currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  const name = meta.full_name || currentUser.email.split('@')[0];
+  const email = currentUser.email;
+  const joined = new Date(currentUser.created_at).toLocaleDateString('en-GB',{year:'numeric',month:'long'});
+
+  // Header
+  const el = id => document.getElementById(id);
+  if(el('prof-avatar-letter')) el('prof-avatar-letter').textContent = name.charAt(0).toUpperCase();
+  if(el('prof-name'))  el('prof-name').textContent  = name;
+  if(el('prof-email')) el('prof-email').textContent = email;
+  if(el('prof-joined-val')) el('prof-joined-val').textContent = joined;
+  if(el('prof-orders-val')) el('prof-orders-val').textContent = sampleOrders.length;
+  if(el('prof-spent-val'))  el('prof-spent-val').textContent = sampleOrders.reduce((s,o)=>s+o.total,0) + ' SAR';
+
+  // Settings fields
+  const nameParts = name.split(' ');
+  if(el('set-fname')) el('set-fname').value = nameParts[0] || '';
+  if(el('set-lname')) el('set-lname').value = nameParts.slice(1).join(' ') || '';
+  if(el('set-email')) el('set-email').value = email;
+
+  renderOrders();  // async — loads from Supabase
+  renderWishlist();
+}
+
+async function renderOrders() {
+  const el = document.getElementById('orders-list');
+  if (!el) return;
+
+  if (!currentUser) {
+    el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:32px">${isAr?'سجّل دخولك لرؤية طلباتك':'Sign in to see your orders'}</p>`;
+    return;
+  }
+
+  el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:24px">Loading orders...</p>`;
+
+  try {
+    // Fetch orders from Supabase where email matches
+    const { data: rows, error } = await _supa
+      .from('orders')
+      .select('data, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Filter by current user email
+    const userOrders = (rows || [])
+      .map(r => r.data)
+      .filter(o => o && o.email && o.email.toLowerCase() === currentUser.email.toLowerCase());
+
+    if (userOrders.length === 0) {
+      el.innerHTML = `<div style="text-align:center;padding:48px;color:var(--muted)">
+        <div style="font-size:2.5rem;margin-bottom:12px">📦</div>
+        <p>${isAr?'لا توجد طلبات بعد':'No orders yet'}</p>
+        <a href="/" style="color:var(--teal);font-weight:500;font-size:.85rem">${isAr?'تسوّق الآن →':'Shop Now →'}</a>
+      </div>`;
+      // Update stats
+      const spentEl = document.getElementById('prof-spent-val');
+      const ordersEl = document.getElementById('prof-orders-val');
+      if(spentEl) spentEl.textContent = '0 SAR';
+      if(ordersEl) ordersEl.textContent = '0';
+      return;
+    }
+
+    // Update stats
+    const totalSpent = userOrders.reduce((s,o)=>s+(o.total||0),0);
+    const spentEl = document.getElementById('prof-spent-val');
+    const ordersEl = document.getElementById('prof-orders-val');
+    if(spentEl) spentEl.textContent = totalSpent.toFixed(0) + ' SAR';
+    if(ordersEl) ordersEl.textContent = userOrders.length;
+
+    const statusColor = {pending:'#c9a84c',processing:'#3b82f6',shipped:'#8b5cf6',delivered:'#27ae60',cancelled:'#e05252'};
+    const getItems = o => {
+      if(typeof o.items==='string') return o.items;
+      if(Array.isArray(o.items)) return o.items.map(i=>`${isAr?i.ar:i.en} ×${i.qty}`).join(', ');
+      return o.itemsText || '—';
+    };
+
+    el.innerHTML = userOrders.map(o => {
+      const st = o.status || 'pending';
+      const color = statusColor[st] || '#666';
+      return `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-id">${o.id}</div>
+            <div class="order-date">${o.date || '—'}${o.city?' · '+o.city:''}</div>
+          </div>
+          <div class="order-status" style="background:${color}20;color:${color};border:1px solid ${color}40;padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em">
+            ${st.charAt(0).toUpperCase()+st.slice(1)}
+          </div>
+        </div>
+        <div class="order-items">${getItems(o)}</div>
+        <div class="order-total">${isAr?'الإجمالي':'Total'}: <strong>${o.total} SAR</strong></div>
+        ${o.note?`<div style="font-size:.75rem;color:var(--muted);margin-top:6px;font-style:italic">📝 ${o.note}</div>`:''}
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    console.error('Orders load failed:', e);
+    el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:24px">Could not load orders</p>`;
+  }
+}
+
+function renderWishlist() {
+  const el = document.getElementById('wishlist-grid');
+  if (!el) return;
+  el.innerHTML = wishlistItems.map(w => `
+    <div class="wish-card">
+      <div class="wish-emoji">${w.emoji}</div>
+      <div class="wish-name">${isAr?w.ar:w.en}</div>
+      <div class="wish-price">${w.price} SAR</div>
+      <button class="wish-add" onclick="toast(isAr?'✅ أُضيف للسلة':'✅ Added to cart!')">${isAr?'أضف للسلة':'Add to Cart'}</button>
+    </div>`).join('');
+}
+
+function saveProfile() {
+  toast(isAr ? '✅ تم حفظ الملف الشخصي' : '✅ Profile saved!');
+}
+
+// ══════════════════════════════════════════════
+//  PASSWORD STRENGTH
+// ══════════════════════════════════════════════
+function strengthCheck(pw) {
+  let score = 0;
+  if (pw.length >= 8)          score++;
+  if (/[A-Z]/.test(pw))        score++;
+  if (/[0-9]/.test(pw))        score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const cls  = ['weak','weak','fair','strong'];
+  const lbls = { en:['Too short','Weak','Fair','Strong'], ar:['قصيرة','ضعيفة','متوسطة','قوية'] };
+  for (let i = 1; i <= 4; i++) {
+    const bar = document.getElementById('pb'+i);
+    if(bar) bar.className = 'pw-bar' + (i <= score ? ' ' + cls[score-1] : '');
+  }
+  const lbl = document.getElementById('pw-lbl');
+  if(lbl) lbl.textContent = score > 0 ? lbls[isAr?'ar':'en'][score-1] : (isAr?'أدخل كلمة مرور':'Enter a password');
+}
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function setLoading(btnId, txtId, loading, label) {
+  const btn = document.getElementById(btnId);
+  const txt = document.getElementById(txtId);
+  if (!btn || !txt) return;
+  btn.disabled = loading;
+  txt.innerHTML = loading ? '<div class="spin"></div>' : (label || txt.textContent);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('pane-' + name).classList.add('active');
+  const btn = document.querySelector(`[onclick="switchTab('${name}')"]`);
+  if (btn) btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  LANGUAGE
+// ══════════════════════════════════════════════
+const T = {
+  en: {
+    'lang-btn':'🌐 العربية','back-link':'← Back to Store',
+    'login-h':'Welcome Back','go-signup':'Create one free →',
+    'signup-h':'Create Account','go-login':'Sign in →',
+    'login-btn-txt':'Sign In','signup-btn-txt':'Create Account',
+    'forgot-h':'Reset Password',
+  },
+  ar: {
+    'lang-btn':'🌐 English','back-link':'→ العودة للمتجر',
+    'login-h':'مرحباً بعودتك','go-signup':'أنشئ حساباً مجانياً →',
+    'signup-h':'إنشاء حساب','go-login':'تسجيل الدخول →',
+    'login-btn-txt':'تسجيل الدخول','signup-btn-txt':'إنشاء الحساب',
+    'forgot-h':'استعادة كلمة المرور',
+  }
+};
+
+function applyLang(lang) {
+  isAr = lang === 'ar';
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
+  isAr ? document.body.classList.add('ar') : document.body.classList.remove('ar');
+  const t = T[lang];
+  Object.keys(t).forEach(k => { const el=document.getElementById(k); if(el) el.textContent=t[k]; });
+  if (currentUser) { renderOrders(); renderWishlist(); }
+}
+function toggleLang() { applyLang(isAr ? 'en' : 'ar'); }
+
+// ══════════════════════════════════════════════
+//  INIT — Check existing session
+// ══════════════════════════════════════════════
+async function init() {
+  // Check if user already has a session
+  const { data: { session } } = await _supa.auth.getSession();
+  if (session && session.user) {
+    currentUser = session.user;
+    loadProfile();
+    showPage('profile');
+  } else {
+    showPage('login');
+  }
+
+  // Listen for auth state changes (e.g. email confirmation redirect)
+  _supa.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      loadProfile();
+      showPage('profile');
+      toast(isAr ? '✅ مرحباً بك!' : '✅ Welcome!');
+    }
+    if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      showPage('login');
+    }
+    if (event === 'PASSWORD_RECOVERY') {
+      showPage('forgot');
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Aljaser Admin — Control Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--sidebar:#161b22;--card:#1c2128;--border:#30363d;
+  --teal:#4ecdc4;--teal2:#2aaa9e;--gold:#c9a84c;--red:#f85149;
+  --green:#3fb950;--blue:#58a6ff;--yellow:#d29922;
+  --text:#e6edf3;--muted:#8b949e;--muted2:#6e7681;
+  --input:#0d1117;--radius:10px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body.ar{font-family:'Tajawal',sans-serif}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:40px;width:360px;text-align:center}
+.login-logo{font-size:2.2rem;font-weight:700;color:var(--teal);margin-bottom:4px}
+.login-logo span{color:var(--gold)}
+.login-sub{color:var(--muted);font-size:.82rem;margin-bottom:28px}
+.login-box input{width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:.88rem;font-family:inherit;color:var(--text);outline:none;margin-bottom:12px;transition:border .2s}
+.login-box input:focus{border-color:var(--teal)}
+.login-box button{width:100%;background:var(--teal);color:#0d1117;border:none;border-radius:8px;padding:12px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s}
+.login-box button:hover{background:var(--teal2)}
+.login-err{color:var(--red);font-size:.78rem;margin-top:8px;display:none}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh;display:grid;grid-template-columns:230px 1fr;grid-template-rows:56px 1fr}
+.topbar{grid-column:1/-1;background:var(--sidebar);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:1.2rem;font-weight:700;color:var(--teal)}
+.topbar-logo span{color:var(--gold)}
+.topbar-badge{background:rgba(78,205,196,.12);color:var(--teal);border-radius:50px;padding:2px 10px;font-size:.7rem;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.75rem;cursor:pointer;font-family:inherit;color:var(--muted);transition:all .2s}
+.topbar-btn:hover{border-color:var(--teal);color:var(--teal)}
+.sidebar{background:var(--sidebar);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:.84rem;color:var(--muted);transition:all .2s;border-left:2px solid transparent;margin:1px 0}
+.nav-item:hover{background:rgba(78,205,196,.06);color:var(--text)}
+.nav-item.active{background:rgba(78,205,196,.1);color:var(--teal);border-left-color:var(--teal)}
+.nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;border-radius:50px;padding:1px 7px;font-size:.65rem;font-weight:700}
+.nav-sep{height:1px;background:var(--border);margin:10px 16px}
+.main{padding:24px;overflow-y:auto}
+.tab{display:none}
+.tab.active{display:block}
+
+/* COMPONENTS */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:1.2rem;font-weight:600;color:var(--text)}
+.page-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
+.btn{border-radius:6px;padding:8px 16px;font-size:.78rem;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.btn-primary{background:var(--teal);color:#0d1117;border:none}
+.btn-primary:hover{background:var(--teal2)}
+.btn-danger{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{padding:5px 12px;font-size:.73rem}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.stat-val{font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-label{font-size:.75rem;color:var(--muted)}
+.stat-change{font-size:.73rem;margin-top:6px}
+.up{color:var(--green)} .down{color:var(--red)}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.table-toolbar{padding:14px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.search-inp{background:var(--input);border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:.8rem;font-family:inherit;color:var(--text);outline:none;width:220px;transition:border .2s}
+.search-inp:focus{border-color:var(--teal)}
+.filter-sel{background:var(--input);border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:.8rem;font-family:inherit;color:var(--text);outline:none;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:left;font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);font-weight:500}
+td{padding:12px 16px;font-size:.82rem;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.product-img-cell{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;flex-shrink:0}
+.product-img-cell img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.product-info{display:flex;align-items:center;gap:10px}
+.product-name{font-weight:500;color:var(--text);font-size:.84rem}
+.product-name-ar{font-size:.74rem;color:var(--muted);margin-top:2px}
+.pill{display:inline-block;border-radius:50px;padding:2px 10px;font-size:.68rem;font-weight:600;white-space:nowrap}
+.pill-teal{background:rgba(78,205,196,.12);color:var(--teal)}
+.pill-green{background:rgba(63,185,80,.12);color:var(--green)}
+.pill-red{background:rgba(248,81,73,.12);color:var(--red)}
+.pill-yellow{background:rgba(210,153,34,.12);color:var(--yellow)}
+.pill-blue{background:rgba(88,166,255,.12);color:var(--blue)}
+.pill-muted{background:rgba(110,118,129,.12);color:var(--muted)}
+.action-btns{display:flex;gap:6px;align-items:center}
+
+/* TOGGLE */
+.toggle{position:relative;width:38px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:50px;cursor:pointer;transition:.25s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--muted2);border-radius:50%;transition:.25s}
+.toggle input:checked+.toggle-slider{background:var(--teal)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:#0d1117}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;opacity:0;pointer-events:none;transition:.25s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(16px);transition:transform .25s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-size:1.05rem;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:.85rem;font-family:inherit;color:var(--text);outline:none;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--teal)}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.img-preview{width:100%;height:120px;border-radius:8px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;margin-top:8px;overflow:hidden;background:var(--input)}
+.img-preview img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.img-preview span{font-size:.78rem;color:var(--muted)}
+.img-source-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.img-src-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;cursor:pointer;font-family:inherit;color:var(--muted);transition:all .2s}
+.img-src-btn:hover{border-color:var(--teal);color:var(--teal)}
+.img-src-btn.active{border-color:var(--teal);background:rgba(78,205,196,.08);color:var(--teal)}
+.stock-warn{background:rgba(248,81,73,.06);border:1px solid rgba(248,81,73,.2);border-radius:6px;padding:8px 12px;font-size:.76rem;color:var(--red);margin-top:6px;display:none}
+.stock-warn.show{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px 18px;font-size:.82rem;z-index:9999;transform:translateY(50px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* CHART */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:24px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.chart-title{font-size:.84rem;font-weight:600;color:var(--text);margin-bottom:16px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--teal);opacity:.7;transition:opacity .2s;min-width:20px}
+.bar:hover{opacity:1}
+.bar-label{font-size:.62rem;color:var(--muted);text-align:center}
+.donut-wrap{display:flex;flex-direction:column;gap:8px}
+.donut-item{display:flex;align-items:center;gap:8px;font-size:.78rem}
+.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ORDER PILLS */
+.order-status-wrap select{background:var(--input);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.75rem;font-family:inherit;color:var(--text);outline:none;cursor:pointer}
+
+/* Settings */
+.settings-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px}
+.settings-section h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(48,54,61,.5)}
+.toggle-row:last-child{border:none}
+.tgl-label{font-size:.84rem;color:var(--text)}
+.tgl-sub{font-size:.73rem;color:var(--muted);margin-top:2px}
+
+/* Arabic */
+body.ar .sidebar{border-right:none;border-left:1px solid var(--border)}
+body.ar th{text-align:right}
+body.ar .topbar{flex-direction:row-reverse}
+body.ar .topbar-left{flex-direction:row-reverse}
+body.ar .nav-item{border-left:none;border-right:2px solid transparent;flex-direction:row-reverse}
+body.ar .nav-item.active{border-right-color:var(--teal)}
+body.ar .nav-badge{margin-left:0;margin-right:auto}
+body.ar .product-info{flex-direction:row-reverse}
+body.ar .action-btns{flex-direction:row-reverse}
+body.ar .page-header{flex-direction:row-reverse}
+body.ar .table-toolbar{flex-direction:row-reverse}
+body.ar .modal-footer{flex-direction:row-reverse}
+
+@media(max-width:900px){
+  #app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Al<span>jaser</span></div>
+    <div class="login-sub">Admin Control Panel</div>
+    <input type="email" id="u" placeholder="Admin Email" autocomplete="email"/>
+    <input type="password" id="p" placeholder="Password" autocomplete="current-password"/>
+    <button onclick="doLogin()" id="login-btn">Sign In →</button>
+    <div class="login-err" id="login-err">❌ Incorrect email or password</div>
+    <div id="login-loading" style="display:none;text-align:center;color:var(--muted);font-size:.8rem;margin-top:8px">⌛ Signing in...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">Al<span>jaser</span></div>
+      <div class="topbar-badge">Admin</div>
+      <div style="font-size:.75rem;color:var(--muted)" id="tb-product-count"></div>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="toggleLang()" id="lang-btn">🌐 AR</button>
+      <button class="topbar-btn" onclick="previewStore()">👁 Preview Store</button>
+      <button class="topbar-btn" onclick="exportData()">📦 Export Data</button>
+      <button class="topbar-btn" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-item active" onclick="showTab('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span><span id="nv-dash">Dashboard</span></div>
+    <div class="nav-item" onclick="showTab('products')" id="nav-products"><span class="nav-icon">📦</span><span id="nv-prod">Products</span><span class="nav-badge" id="low-stock-badge" style="display:none">!</span></div>
+    <div class="nav-item" onclick="showTab('orders')" id="nav-orders"><span class="nav-icon">🧾</span><span id="nv-orders">Orders</span><span class="nav-badge" id="pending-badge">3</span></div>
+    <div class="nav-item" onclick="showTab('categories')" id="nav-categories"><span class="nav-icon">🗂</span><span id="nv-cats">Categories</span></div>
+    <div class="nav-item" onclick="showTab('customers')" id="nav-customers"><span class="nav-icon">👤</span><span id="nv-cust">Customers</span></div>
+    <div class="nav-item" onclick="showTab('promotions')" id="nav-promotions"><span class="nav-icon">🏷</span><span id="nv-promo">Promotions</span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" onclick="showTab('homepage')" id="nav-homepage"><span class="nav-icon">🏠</span><span id="nv-hp">Homepage</span></div>
+    <div class="nav-item" onclick="showTab('settings')" id="nav-settings"><span class="nav-icon">⚙️</span><span id="nv-set">Settings</span></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="tab active" id="tab-dashboard">
+      <div class="page-header">
+        <div><div class="page-title" id="dash-title">Dashboard</div><div class="page-sub" id="dash-sub">Welcome back — here's what's happening</div></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" style="color:var(--teal)" id="s-revenue">4,820</div><div class="stat-label" id="sl-revenue">Revenue (SAR)</div><div class="stat-change up" id="sc-revenue">↑ 18% this week</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="s-orders">142</div><div class="stat-label" id="sl-orders">Total Orders</div><div class="stat-change up" id="sc-orders">↑ 12% this week</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="s-customers">86</div><div class="stat-label" id="sl-customers">Customers</div><div class="stat-change up" id="sc-cust">↑ 9% this month</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--gold)" id="s-products">12</div><div class="stat-label" id="sl-products">Active Products</div><div class="stat-change" id="sc-prod" style="color:var(--muted)">Manage below</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title" id="chart1-title">Revenue — Last 7 Days</div>
+          <div class="bar-chart" id="rev-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" id="chart2-title">Sales by Category</div>
+          <div class="donut-wrap" id="donut-wrap"></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar"><span style="font-size:.8rem;font-weight:600;color:var(--text)" id="recent-orders-title">Recent Orders</span></div>
+        <table><thead><tr>
+          <th id="th-order">Order</th><th id="th-date">Date</th><th id="th-products">Products</th><th id="th-total">Total</th><th id="th-status">Status</th>
+        </tr></thead><tbody id="dash-orders-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="tab" id="tab-products">
+      <div class="page-header">
+        <div><div class="page-title" id="prod-title">Products</div><div class="page-sub" id="prod-sub">Manage your product catalogue</div></div>
+        <button class="btn btn-primary" onclick="openProductModal()" id="add-prod-btn">+ Add Product</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-inp" placeholder="Search products..." oninput="filterProducts(this.value)" id="prod-search"/>
+          <select class="filter-sel" id="cat-filter" onchange="filterProducts()">
+            <option value="">All Categories</option>
+            <option value="drinking">Drinking Water</option>
+            <option value="herbal">Herbal Water</option>
+            <option value="concentrated">Concentrated</option>
+          </select>
+          <select class="filter-sel" id="status-filter" onchange="filterProducts()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr>
+            <th id="th-p-prod">Product</th>
+            <th id="th-p-cat">Category</th>
+            <th id="th-p-price">Price (SAR)</th>
+            <th id="th-p-stock">Stock</th>
+            <th id="th-p-avail">Available</th>
+            <th id="th-p-actions">Actions</th>
+          </tr></thead>
+          <tbody id="products-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="tab" id="tab-orders">
+      <div class="page-header">
+        <div><div class="page-title" id="orders-title">Orders</div><div class="page-sub" id="orders-sub">Manage and fulfill customer orders</div></div>
+      </div>
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card"><div class="stat-val" style="color:var(--yellow)" id="os-pending">3</div><div class="stat-label" id="osl-pending">Pending</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="os-processing">5</div><div class="stat-label" id="osl-processing">Processing</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--teal)" id="os-shipped">8</div><div class="stat-label" id="osl-shipped">Shipped</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="os-delivered">126</div><div class="stat-label" id="osl-delivered">Delivered</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-inp" placeholder="Search orders..." oninput="filterOrders(this.value)"/>
+        </div>
+        <table>
+          <thead><tr>
+            <th id="th-o-id">Order ID</th><th id="th-o-cust">Customer</th><th id="th-o-date">Date</th>
+            <th id="th-o-items">Items</th><th id="th-o-total">Total</th><th id="th-o-status">Status</th><th id="th-o-actions">Actions</th>
+          </tr></thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="tab" id="tab-categories">
+      <div class="page-header">
+        <div><div class="page-title" id="cats-title">Categories</div></div>
+        <button class="btn btn-primary" onclick="openCatModal()" id="add-cat-btn">+ Add Category</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th id="th-c-name">Category Name</th><th id="th-c-name-ar">Arabic Name</th><th id="th-c-count">Products</th><th id="th-c-status">Status</th><th id="th-c-actions">Actions</th>
+          </tr></thead>
+          <tbody id="cats-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="tab" id="tab-customers">
+      <div class="page-header"><div><div class="page-title" id="cust-title">Customers</div></div></div>
+      <div class="table-wrap">
+        <div class="table-toolbar"><input class="search-inp" placeholder="Search customers..." oninput="filterCustomers(this.value)"/></div>
+        <table>
+          <thead><tr>
+            <th id="th-cu-name">Name</th><th id="th-cu-email">Email</th><th id="th-cu-city">City</th>
+            <th id="th-cu-orders">Orders</th><th id="th-cu-spent">Total Spent</th><th id="th-cu-joined">Joined</th>
+          </tr></thead>
+          <tbody id="customers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROMOTIONS -->
+    <div class="tab" id="tab-promotions">
+      <div class="page-header">
+        <div><div class="page-title" id="promo-title">Promotions & Coupons</div></div>
+        <button class="btn btn-primary" onclick="openPromoModal()" id="add-promo-btn">+ New Coupon</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th id="th-pr-code">Code</th><th id="th-pr-type">Type</th><th id="th-pr-val">Value</th>
+            <th id="th-pr-used">Used</th><th id="th-pr-exp">Expires</th><th id="th-pr-status">Status</th><th id="th-pr-actions">Actions</th>
+          </tr></thead>
+          <tbody id="promos-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <!-- ══════════════════ HOMEPAGE CONTROL TAB ══════════════════ -->
+    <div class="tab" id="tab-homepage">
+      <div class="page-header"><div><div class="page-title">🏠 Homepage Control</div><div class="page-sub">Every change saves instantly to your store</div></div><button class="btn btn-primary" onclick="saveHomepage()">💾 Save All Changes</button></div>
+
+      <!-- ANNOUNCEMENT BAR -->
+      <div class="settings-section">
+        <h3>📢 Announcement Bar</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Show Announcement Bar</label>
+            <select id="hp-announce-show"><option value="1">✅ Visible</option><option value="0">❌ Hidden</option></select>
+          </div>
+          <div class="form-group">
+            <label>Background Color</label>
+            <select id="hp-announce-color">
+              <option value="var(--teal)">Teal (Default)</option>
+              <option value="#c9a84c">Gold</option>
+              <option value="#e05252">Red (Urgent)</option>
+              <option value="#2ecc71">Green</option>
+              <option value="#0f1f1f">Dark</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Text (English)</label><input id="hp-announce-en" placeholder="Free shipping on orders over 50 SAR 🚚"/></div>
+          <div class="form-group"><label>Text (Arabic)</label><input id="hp-announce-ar" placeholder="شحن مجاني للطلبات فوق ٥٠ ريال 🚚"/></div>
+        </div>
+      </div>
+
+      <!-- HERO SECTION -->
+      <div class="settings-section">
+        <h3>🌟 Hero Section (Top Banner)</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Eyebrow Text (EN) — small text above title</label><input id="hp-eyebrow-en" placeholder="Pure · Natural · Herbal"/></div>
+          <div class="form-group"><label>Eyebrow Text (AR)</label><input id="hp-eyebrow-ar" placeholder="نقي · طبيعي · عشبي"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Hero Title Line 1 (EN) — italic gold word</label><input id="hp-title1-en" placeholder="Nature's"/></div>
+          <div class="form-group"><label>Hero Title Line 1 (AR)</label><input id="hp-title1-ar" placeholder="مياه"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Hero Title Line 2 (EN) — main big word</label><input id="hp-title2-en" placeholder="Finest Waters"/></div>
+          <div class="form-group"><label>Hero Title Line 2 (AR)</label><input id="hp-title2-ar" placeholder="الجسر الطبيعية"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Subtitle / Description (EN)</label><textarea id="hp-sub-en" rows="2" style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;color:var(--text);resize:vertical">From the heart of Bahrain since 1978 — chemical-free herbal waters distilled from nature's finest herbs.</textarea></div>
+          <div class="form-group"><label>Subtitle / Description (AR)</label><textarea id="hp-sub-ar" rows="2" style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;color:var(--text);resize:vertical">من قلب البحرين منذ ١٩٧٨ — مياه عشبية خالية من المواد الكيميائية.</textarea></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Button 1 Text (EN)</label><input id="hp-btn1-en" placeholder="Shop Now"/></div>
+          <div class="form-group"><label>Button 1 Text (AR)</label><input id="hp-btn1-ar" placeholder="تسوق الآن"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Button 2 Text (EN)</label><input id="hp-btn2-en" placeholder="Our Story"/></div>
+          <div class="form-group"><label>Button 2 Text (AR)</label><input id="hp-btn2-ar" placeholder="قصتنا"/></div>
+        </div>
+      </div>
+
+      <!-- TRUST BAR -->
+      <div class="settings-section">
+        <h3>✅ Trust Bar (3 items below hero buttons)</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Icon 1</label><input id="hp-t1-icon" placeholder="✅" style="max-width:80px"/></div>
+          <div class="form-group"><label>Text (EN)</label><input id="hp-t1-en" placeholder="100% Natural"/></div>
+          <div class="form-group"><label>Text (AR)</label><input id="hp-t1-ar" placeholder="١٠٠٪ طبيعي"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Icon 2</label><input id="hp-t2-icon" placeholder="🚚" style="max-width:80px"/></div>
+          <div class="form-group"><label>Text (EN)</label><input id="hp-t2-en" placeholder="Free shipping over 50 SAR"/></div>
+          <div class="form-group"><label>Text (AR)</label><input id="hp-t2-ar" placeholder="شحن مجاني فوق ٥٠ ريال"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Icon 3</label><input id="hp-t3-icon" placeholder="🏅" style="max-width:80px"/></div>
+          <div class="form-group"><label>Text (EN)</label><input id="hp-t3-en" placeholder="Award-winning since 1978"/></div>
+          <div class="form-group"><label>Text (AR)</label><input id="hp-t3-ar" placeholder="حائزون على جوائز منذ ١٩٧٨"/></div>
+        </div>
+      </div>
+
+      <!-- SECTIONS TITLES -->
+      <div class="settings-section">
+        <h3>📋 Section Titles</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Categories Section Title (EN)</label><input id="hp-cat-t-en" placeholder="Browse by Category"/></div>
+          <div class="form-group"><label>Categories Section Title (AR)</label><input id="hp-cat-t-ar" placeholder="تصفح حسب الفئة"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Categories Subtitle (EN)</label><input id="hp-cat-s-en" placeholder="From refreshing drinking waters to powerful herbal concentrates"/></div>
+          <div class="form-group"><label>Categories Subtitle (AR)</label><input id="hp-cat-s-ar" placeholder="من المياه المنعشة إلى المركّزات العشبية القوية"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Products Section Title (EN)</label><input id="hp-shop-t-en" placeholder="Our Products"/></div>
+          <div class="form-group"><label>Products Section Title (AR)</label><input id="hp-shop-t-ar" placeholder="منتجاتنا"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Products Subtitle (EN)</label><input id="hp-shop-s-en" placeholder="All products are 100% natural, chemical-free"/></div>
+          <div class="form-group"><label>Products Subtitle (AR)</label><input id="hp-shop-s-ar" placeholder="جميع المنتجات طبيعية ١٠٠٪ وخالية من الكيماويات"/></div>
+        </div>
+      </div>
+
+      <!-- ABOUT SECTION -->
+      <div class="settings-section">
+        <h3>🌿 About / Heritage Section</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Title Word 1 — italic (EN)</label><input id="hp-ab-t1-en" placeholder="Our"/></div>
+          <div class="form-group"><label>Title Word 1 (AR)</label><input id="hp-ab-t1-ar" placeholder="تراثنا"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Title Word 2 — bold (EN)</label><input id="hp-ab-t2-en" placeholder="Heritage"/></div>
+          <div class="form-group"><label>Title Word 2 (AR)</label><input id="hp-ab-t2-ar" placeholder=""/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Paragraph 1 (EN)</label><textarea id="hp-ab-p1-en" rows="3" style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;color:var(--text);resize:vertical">Aljaser Factory Company was established in 1978 in Bahrain, with an unwavering commitment to preserve the ancient tradition of herbal water distillation.</textarea></div>
+          <div class="form-group"><label>Paragraph 1 (AR)</label><textarea id="hp-ab-p1-ar" rows="3" style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;color:var(--text);resize:vertical">تأسست شركة مصنع الجسر عام ١٩٧٨ في البحرين.</textarea></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Paragraph 2 (EN)</label><textarea id="hp-ab-p2-en" rows="3" style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;color:var(--text);resize:vertical">Today, we offer over 100 chemical-free, preservative-free herbal water products — trusted by families across Bahrain, Saudi Arabia, Kuwait, and Oman.</textarea></div>
+          <div class="form-group"><label>Paragraph 2 (AR)</label><textarea id="hp-ab-p2-ar" rows="3" style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;color:var(--text);resize:vertical">اليوم نقدم أكثر من ١٠٠ منتج طبيعي تثق بها العائلات في المنطقة.</textarea></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stat 1 Number</label><input id="hp-st1-num" placeholder="45+"/></div>
+          <div class="form-group"><label>Stat 1 Label (EN)</label><input id="hp-st1-en" placeholder="Years of Heritage"/></div>
+          <div class="form-group"><label>Stat 1 Label (AR)</label><input id="hp-st1-ar" placeholder="سنة من التراث"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stat 2 Number</label><input id="hp-st2-num" placeholder="100+"/></div>
+          <div class="form-group"><label>Stat 2 Label (EN)</label><input id="hp-st2-en" placeholder="Products"/></div>
+          <div class="form-group"><label>Stat 2 Label (AR)</label><input id="hp-st2-ar" placeholder="منتج"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Stat 3 Number</label><input id="hp-st3-num" placeholder="350+"/></div>
+          <div class="form-group"><label>Stat 3 Label (EN)</label><input id="hp-st3-en" placeholder="Retail Points"/></div>
+          <div class="form-group"><label>Stat 3 Label (AR)</label><input id="hp-st3-ar" placeholder="نقطة بيع"/></div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="settings-section">
+        <h3>🔗 Footer</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Footer Tagline (EN)</label><input id="hp-ft-en" placeholder="Pure Nature. Delivered to Your Door."/></div>
+          <div class="form-group"><label>Footer Tagline (AR)</label><input id="hp-ft-ar" placeholder="طبيعة نقية. توصّل إلى بابك."/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Copyright Text</label><input id="hp-copy" placeholder="© 2025 Aljaser Water — All rights reserved."/></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveHomepage()" style="margin-top:8px">💾 Save All Changes → Live on Store</button>
+    </div>
+    <div class="tab" id="tab-settings">
+      <div class="page-header"><div><div class="page-title" id="set-title">Store Settings</div></div></div>
+      <div class="settings-section">
+        <h3 id="set-store-h">🏪 Store Information</h3>
+        <div class="form-row">
+          <div class="form-group"><label id="set-name-l">Store Name (EN)</label><input id="set-name-en" value="Aljaser Water"/></div>
+          <div class="form-group"><label id="set-name-ar-l">Store Name (AR)</label><input id="set-name-ar" value="مياه الجسر"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label id="set-email-l">Contact Email</label><input id="set-email" value="social@aljaser.com.bh"/></div>
+          <div class="form-group"><label id="set-wa-l">WhatsApp</label><input id="set-wa" value="+973 1758 0004"/></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3 id="set-ship-h">🚚 Shipping</h3>
+        <div class="form-row">
+          <div class="form-group"><label id="set-free-l">Free Shipping Threshold (SAR)</label><input type="number" id="set-free" value="50"/></div>
+          <div class="form-group"><label id="set-ship-cost-l">Shipping Cost (SAR)</label><input type="number" id="set-ship-cost" value="15"/></div>
+          <div class="form-group"><label id="set-days-l">Delivery Days</label><input id="set-days" value="2-5 Business Days"/></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3 id="set-pay-h">💳 Payment</h3>
+        <div class="toggle-row"><div><div class="tgl-label">Moyasar</div><div class="tgl-sub" id="set-pk-sub">Publishable Key</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="form-group" style="margin-top:12px"><label>Moyasar Publishable Key</label><input id="moyasar-key" placeholder="pk_live_YOUR_KEY_HERE"/></div>
+        <div class="toggle-row"><div><div class="tgl-label">Apple Pay</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tgl-label">STC Pay</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+      </div>
+      <div class="settings-section">
+        <h3 id="set-notif-h">🔔 Notifications</h3>
+        <div class="toggle-row"><div><div class="tgl-label" id="ntg1">New Order Email</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tgl-label" id="ntg2">Low Stock Alert</div><div class="tgl-sub" id="ntg2s">Notify when stock &lt; 5</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="tgl-label" id="ntg3">WhatsApp Order Alerts</div></div><label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()" id="save-set-btn">💾 Save All Settings</button>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="prod-modal">
+  <div class="modal">
+    <div class="modal-title" id="prod-modal-title">📦 Add Product</div>
+
+    <div class="form-row">
+      <div class="form-group"><label id="pm-en-l">Name (English)</label><input id="pm-en" placeholder="Rose Water"/></div>
+      <div class="form-group"><label id="pm-ar-l">Name (Arabic)</label><input id="pm-ar" placeholder="ماء الورد"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label id="pm-price-l">Price (SAR)</label><input type="number" id="pm-price" placeholder="12"/></div>
+      <div class="form-group"><label id="pm-stock-l">Stock (units)</label><input type="number" id="pm-stock" placeholder="100" oninput="checkStockWarn()"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label id="pm-cat-l">Category</label>
+        <select id="pm-cat">
+          <option value="drinking">Drinking Water</option>
+          <option value="herbal">Herbal Water</option>
+          <option value="concentrated">Concentrated</option>
+        </select>
+      </div>
+      <div class="form-group"><label id="pm-badge-l">Badge (optional)</label>
+        <select id="pm-badge">
+          <option value="">None</option>
+          <option value="NEW">NEW</option>
+          <option value="SALE">SALE</option>
+          <option value="HOT">HOT</option>
+          <option value="LIMITED">LIMITED</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label id="pm-img-l">Product Image</label>
+      <div class="img-source-btns">
+        <button class="img-src-btn active" onclick="setImgMode('url',this)" id="imgmode-url">🔗 Image URL</button>
+        <button class="img-src-btn" onclick="setImgMode('emoji',this)" id="imgmode-emoji">😊 Emoji</button>
+      </div>
+      <div id="img-url-section">
+        <input id="pm-img" placeholder="https://aljaser.com.bh/wp-content/uploads/..." oninput="previewImg(this.value)" style="margin-top:8px"/>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.5" id="img-hint-txt">💡 To get the real image: visit aljaser.com.bh → open any product → right-click the image → Copy Image Address → paste here</div>
+      </div>
+      <div id="img-emoji-section" style="display:none">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="emoji-picker">
+          💧🌿🌹🌼🍃💙🌾🟣🟢🌸🫐🍋🌻🫛🍃🧪🌊🍀🌱✨
+        </div>
+      </div>
+      <div class="img-preview" id="img-preview"><span id="img-prev-empty">No image yet</span></div>
+    </div>
+    <div class="stock-warn" id="stock-warn">⚠️ Low stock — consider restocking soon</div>
+
+    <div class="form-group"><label id="pm-desc-en-l">Description (English)</label><textarea id="pm-desc-en" placeholder="Pure herbal water extracted from..."></textarea></div>
+    <div class="form-group"><label id="pm-desc-ar-l">Description (Arabic)</label><textarea id="pm-desc-ar" dir="rtl" placeholder="ماء عشبي نقي..."></textarea></div>
+
+    <div class="form-group">
+      <label id="pm-status-l">Status</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <label class="toggle"><input type="checkbox" id="pm-active" checked/><span class="toggle-slider"></span></label>
+        <span style="font-size:.82rem;color:var(--muted)" id="pm-active-label">Active (visible to customers)</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('prod-modal')" id="pm-cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()" id="pm-save">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="cat-modal">
+  <div class="modal" style="width:440px">
+    <div class="modal-title" id="cat-modal-title">🗂 Add Category</div>
+    <div class="form-group"><label>Name (English)</label><input id="cm-en" placeholder="Herbal Water"/></div>
+    <div class="form-group"><label>Name (Arabic)</label><input id="cm-ar" dir="rtl" placeholder="ماء عشبي"/></div>
+    <div class="form-group"><label>Slug</label><input id="cm-slug" placeholder="herbal"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('cat-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCat()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER STATUS MODAL -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-title" id="order-modal-title">🧾 Update Order</div>
+    <div id="order-detail-info" style="background:rgba(0,0,0,.2);border-radius:8px;padding:14px;margin-bottom:14px;font-size:.82rem;line-height:1.8;color:var(--muted)"></div>
+    <div class="form-group">
+      <label id="order-status-l">Order Status</label>
+      <select id="order-status-sel">
+        <option value="pending">⏳ Pending</option>
+        <option value="processing">🔄 Processing</option>
+        <option value="shipped">🚚 Shipped</option>
+        <option value="delivered">✅ Delivered</option>
+        <option value="cancelled">❌ Cancelled</option>
+      </select>
+    </div>
+    <div class="form-group"><label id="order-note-l">Internal Note</label><textarea id="order-note" placeholder="e.g. Called customer, confirmed address..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('order-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrderStatus()" id="save-order-btn">Update Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROMO MODAL -->
+<div class="modal-overlay" id="promo-modal">
+  <div class="modal" style="width:440px">
+    <div class="modal-title">🏷 Add Coupon</div>
+    <div class="form-group"><label>Coupon Code</label><input id="prom-code" placeholder="SUMMER25" style="text-transform:uppercase"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Type</label>
+        <select id="prom-type">
+          <option value="percent">% Percentage</option>
+          <option value="fixed">SAR Fixed Amount</option>
+          <option value="freeship">Free Shipping</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Value</label><input type="number" id="prom-val" placeholder="10"/></div>
+    </div>
+    <div class="form-group"><label>Expiry Date</label><input type="date" id="prom-exp"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('promo-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePromo()">Create Coupon</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  DATA STORE — synced to Supabase + localStorage
+// ============================================================
+// ── SUPABASE ──
+const _supa = window.supabase.createClient(
+  'https://zpscjsufkqxvckdsohrj.supabase.co',
+  'sb_publishable_oPIIHhEEK4i8qjfL1Iigzg_mdpDqeRo'
+);
+
+// ── Sync indicator ──
+function setSyncStatus(status){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  if(status === 'saving')   { el.textContent = '🔄 Saving...';   el.style.color = '#c9a84c'; }
+  if(status === 'saved')    { el.textContent = '✅ Synced';       el.style.color = '#27ae60'; setTimeout(()=>{ el.textContent='☁️ Cloud Synced'; el.style.color='#27ae60'; }, 2000); }
+  if(status === 'error')    { el.textContent = '⚠️ Sync error';  el.style.color = '#e05252'; }
+}
+
+// ── Load all data from Supabase on init ──
+async function loadFromSupabase() {
+  try {
+    // Products
+    const { data: prodRows } = await _supa.from('products').select('data').order('id');
+    if (prodRows && prodRows.length > 0) {
+      products = prodRows.map(r => r.data);
+      localStorage.setItem(STORE_KEY, JSON.stringify(products));
+    }
+    // Orders
+    const { data: orderRows } = await _supa.from('orders').select('data').order('created_at', {ascending: false});
+    if (orderRows && orderRows.length > 0) {
+      orders = orderRows.map(r => r.data);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    }
+    // Settings
+    const { data: setRows } = await _supa.from('settings').select('key,value');
+    if (setRows) {
+      const s = {};
+      setRows.forEach(r => s[r.key] = r.value);
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+    }
+    console.log('✅ Loaded from Supabase');
+    setSyncStatus('saved');
+  } catch(e) {
+    console.log('Supabase load failed, using localStorage', e);
+    setSyncStatus('error');
+  }
+}
+
+const STORE_KEY = 'aljaser_products';
+const SETTINGS_KEY = 'aljaser_settings';
+const ORDERS_KEY = 'aljaser_orders';
+
+const defaultProducts = [
+  {id:1, en:'Rose Water', ar:'ماء الورد', price:12, cat:'drinking', stock:87, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Rose-Water.jpg', emoji:'🌹', badge:'HOT', descEn:'Pure distilled rose water, chemical-free. Used for food, drinks and skin care.', descAr:'ماء ورد نقي، خالٍ من المواد الكيميائية. يُستخدم في الطعام والمشروبات والعناية بالبشرة.', active:true},
+  {id:2, en:'Palm Flavored Water', ar:'ماء النخيل', price:10, cat:'drinking', stock:120, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Palm-water.jpg', emoji:'🌴', badge:'', descEn:'Refreshing palm-flavoured water, naturally processed.', descAr:'ماء بنكهة النخيل، معالج بشكل طبيعي.', active:true},
+  {id:3, en:'Margadosh Water', ar:'ماء المرقدوش', price:18, cat:'herbal', stock:45, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Margadosh.jpg', emoji:'🌿', badge:'NEW', descEn:'Herbal water with powerful digestive and immune benefits.', descAr:'ماء عشبي ذو فوائد هضمية ومناعية قوية.', active:true},
+  {id:4, en:'Shatara Water', ar:'ماء الشاترة', price:15, cat:'herbal', stock:60, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Shatara.jpg', emoji:'🍃', badge:'', descEn:'Traditional Bahraini herbal water, good for digestion.', descAr:'ماء عشبي بحريني تقليدي، جيد للهضم.', active:true},
+  {id:5, en:'Chamomile Water', ar:'ماء البابونج', price:14, cat:'drinking', stock:75, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Chamomile.jpg', emoji:'🌼', badge:'', descEn:'Soothing chamomile water, rich in minerals and vitamins.', descAr:'ماء البابونج المهدئ، غني بالمعادن والفيتامينات.', active:true},
+  {id:6, en:'Lavender Water', ar:'ماء اللافندر', price:16, cat:'herbal', stock:50, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Lavender.jpg', emoji:'💜', badge:'', descEn:'Calming lavender herbal water.', descAr:'ماء عشبي اللافندر المهدئ.', active:true},
+  {id:7, en:'Anise Water', ar:'ماء اليانسون', price:12, cat:'herbal', stock:90, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Anise.jpg', emoji:'🌾', badge:'', descEn:'Traditional anise water for digestion and relaxation.', descAr:'ماء اليانسون التقليدي للهضم والاسترخاء.', active:true},
+  {id:8, en:'Violet Concentrate', ar:'مركّز البنفسج', price:22, cat:'concentrated', stock:30, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Violet.jpg', emoji:'🟣', badge:'', descEn:'Concentrated violet water with multiple uses.', descAr:'مركّز ماء البنفسج متعدد الاستخدامات.', active:true},
+  {id:9, en:'Mint Water', ar:'ماء النعناع', price:11, cat:'drinking', stock:110, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Mint.jpg', emoji:'🟢', badge:'', descEn:'Refreshing and digestive mint water.', descAr:'ماء النعناع المنعش والهاضم.', active:true},
+  {id:10, en:'Jasmine Concentrate', ar:'مركّز الياسمين', price:28, cat:'concentrated', stock:25, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Jasmine.jpg', emoji:'🌸', badge:'SALE', descEn:'Premium jasmine concentrate, ideal for drinks and desserts.', descAr:'مركّز الياسمين الفاخر، مثالي للمشروبات والحلويات.', active:true},
+  {id:11, en:'Thyme Water', ar:'ماء الزعتر', price:13, cat:'drinking', stock:80, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Thyme.jpg', emoji:'🫐', badge:'', descEn:'Natural thyme water with antibacterial properties.', descAr:'ماء الزعتر الطبيعي بخصائص مضادة للبكتيريا.', active:true},
+  {id:12, en:'Lemon Verbena Concentrate', ar:'مركّز الليمون', price:20, cat:'concentrated', stock:40, img:'https://aljaser.com.bh/wp-content/uploads/2021/01/Lemon.jpg', emoji:'🍋', badge:'', descEn:'Zesty lemon verbena concentrate for beverages.', descAr:'مركّز الليمون النضر للمشروبات.', active:true},
+];
+
+const defaultOrders = [
+  {id:'#AJW-0142',customer:'Mohammed Al-Sayed',city:'Riyadh',date:'Jun 12, 2025',items:'Rose Water x2, Margadosh x1',total:46,status:'pending',note:''},
+  {id:'#AJW-0141',customer:'Fatima Hassan',city:'Jeddah',date:'Jun 11, 2025',items:'Palm Water x3',total:30,status:'processing',note:''},
+  {id:'#AJW-0140',customer:'Ali Nasser',city:'Dammam',date:'Jun 11, 2025',items:'Jasmine Concentrate x1',total:28,status:'shipped',note:''},
+  {id:'#AJW-0139',customer:'Sara Al-Otaibi',city:'Khobar',date:'Jun 10, 2025',items:'Anise x2, Mint x1',total:35,status:'delivered',note:''},
+  {id:'#AJW-0138',customer:'Khalid Bin Laden',city:'Riyadh',date:'Jun 9, 2025',items:'Chamomile x2, Lavender x1',total:44,status:'delivered',note:''},
+  {id:'#AJW-0137',customer:'Noura Al-Rashidi',city:'Riyadh',date:'Jun 8, 2025',items:'Violet Concentrate x2',total:44,status:'delivered',note:''},
+];
+
+const defaultCustomers = [
+  {name:'Mohammed Al-Sayed',email:'m.sayed@email.com',city:'Riyadh',orders:4,spent:160,joined:'Jan 2025'},
+  {name:'Fatima Hassan',email:'f.hassan@email.com',city:'Jeddah',orders:2,spent:62,joined:'Feb 2025'},
+  {name:'Ali Nasser',email:'a.nasser@email.com',city:'Dammam',orders:3,spent:88,joined:'Mar 2025'},
+  {name:'Sara Al-Otaibi',email:'s.otaibi@email.com',city:'Khobar',orders:7,spent:210,joined:'Dec 2024'},
+];
+
+const defaultCategories = [
+  {en:'Drinking Water',ar:'مياه الشرب',slug:'drinking',active:true},
+  {en:'Herbal Water',ar:'مياه عشبية',slug:'herbal',active:true},
+  {en:'Concentrated',ar:'مركّزات',slug:'concentrated',active:true},
+];
+
+const defaultPromos = [
+  {code:'WELCOME10',type:'percent',value:10,used:24,exp:'2025-12-31',active:true},
+  {code:'FREESHIP',type:'freeship',value:0,used:12,exp:'2025-09-30',active:true},
+  {code:'SUMMER25',type:'percent',value:25,used:5,exp:'2025-07-31',active:true},
+  {code:'OLDCODE',type:'percent',value:15,used:89,exp:'2024-12-31',active:false},
+];
+
+// State
+let products = JSON.parse(localStorage.getItem(STORE_KEY)) || defaultProducts;
+let orders   = JSON.parse(localStorage.getItem(ORDERS_KEY)) || defaultOrders;
+let isAr = false;
+let editingProductId = null;
+let editingOrderId = null;
+let imgMode = 'url';
+let emojiChosen = '';
+
+// Save
+function saveProducts(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(products));
+  // Supabase upsert
+  setSyncStatus('saving');
+  Promise.all(
+    products.map(p => _supa.from('products').upsert({id: p.id, data: p, updated_at: new Date().toISOString()}))
+  ).then(() => setSyncStatus('saved'))
+   .catch(() => setSyncStatus('error'));
+}
+function saveOrders(){
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  setSyncStatus('saving');
+  Promise.all(
+    orders.map(o => _supa.from('orders').upsert({id: o.id, data: o, created_at: o.createdAt || new Date().toISOString()}))
+  ).then(() => setSyncStatus('saved'))
+   .catch(() => setSyncStatus('error'));
+}
+
+// ============================================================
+//  LOGIN
+// ============================================================
+// ── ADMIN EMAIL — only this email can access the panel ──
+const ADMIN_EMAIL = 'malmubaireek2014@gmail.com';
+
+document.getElementById('p').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+async function doLogin(){
+  const email = document.getElementById('u').value.trim();
+  const pass  = document.getElementById('p').value;
+  const errEl = document.getElementById('login-err');
+  const loadEl = document.getElementById('login-loading');
+  const btn   = document.getElementById('login-btn');
+  errEl.style.display='none';
+
+  if(!email || !pass){ errEl.style.display='block'; return; }
+
+  btn.disabled=true; loadEl.style.display='block';
+
+  const { data, error } = await _supa.auth.signInWithPassword({ email, password: pass });
+
+  btn.disabled=false; loadEl.style.display='none';
+
+  if(error || !data.user){
+    errEl.style.display='block'; return;
+  }
+
+  // Only allow the designated admin email
+  if(data.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()){
+    await _supa.auth.signOut();
+    errEl.textContent = '⛔ Access denied — not an admin account';
+    errEl.style.display='block'; return;
+  }
+
+  showAdminApp();
+}
+
+async function showAdminApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='grid';
+  await loadFromSupabase();
+  initDashboard(); renderProducts(); renderOrders(); renderCats(); renderCustomers(); renderPromos();
+  updateLowStockBadge(); updateProductCount();
+}
+
+async function doLogout(){
+  await _supa.auth.signOut();
+  location.reload();
+}
+
+// Realtime: refresh orders when new ones come in
+_supa.channel('admin-orders-live')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, async (payload) => {
+    const newOrder = payload.new?.data;
+    if(newOrder && !orders.find(o=>o.id===newOrder.id)){
+      orders.unshift(newOrder);
+      localStorage.setItem('aljaser_orders', JSON.stringify(orders));
+      renderOrders();
+      initDashboard();
+      showToast('🛒 New order: ' + newOrder.id);
+      document.getElementById('pending-badge').textContent = orders.filter(o=>o.status==='pending').length;
+    }
+  })
+  .subscribe();
+
+// Auto-login if Supabase session already exists
+window.addEventListener('DOMContentLoaded', async function(){
+  const { data: { session } } = await _supa.auth.getSession();
+  if(session && session.user && session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()){
+    showAdminApp();
+  }
+});
+
+// ============================================================
+//  TABS
+// ============================================================
+
+// ============================================================
+//  HOMEPAGE CONTROL
+// ============================================================
+const HP_KEY = 'aljaser_homepage';
+
+const HP_DEFAULTS = {
+  announceShow:'1', announceColor:'var(--teal)',
+  announceEn:'Free shipping on orders over 50 SAR 🚚',
+  announceAr:'شحن مجاني للطلبات فوق ٥٠ ريال 🚚',
+  eyebrowEn:'Pure · Natural · Herbal', eyebrowAr:'نقي · طبيعي · عشبي',
+  title1En:"Nature's", title1Ar:'مياه',
+  title2En:'Finest Waters', title2Ar:'الجسر الطبيعية',
+  subEn:"From the heart of Bahrain since 1978 — chemical-free herbal waters distilled from nature's finest herbs.",
+  subAr:'من قلب البحرين منذ ١٩٧٨ — مياه عشبية خالية من المواد الكيميائية.',
+  btn1En:'Shop Now', btn1Ar:'تسوق الآن',
+  btn2En:'Our Story', btn2Ar:'قصتنا',
+  t1Icon:'✅', t1En:'100% Natural', t1Ar:'١٠٠٪ طبيعي',
+  t2Icon:'🚚', t2En:'Free shipping over 50 SAR', t2Ar:'شحن مجاني فوق ٥٠ ريال',
+  t3Icon:'🏅', t3En:'Award-winning since 1978', t3Ar:'حائزون على جوائز منذ ١٩٧٨',
+  catTEn:'Browse by Category', catTAr:'تصفح حسب الفئة',
+  catSEn:'From refreshing drinking waters to powerful herbal concentrates', catSAr:'من المياه المنعشة إلى المركّزات العشبية القوية',
+  shopTEn:'Our Products', shopTAr:'منتجاتنا',
+  shopSEn:'All products are 100% natural, chemical-free', shopSAr:'جميع المنتجات طبيعية ١٠٠٪',
+  abT1En:'Our', abT1Ar:'تراثنا',
+  abT2En:'Heritage', abT2Ar:'',
+  abP1En:"Aljaser Factory Company was established in 1978 in Bahrain, with an unwavering commitment to preserve the ancient tradition of herbal water distillation.",
+  abP1Ar:'تأسست شركة مصنع الجسر عام ١٩٧٨ في البحرين.',
+  abP2En:"Today, we offer over 100 chemical-free, preservative-free herbal water products — trusted by families across Bahrain, Saudi Arabia, Kuwait, and Oman.",
+  abP2Ar:'اليوم نقدم أكثر من ١٠٠ منتج طبيعي تثق بها العائلات في المنطقة.',
+  st1Num:'45+', st1En:'Years of Heritage', st1Ar:'سنة من التراث',
+  st2Num:'100+', st2En:'Products', st2Ar:'منتج',
+  st3Num:'350+', st3En:'Retail Points', st3Ar:'نقطة بيع',
+  ftEn:'Pure Nature. Delivered to Your Door.', ftAr:'طبيعة نقية. توصّل إلى بابك.',
+  copy:'© 2025 Aljaser Water — All rights reserved.'
+};
+
+async function loadHomepageTab(){
+  // Try to load from Supabase first
+  try {
+    const { data: row } = await _supa.from('settings').select('value').eq('key','homepage_content').single();
+    if (row && row.value) {
+      const cloudData = JSON.parse(row.value);
+      localStorage.setItem(HP_KEY, JSON.stringify(cloudData));
+    }
+  } catch(e) {}
+  const d = Object.assign({}, HP_DEFAULTS, JSON.parse(localStorage.getItem(HP_KEY)||'{}'));
+  const map = {
+    'hp-announce-show': d.announceShow, 'hp-announce-color': d.announceColor,
+    'hp-announce-en': d.announceEn, 'hp-announce-ar': d.announceAr,
+    'hp-eyebrow-en': d.eyebrowEn, 'hp-eyebrow-ar': d.eyebrowAr,
+    'hp-title1-en': d.title1En, 'hp-title1-ar': d.title1Ar,
+    'hp-title2-en': d.title2En, 'hp-title2-ar': d.title2Ar,
+    'hp-sub-en': d.subEn, 'hp-sub-ar': d.subAr,
+    'hp-btn1-en': d.btn1En, 'hp-btn1-ar': d.btn1Ar,
+    'hp-btn2-en': d.btn2En, 'hp-btn2-ar': d.btn2Ar,
+    'hp-t1-icon': d.t1Icon, 'hp-t1-en': d.t1En, 'hp-t1-ar': d.t1Ar,
+    'hp-t2-icon': d.t2Icon, 'hp-t2-en': d.t2En, 'hp-t2-ar': d.t2Ar,
+    'hp-t3-icon': d.t3Icon, 'hp-t3-en': d.t3En, 'hp-t3-ar': d.t3Ar,
+    'hp-cat-t-en': d.catTEn, 'hp-cat-t-ar': d.catTAr,
+    'hp-cat-s-en': d.catSEn, 'hp-cat-s-ar': d.catSAr,
+    'hp-shop-t-en': d.shopTEn, 'hp-shop-t-ar': d.shopTAr,
+    'hp-shop-s-en': d.shopSEn, 'hp-shop-s-ar': d.shopSAr,
+    'hp-ab-t1-en': d.abT1En, 'hp-ab-t1-ar': d.abT1Ar,
+    'hp-ab-t2-en': d.abT2En, 'hp-ab-t2-ar': d.abT2Ar,
+    'hp-ab-p1-en': d.abP1En, 'hp-ab-p1-ar': d.abP1Ar,
+    'hp-ab-p2-en': d.abP2En, 'hp-ab-p2-ar': d.abP2Ar,
+    'hp-st1-num': d.st1Num, 'hp-st1-en': d.st1En, 'hp-st1-ar': d.st1Ar,
+    'hp-st2-num': d.st2Num, 'hp-st2-en': d.st2En, 'hp-st2-ar': d.st2Ar,
+    'hp-st3-num': d.st3Num, 'hp-st3-en': d.st3En, 'hp-st3-ar': d.st3Ar,
+    'hp-ft-en': d.ftEn, 'hp-ft-ar': d.ftAr, 'hp-copy': d.copy
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+}
+
+function saveHomepage(){
+  const get = id => { const el=document.getElementById(id); return el?el.value:''; };
+  const data = {
+    announceShow: get('hp-announce-show'), announceColor: get('hp-announce-color'),
+    announceEn: get('hp-announce-en'), announceAr: get('hp-announce-ar'),
+    eyebrowEn: get('hp-eyebrow-en'), eyebrowAr: get('hp-eyebrow-ar'),
+    title1En: get('hp-title1-en'), title1Ar: get('hp-title1-ar'),
+    title2En: get('hp-title2-en'), title2Ar: get('hp-title2-ar'),
+    subEn: get('hp-sub-en'), subAr: get('hp-sub-ar'),
+    btn1En: get('hp-btn1-en'), btn1Ar: get('hp-btn1-ar'),
+    btn2En: get('hp-btn2-en'), btn2Ar: get('hp-btn2-ar'),
+    t1Icon: get('hp-t1-icon'), t1En: get('hp-t1-en'), t1Ar: get('hp-t1-ar'),
+    t2Icon: get('hp-t2-icon'), t2En: get('hp-t2-en'), t2Ar: get('hp-t2-ar'),
+    t3Icon: get('hp-t3-icon'), t3En: get('hp-t3-en'), t3Ar: get('hp-t3-ar'),
+    catTEn: get('hp-cat-t-en'), catTAr: get('hp-cat-t-ar'),
+    catSEn: get('hp-cat-s-en'), catSAr: get('hp-cat-s-ar'),
+    shopTEn: get('hp-shop-t-en'), shopTAr: get('hp-shop-t-ar'),
+    shopSEn: get('hp-shop-s-en'), shopSAr: get('hp-shop-s-ar'),
+    abT1En: get('hp-ab-t1-en'), abT1Ar: get('hp-ab-t1-ar'),
+    abT2En: get('hp-ab-t2-en'), abT2Ar: get('hp-ab-t2-ar'),
+    abP1En: get('hp-ab-p1-en'), abP1Ar: get('hp-ab-p1-ar'),
+    abP2En: get('hp-ab-p2-en'), abP2Ar: get('hp-ab-p2-ar'),
+    st1Num: get('hp-st1-num'), st1En: get('hp-st1-en'), st1Ar: get('hp-st1-ar'),
+    st2Num: get('hp-st2-num'), st2En: get('hp-st2-en'), st2Ar: get('hp-st2-ar'),
+    st3Num: get('hp-st3-num'), st3En: get('hp-st3-en'), st3Ar: get('hp-st3-ar'),
+    ftEn: get('hp-ft-en'), ftAr: get('hp-ft-ar'), copy: get('hp-copy')
+  };
+  localStorage.setItem(HP_KEY, JSON.stringify(data));
+  // Also save to Supabase so it works on the live website
+  setSyncStatus('saving');
+  _supa.from('settings').upsert({ key: 'homepage_content', value: JSON.stringify(data) })
+    .then(() => {
+      setSyncStatus('saved');
+      showToast('✅ Homepage updated! Changes are live on your store.');
+    })
+    .catch(() => {
+      setSyncStatus('error');
+      showToast('⚠️ Saved locally — check your Supabase connection.');
+    });
+}
+
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const nav=document.getElementById('nav-'+name);
+  if(nav) nav.classList.add('active');
+  if(name==='homepage') loadHomepageTab();
+}
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+const revData=[420,380,510,467,592,480,620];
+const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const catData=[{label:'Herbal',pct:60,color:'#4ecdc4'},{label:'Drinking',pct:30,color:'#c9a84c'},{label:'Concentrated',pct:10,color:'#58a6ff'}];
+
+function initDashboard(){
+  const max=Math.max(...revData);
+  document.getElementById('rev-chart').innerHTML=revData.map((v,i)=>`
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.round(v/max*90)}px" title="${v} SAR"></div>
+      <div class="bar-label">${days[i]}</div>
+    </div>`).join('');
+  document.getElementById('donut-wrap').innerHTML=catData.map(c=>`
+    <div class="donut-item">
+      <div class="donut-dot" style="background:${c.color}"></div>
+      <div style="flex:1;font-size:.8rem">${c.label}</div>
+      <div style="font-weight:600;color:var(--text)">${c.pct}%</div>
+    </div>`).join('');
+  document.getElementById('dash-orders-tbody').innerHTML=orders.slice(0,5).map(o=>`
+    <tr>
+      <td style="font-weight:600;color:var(--teal)">${o.id}</td>
+      <td>${o.date}</td>
+      <td style="color:var(--muted)">${o.items}</td>
+      <td><strong>${o.total} SAR</strong></td>
+      <td>${statusPill(o.status)}</td>
+    </tr>`).join('');
+  document.getElementById('s-products').textContent=products.filter(p=>p.active).length;
+}
+
+function statusPill(s){
+  const map={pending:'pill-yellow',processing:'pill-blue',shipped:'pill-teal',delivered:'pill-green',cancelled:'pill-red'};
+  const labels={pending:'⏳ Pending',processing:'🔄 Processing',shipped:'🚚 Shipped',delivered:'✅ Delivered',cancelled:'❌ Cancelled'};
+  return `<span class="pill ${map[s]||'pill-muted'}">${labels[s]||s}</span>`;
+}
+
+// ============================================================
+//  PRODUCTS
+// ============================================================
+function renderProducts(filter='', catF='', statusF=''){
+  const tbody = document.getElementById('products-tbody');
+  let list = products;
+  if(filter) list=list.filter(p=>p.en.toLowerCase().includes(filter.toLowerCase())||p.ar.includes(filter));
+  if(catF) list=list.filter(p=>p.cat===catF);
+  if(statusF) list=list.filter(p=>statusF==='active'?p.active:!p.active);
+  tbody.innerHTML = list.map(p=>`
+    <tr>
+      <td>
+        <div class="product-info">
+          <div class="product-img-cell">
+            ${p.img?`<img src="${p.img}" onerror="this.style.display='none';this.nextSibling.style.display='block'"/><span style="display:none">${p.emoji||'💧'}</span>`:p.emoji||'💧'}
+          </div>
+          <div>
+            <div class="product-name">${p.en}</div>
+            <div class="product-name-ar">${p.ar}</div>
+          </div>
+        </div>
+      </td>
+      <td>${catPill(p.cat)}</td>
+      <td><strong style="color:var(--teal)">${p.price} SAR</strong></td>
+      <td><span class="${p.stock<10?'pill pill-red':p.stock<30?'pill pill-yellow':''}" style="${p.stock>=30?'color:var(--text)':''}">${p.stock} units</span></td>
+      <td>
+        <label class="toggle">
+          <input type="checkbox" ${p.active?'checked':''} onchange="toggleProductActive(${p.id},this.checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-ghost btn-sm" onclick="openProductModal(${p.id})">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  updateProductCount();
+  updateLowStockBadge();
+}
+
+function catPill(cat){
+  const m={drinking:'pill-teal',herbal:'pill-green',concentrated:'pill-blue'};
+  const l={drinking:'Drinking',herbal:'Herbal',concentrated:'Conc.'};
+  return `<span class="pill ${m[cat]||'pill-muted'}">${l[cat]||cat}</span>`;
+}
+
+function filterProducts(val){
+  const f=document.getElementById('prod-search').value;
+  const c=document.getElementById('cat-filter').value;
+  const s=document.getElementById('status-filter').value;
+  renderProducts(f,c,s);
+}
+
+function toggleProductActive(id, val){
+  products=products.map(p=>p.id===id?{...p,active:val}:p);
+  saveProducts();
+  showToast(val?'✅ Product is now visible':'👁 Product hidden from store');
+  renderProducts();
+  initDashboard();
+}
+
+function deleteProduct(id){
+  if(!confirm('Delete this product? It will be removed from the store.')) return;
+  products=products.filter(p=>p.id!==id);
+  saveProducts();
+  renderProducts();
+  initDashboard();
+  showToast('🗑 Product deleted');
+}
+
+function updateProductCount(){
+  const total=products.length;
+  const active=products.filter(p=>p.active).length;
+  document.getElementById('tb-product-count').textContent=`${active}/${total} active`;
+  document.getElementById('s-products').textContent=active;
+}
+
+function updateLowStockBadge(){
+  const low=products.filter(p=>p.stock<10).length;
+  const badge=document.getElementById('low-stock-badge');
+  badge.style.display=low>0?'inline':'none';
+  badge.textContent=low;
+}
+
+// ============================================================
+//  PRODUCT MODAL
+// ============================================================
+function openProductModal(id=null){
+  editingProductId=id;
+  const p=id?products.find(x=>x.id===id):null;
+  document.getElementById('prod-modal-title').textContent=id?'✏️ Edit Product':'📦 Add Product';
+  document.getElementById('pm-en').value=p?p.en:'';
+  document.getElementById('pm-ar').value=p?p.ar:'';
+  document.getElementById('pm-price').value=p?p.price:'';
+  document.getElementById('pm-stock').value=p?p.stock:'';
+  document.getElementById('pm-cat').value=p?p.cat:'drinking';
+  document.getElementById('pm-badge').value=p?p.badge:'';
+  document.getElementById('pm-img').value=p?p.img:'';
+  document.getElementById('pm-desc-en').value=p?p.descEn:'';
+  document.getElementById('pm-desc-ar').value=p?p.descAr:'';
+  document.getElementById('pm-active').checked=p?p.active:true;
+  previewImg(p?p.img:'');
+  setImgMode('url', document.getElementById('imgmode-url'));
+  if(p&&p.emoji) emojiChosen=p.emoji;
+  checkStockWarn();
+  document.getElementById('prod-modal').classList.add('open');
+}
+
+function setImgMode(mode, btn){
+  imgMode=mode;
+  document.querySelectorAll('.img-src-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('img-url-section').style.display=mode==='url'?'block':'none';
+  document.getElementById('img-emoji-section').style.display=mode==='emoji'?'block':'none';
+}
+
+function buildEmojiPicker(){
+  const emojis=['💧','🌿','🌹','🌼','🍃','💙','🌾','🟣','🟢','🌸','🫐','🍋','🌻','🫛','🌊','🍀','🌱','✨','💐','🫧'];
+  document.getElementById('emoji-picker').innerHTML=emojis.map(e=>`<button onclick="pickEmoji('${e}')" style="background:var(--input);border:1px solid var(--border);border-radius:6px;width:36px;height:36px;font-size:1.1rem;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(78,205,196,.15)'" onmouseout="this.style.background='var(--input)'">${e}</button>`).join('');
+}
+buildEmojiPicker();
+
+function pickEmoji(e){
+  emojiChosen=e;
+  document.getElementById('img-preview').innerHTML=`<span style="font-size:3rem">${e}</span>`;
+}
+
+function previewImg(url){
+  const prev=document.getElementById('img-preview');
+  if(url){
+    prev.innerHTML=`<img src="${url}" onerror="this.parentElement.innerHTML='<span style=\\'color:var(--red);font-size:.78rem\\'>Image failed to load — URL may not be accessible</span>'"/>`;
+  } else {
+    prev.innerHTML=`<span id="img-prev-empty" style="color:var(--muted);font-size:.78rem">No image yet</span>`;
+  }
+}
+
+function checkStockWarn(){
+  const v=parseInt(document.getElementById('pm-stock').value)||0;
+  document.getElementById('stock-warn').classList.toggle('show',v<10&&v>=0);
+}
+
+function saveProduct(){
+  const en=document.getElementById('pm-en').value.trim();
+  const ar=document.getElementById('pm-ar').value.trim();
+  const price=parseFloat(document.getElementById('pm-price').value);
+  const stock=parseInt(document.getElementById('pm-stock').value)||0;
+  if(!en||!price){ showToast('⚠️ Name and price are required'); return; }
+  const data={
+    en, ar,
+    price,
+    stock,
+    cat:document.getElementById('pm-cat').value,
+    badge:document.getElementById('pm-badge').value,
+    img:imgMode==='url'?document.getElementById('pm-img').value.trim():'',
+    emoji:imgMode==='emoji'?emojiChosen:(document.getElementById('pm-emoji-section')&&emojiChosen?emojiChosen:'💧'),
+    descEn:document.getElementById('pm-desc-en').value,
+    descAr:document.getElementById('pm-desc-ar').value,
+    active:document.getElementById('pm-active').checked,
+  };
+  if(editingProductId){
+    products=products.map(p=>p.id===editingProductId?{...p,...data}:p);
+    showToast('✅ Product updated!');
+  } else {
+    data.id=Date.now();
+    products=[...products,data];
+    showToast('✅ Product added to store!');
+  }
+  saveProducts();
+  closeModal('prod-modal');
+  renderProducts();
+  initDashboard();
+}
+
+// ============================================================
+//  ORDERS
+// ============================================================
+function getItemsText(o){
+  if(typeof o.items === 'string') return o.items;
+  if(Array.isArray(o.items)) return o.items.map(i=>`${i.en} ×${i.qty}`).join(', ');
+  return o.itemsText || '—';
+}
+
+function renderOrders(filter=''){
+  let list=orders.slice().sort((a,b)=>new Date(b.createdAt||b.date||0)-new Date(a.createdAt||a.date||0));
+  if(filter) list=list.filter(o=>
+    (o.id||'').toLowerCase().includes(filter.toLowerCase())||
+    (o.customer||'').toLowerCase().includes(filter.toLowerCase())||
+    (o.phone||'').includes(filter)||
+    (o.email||'').toLowerCase().includes(filter.toLowerCase())
+  );
+  document.getElementById('orders-tbody').innerHTML=list.length===0
+    ? `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">No orders yet</td></tr>`
+    : list.map(o=>`
+    <tr>
+      <td style="font-weight:600;color:var(--teal)">${o.id}</td>
+      <td>${o.customer||'—'}<br>
+        <span style="font-size:.72rem;color:var(--muted)">${o.city||'—'}</span><br>
+        ${o.phone?`<span style="font-size:.7rem;color:var(--blue)">${o.phone}</span>`:''}
+        ${o.email?`<span style="font-size:.7rem;color:var(--muted)"> · ${o.email}</span>`:''}
+      </td>
+      <td style="color:var(--muted);font-size:.78rem">${o.date||'—'}</td>
+      <td style="font-size:.78rem;max-width:180px;line-height:1.5">${getItemsText(o)}</td>
+      <td><strong>${o.total} SAR</strong></td>
+      <td>${statusPill(o.status)}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openOrderModal('${o.id}')">✏️ Update</button></td>
+    </tr>`).join('');
+  // update stats
+  ['pending','processing','shipped','delivered'].forEach(s=>{
+    const el=document.getElementById('os-'+s);
+    if(el) el.textContent=orders.filter(o=>o.status===s).length;
+  });
+  document.getElementById('pending-badge').textContent=orders.filter(o=>o.status==='pending').length;
+}
+
+function filterOrders(v){ renderOrders(v); }
+
+function openOrderModal(id){
+  editingOrderId=id;
+  const o=orders.find(x=>x.id===id);
+  if(!o) return;
+  document.getElementById('order-detail-info').innerHTML=`
+    <strong style="color:var(--teal);font-size:1rem">${o.id}</strong><br>
+    <span style="color:var(--muted);font-size:.78rem">Customer:</span> <strong>${o.customer||'—'}</strong><br>
+    <span style="color:var(--muted);font-size:.78rem">City:</span> ${o.city||'—'}<br>
+    ${o.phone?`<span style="color:var(--muted);font-size:.78rem">Phone:</span> ${o.phone}<br>`:''}
+    ${o.email?`<span style="color:var(--muted);font-size:.78rem">Email:</span> ${o.email}<br>`:''}
+    <span style="color:var(--muted);font-size:.78rem">Items:</span> ${getItemsText(o)}<br>
+    <span style="color:var(--muted);font-size:.78rem">Subtotal:</span> ${o.subtotal||'—'} SAR · Shipping: ${o.shipping===0?'Free':(o.shipping||'—')+' SAR'}<br>
+    <strong style="color:var(--teal)">Total: ${o.total} SAR</strong>`;
+  document.getElementById('order-status-sel').value=o.status||'pending';
+  document.getElementById('order-note').value=o.note||'';
+  document.getElementById('order-modal').classList.add('open');
+}
+
+function saveOrderStatus(){
+  const s=document.getElementById('order-status-sel').value;
+  const n=document.getElementById('order-note').value;
+  orders=orders.map(o=>o.id===editingOrderId?{...o,status:s,note:n}:o);
+  saveOrders();
+  renderOrders();
+  initDashboard();
+  closeModal('order-modal');
+  showToast('✅ Order status updated!');
+}
+
+// ============================================================
+//  CATEGORIES
+// ============================================================
+let categories = [...defaultCategories];
+function renderCats(){
+  document.getElementById('cats-tbody').innerHTML=categories.map((c,i)=>`
+    <tr>
+      <td><strong>${c.en}</strong></td>
+      <td style="font-family:'Tajawal',sans-serif">${c.ar}</td>
+      <td>${products.filter(p=>p.cat===c.slug).length}</td>
+      <td><span class="pill ${c.active?'pill-green':'pill-muted'}">${c.active?'Active':'Inactive'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn btn-ghost btn-sm" onclick="showToast('✏️ Edit category')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCategory(${i})">🗑</button>
+      </div></td>
+    </tr>`).join('');
+}
+function openCatModal(){ document.getElementById('cm-en').value=''; document.getElementById('cm-ar').value=''; document.getElementById('cm-slug').value=''; document.getElementById('cat-modal').classList.add('open'); }
+function saveCat(){
+  const en=document.getElementById('cm-en').value.trim();
+  const ar=document.getElementById('cm-ar').value.trim();
+  const slug=document.getElementById('cm-slug').value.trim();
+  if(!en||!slug){ showToast('⚠️ Fill all fields'); return; }
+  categories.push({en,ar,slug,active:true});
+  renderCats();
+  closeModal('cat-modal');
+  showToast('✅ Category added');
+}
+function deleteCategory(i){ categories.splice(i,1); renderCats(); showToast('🗑 Category removed'); }
+
+// ============================================================
+//  CUSTOMERS
+// ============================================================
+let customers=[...defaultCustomers];
+function renderCustomers(filter=''){
+  let list=customers;
+  if(filter) list=list.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase())||c.email.toLowerCase().includes(filter.toLowerCase()));
+  document.getElementById('customers-tbody').innerHTML=list.map(c=>`
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td style="color:var(--muted)">${c.email}</td>
+      <td>${c.city}</td>
+      <td>${c.orders}</td>
+      <td><strong style="color:var(--teal)">${c.spent} SAR</strong></td>
+      <td style="color:var(--muted)">${c.joined}</td>
+    </tr>`).join('');
+}
+function filterCustomers(v){ renderCustomers(v); }
+
+// ============================================================
+//  PROMOTIONS
+// ============================================================
+let promos=[...defaultPromos];
+function renderPromos(){
+  document.getElementById('promos-tbody').innerHTML=promos.map((pr,i)=>`
+    <tr>
+      <td><code style="background:rgba(78,205,196,.1);color:var(--teal);padding:2px 8px;border-radius:4px;font-size:.8rem">${pr.code}</code></td>
+      <td>${pr.type==='percent'?'% Off':pr.type==='fixed'?'SAR Off':'Free Ship'}</td>
+      <td>${pr.type==='freeship'?'—':pr.type==='percent'?pr.value+'%':pr.value+' SAR'}</td>
+      <td>${pr.used} times</td>
+      <td style="color:${new Date(pr.exp)<new Date()?'var(--red)':'var(--muted)'}">${pr.exp}</td>
+      <td><span class="pill ${pr.active?'pill-green':'pill-muted'}">${pr.active?'Active':'Expired'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn btn-ghost btn-sm" onclick="togglePromo(${i})">
+          ${pr.active?'Deactivate':'Activate'}
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deletePromo(${i})">🗑</button>
+      </div></td>
+    </tr>`).join('');
+}
+function openPromoModal(){ document.getElementById('prom-code').value=''; document.getElementById('prom-val').value=''; document.getElementById('promo-modal').classList.add('open'); }
+function savePromo(){
+  const code=document.getElementById('prom-code').value.trim().toUpperCase();
+  const type=document.getElementById('prom-type').value;
+  const value=parseFloat(document.getElementById('prom-val').value)||0;
+  const exp=document.getElementById('prom-exp').value;
+  if(!code){ showToast('⚠️ Enter a coupon code'); return; }
+  promos.push({code,type,value,used:0,exp:exp||'2025-12-31',active:true});
+  renderPromos();
+  closeModal('promo-modal');
+  showToast('✅ Coupon created!');
+}
+function togglePromo(i){ promos[i].active=!promos[i].active; renderPromos(); showToast('✅ Coupon updated'); }
+function deletePromo(i){ promos.splice(i,1); renderPromos(); showToast('🗑 Coupon removed'); }
+
+// ============================================================
+//  SETTINGS
+// ============================================================
+function saveSettings(){
+  const settings={
+    nameEn:document.getElementById('set-name-en').value,
+    nameAr:document.getElementById('set-name-ar').value,
+    email:document.getElementById('set-email').value,
+    whatsapp:document.getElementById('set-wa').value,
+    freeShipping:document.getElementById('set-free').value,
+    shippingCost:document.getElementById('set-ship-cost').value,
+    deliveryDays:document.getElementById('set-days').value,
+    moyasarKey:document.getElementById('moyasar-key').value,
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  // Save to Supabase
+  setSyncStatus('saving');
+  Promise.all(
+    Object.entries(settings).map(([key, value]) =>
+      _supa.from('settings').upsert({key, value: String(value)})
+    )
+  ).then(() => setSyncStatus('saved'))
+   .catch(() => setSyncStatus('error'));
+  showToast('✅ Settings saved and synced to cloud!');
+}
+
+// ============================================================
+//  MODALS
+// ============================================================
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{ if(e.target===el) el.classList.remove('open'); }));
+
+// ============================================================
+//  UTILITY
+// ============================================================
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function previewStore(){
+  // save current products to localStorage and open store
+  saveProducts();
+  showToast('💾 Data saved — open aljaser-store.html to preview');
+  // If store is in same folder, open it
+  setTimeout(()=>window.open('/','_blank'),1500);
+}
+
+function exportData(){
+  const data={products,orders,settings:JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='aljaser-data.json'; a.click();
+  showToast('📦 Data exported!');
+}
+
+// ============================================================
+//  LANGUAGE
+// ============================================================
+const T={
+  en:{
+    'nv-dash':'Dashboard','nv-prod':'Products','nv-orders':'Orders','nv-cats':'Categories',
+    'nv-cust':'Customers','nv-promo':'Promotions','nv-set':'Settings',
+    'dash-title':'Dashboard','dash-sub':'Welcome back — here\'s what\'s happening',
+    'sl-revenue':'Revenue (SAR)','sl-orders':'Total Orders','sl-customers':'Customers','sl-products':'Active Products',
+    'sc-revenue':'↑ 18% this week','sc-orders':'↑ 12% this week','sc-cust':'↑ 9% this month',
+    'chart1-title':'Revenue — Last 7 Days','chart2-title':'Sales by Category',
+    'recent-orders-title':'Recent Orders',
+    'th-order':'Order','th-date':'Date','th-products':'Products','th-total':'Total','th-status':'Status',
+    'prod-title':'Products','prod-sub':'Manage your product catalogue','add-prod-btn':'+ Add Product',
+    'th-p-prod':'Product','th-p-cat':'Category','th-p-price':'Price (SAR)','th-p-stock':'Stock',
+    'th-p-avail':'Available','th-p-actions':'Actions',
+    'orders-title':'Orders','orders-sub':'Manage and fulfill customer orders',
+    'osl-pending':'Pending','osl-processing':'Processing','osl-shipped':'Shipped','osl-delivered':'Delivered',
+    'th-o-id':'Order ID','th-o-cust':'Customer','th-o-date':'Date','th-o-items':'Items',
+    'th-o-total':'Total','th-o-status':'Status','th-o-actions':'Actions',
+    'cats-title':'Categories','add-cat-btn':'+ Add Category',
+    'th-c-name':'Category Name','th-c-name-ar':'Arabic Name','th-c-count':'Products','th-c-status':'Status','th-c-actions':'Actions',
+    'cust-title':'Customers',
+    'th-cu-name':'Name','th-cu-email':'Email','th-cu-city':'City','th-cu-orders':'Orders','th-cu-spent':'Total Spent','th-cu-joined':'Joined',
+    'promo-title':'Promotions & Coupons','add-promo-btn':'+ New Coupon',
+    'th-pr-code':'Code','th-pr-type':'Type','th-pr-val':'Value','th-pr-used':'Used','th-pr-exp':'Expires','th-pr-status':'Status','th-pr-actions':'Actions',
+    'set-title':'Store Settings','set-store-h':'🏪 Store Information',
+    'set-name-l':'Store Name (EN)','set-name-ar-l':'Store Name (AR)','set-email-l':'Contact Email','set-wa-l':'WhatsApp',
+    'set-ship-h':'🚚 Shipping','set-free-l':'Free Shipping Threshold (SAR)','set-ship-cost-l':'Shipping Cost (SAR)','set-days-l':'Delivery Days',
+    'set-pay-h':'💳 Payment','set-notif-h':'🔔 Notifications',
+    'ntg1':'New Order Email','ntg2':'Low Stock Alert','ntg2s':'Notify when stock < 5','ntg3':'WhatsApp Order Alerts',
+    'save-set-btn':'💾 Save All Settings',
+    'pm-en-l':'Name (English)','pm-ar-l':'Name (Arabic)','pm-price-l':'Price (SAR)','pm-stock-l':'Stock (units)',
+    'pm-cat-l':'Category','pm-badge-l':'Badge (optional)','pm-img-l':'Product Image',
+    'img-hint-txt':'💡 Visit aljaser.com.bh → open any product → right-click image → Copy Image Address → paste here',
+    'pm-desc-en-l':'Description (English)','pm-desc-ar-l':'Description (Arabic)',
+    'pm-status-l':'Status','pm-active-label':'Active (visible to customers)',
+    'pm-cancel':'Cancel','pm-save':'Save Product',
+    'order-status-l':'Order Status','order-note-l':'Internal Note','save-order-btn':'Update Order',
+    'lang-btn':'🌐 AR',
+  },
+  ar:{
+    'nv-dash':'لوحة التحكم','nv-prod':'المنتجات','nv-orders':'الطلبات','nv-cats':'الفئات',
+    'nv-cust':'العملاء','nv-promo':'العروض','nv-set':'الإعدادات',
+    'dash-title':'لوحة التحكم','dash-sub':'مرحباً — إليك ملخص اليوم',
+    'sl-revenue':'الإيرادات (ريال)','sl-orders':'إجمالي الطلبات','sl-customers':'العملاء','sl-products':'المنتجات النشطة',
+    'sc-revenue':'↑ 18% هذا الأسبوع','sc-orders':'↑ 12% هذا الأسبوع','sc-cust':'↑ 9% هذا الشهر',
+    'chart1-title':'الإيرادات — آخر ٧ أيام','chart2-title':'المبيعات حسب الفئة',
+    'recent-orders-title':'أحدث الطلبات',
+    'th-order':'الطلب','th-date':'التاريخ','th-products':'المنتجات','th-total':'الإجمالي','th-status':'الحالة',
+    'prod-title':'المنتجات','prod-sub':'إدارة كتالوج المنتجات','add-prod-btn':'+ إضافة منتج',
+    'th-p-prod':'المنتج','th-p-cat':'الفئة','th-p-price':'السعر (ريال)','th-p-stock':'المخزون',
+    'th-p-avail':'متاح','th-p-actions':'الإجراءات',
+    'orders-title':'الطلبات','orders-sub':'إدارة طلبات العملاء',
+    'osl-pending':'قيد الانتظار','osl-processing':'قيد التجهيز','osl-shipped':'تم الشحن','osl-delivered':'تم التسليم',
+    'th-o-id':'رقم الطلب','th-o-cust':'العميل','th-o-date':'التاريخ','th-o-items':'المنتجات',
+    'th-o-total':'الإجمالي','th-o-status':'الحالة','th-o-actions':'الإجراءات',
+    'cats-title':'الفئات','add-cat-btn':'+ إضافة فئة',
+    'th-c-name':'اسم الفئة','th-c-name-ar':'الاسم بالعربية','th-c-count':'المنتجات','th-c-status':'الحالة','th-c-actions':'الإجراءات',
+    'cust-title':'العملاء',
+    'th-cu-name':'الاسم','th-cu-email':'البريد','th-cu-city':'المدينة','th-cu-orders':'الطلبات','th-cu-spent':'الإنفاق الكلي','th-cu-joined':'تاريخ الانضمام',
+    'promo-title':'العروض والكوبونات','add-promo-btn':'+ كوبون جديد',
+    'th-pr-code':'الكود','th-pr-type':'النوع','th-pr-val':'القيمة','th-pr-used':'الاستخدام','th-pr-exp':'الانتهاء','th-pr-status':'الحالة','th-pr-actions':'الإجراءات',
+    'set-title':'إعدادات المتجر','set-store-h':'🏪 معلومات المتجر',
+    'set-name-l':'اسم المتجر (EN)','set-name-ar-l':'اسم المتجر (AR)','set-email-l':'البريد الإلكتروني','set-wa-l':'واتساب',
+    'set-ship-h':'🚚 الشحن','set-free-l':'حد الشحن المجاني (ريال)','set-ship-cost-l':'تكلفة الشحن (ريال)','set-days-l':'أيام التوصيل',
+    'set-pay-h':'💳 الدفع','set-notif-h':'🔔 الإشعارات',
+    'ntg1':'إشعار طلب جديد','ntg2':'تنبيه مخزون منخفض','ntg2s':'تنبيه عند مخزون أقل من ٥','ntg3':'تنبيهات واتساب',
+    'save-set-btn':'💾 حفظ كل الإعدادات',
+    'pm-en-l':'الاسم (English)','pm-ar-l':'الاسم (Arabic)','pm-price-l':'السعر (ريال)','pm-stock-l':'الكمية',
+    'pm-cat-l':'الفئة','pm-badge-l':'الشارة (اختياري)','pm-img-l':'صورة المنتج',
+    'img-hint-txt':'💡 للحصول على الصورة الحقيقية: افتح aljaser.com.bh ← اختر المنتج ← انقر بزر يمين على الصورة ← Copy Image Address ← الصق هنا',
+    'pm-desc-en-l':'الوصف (English)','pm-desc-ar-l':'الوصف (Arabic)',
+    'pm-status-l':'الحالة','pm-active-label':'نشط (يظهر للعملاء)',
+    'pm-cancel':'إلغاء','pm-save':'حفظ المنتج',
+    'order-status-l':'حالة الطلب','order-note-l':'ملاحظة داخلية','save-order-btn':'تحديث الطلب',
+    'lang-btn':'🌐 EN',
+  }
+};
+
+function applyLang(lang){
+  const t=T[lang];
+  isAr=lang==='ar';
+  document.documentElement.setAttribute('lang',lang);
+  document.documentElement.setAttribute('dir',lang==='ar'?'rtl':'ltr');
+  isAr?document.body.classList.add('ar'):document.body.classList.remove('ar');
+  Object.keys(t).forEach(k=>{
+    const el=document.getElementById(k);
+    if(el){
+      if(el.tagName==='INPUT'||el.tagName==='BUTTON') el.value!==undefined&&el.type!=='checkbox'?null:null;
+      el.textContent=t[k];
+    }
+  });
+}
+function toggleLang(){ applyLang(isAr?'en':'ar'); }
+</script>
+</body>
+</html>

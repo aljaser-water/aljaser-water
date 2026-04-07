@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Refund & Return Policy — Aljaser Water Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=DM+Sans:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--teal:#0d6e6e;--teal2:#4ecdc4;--gold:#c9a84c;--cream:#fdfaf4;--dark:#0f1f1f;--muted:#6b7280;--border:#e8e2d9;--red:#e05252;--green:#2ecc71}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);line-height:1.7}
+body.ar{font-family:'Tajawal',sans-serif;direction:rtl;text-align:right}
+.nav{position:fixed;top:0;width:100%;z-index:99;padding:14px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,250,244,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--teal);text-decoration:none}
+.nav-logo span{color:var(--gold);font-style:italic}
+.nav-right{display:flex;gap:12px;align-items:center}
+.btn-sm{font-size:.8rem;cursor:pointer;padding:7px 16px;border-radius:50px;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-outline{border:1.5px solid var(--border);background:transparent;color:var(--dark)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-teal{border:1.5px solid var(--teal);background:transparent;color:var(--teal)}
+.btn-teal:hover{background:var(--teal);color:#fff}
+.hero{background:linear-gradient(135deg,#0a3333 0%,var(--teal) 100%);padding:120px 60px 60px;text-align:center;color:#fff}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:300;margin-bottom:12px}
+.hero h1 em{color:var(--gold);font-style:italic}
+.hero p{font-size:.85rem;color:rgba(255,255,255,.65);max-width:580px;margin:0 auto 20px}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:6px 14px;font-size:.74rem;color:rgba(255,255,255,.8)}
+.wrap{max-width:820px;margin:0 auto;padding:56px 24px 80px}
+/* 7-day hero box */
+.days-box{background:linear-gradient(135deg,rgba(46,204,113,.08),rgba(13,110,110,.06));border:2px solid rgba(46,204,113,.3);border-radius:16px;padding:28px;text-align:center;margin-bottom:24px}
+.days-num{font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:600;color:var(--green);line-height:1}
+.days-label{font-size:.88rem;color:var(--dark);font-weight:500;margin-top:6px}
+.days-sub{font-size:.78rem;color:var(--muted);margin-top:4px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:18px}
+.card h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--teal);margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+.card h3{font-size:.88rem;font-weight:600;margin:18px 0 8px}
+.card p{font-size:.86rem;color:#4b5563;margin-bottom:10px;line-height:1.85}
+.card ul{margin:0 0 12px 0;padding-left:20px}
+body.ar .card ul{padding-left:0;padding-right:20px}
+.card ul li{font-size:.86rem;color:#4b5563;margin-bottom:6px;line-height:1.8}
+.notice{background:rgba(13,110,110,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .notice{border-left:none;border-right:3px solid var(--teal);border-radius:8px 0 0 8px}
+.alert{background:rgba(224,82,82,.07);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .alert{border-left:none;border-right:3px solid var(--red);border-radius:8px 0 0 8px}
+.good{background:rgba(46,204,113,.07);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .good{border-left:none;border-right:3px solid var(--green);border-radius:8px 0 0 8px}
+.steps{counter-reset:steps;margin:0 0 12px 0;padding:0;list-style:none}
+.steps li{counter-increment:steps;display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);font-size:.86rem;color:#4b5563}
+.steps li:last-child{border-bottom:none}
+.steps li::before{content:counter(steps);min-width:28px;height:28px;background:var(--teal);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;flex-shrink:0;margin-top:1px}
+body.ar .steps li{flex-direction:row-reverse}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.box-yes{background:rgba(46,204,113,.07);border:1px solid rgba(46,204,113,.25);border-radius:10px;padding:16px}
+.box-no{background:rgba(224,82,82,.07);border:1px solid rgba(224,82,82,.2);border-radius:10px;padding:16px}
+.box-label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.box-yes .box-label{color:var(--green)}
+.box-no .box-label{color:var(--red)}
+.box-yes ul,.box-no ul{padding-left:16px;margin:0}
+body.ar .box-yes ul,body.ar .box-no ul{padding-left:0;padding-right:16px}
+.box-yes ul li,.box-no ul li{font-size:.82rem;color:#4b5563;margin-bottom:4px}
+.contact-cta{background:linear-gradient(135deg,rgba(13,110,110,.07),rgba(78,205,196,.04));border:1px solid rgba(13,110,110,.15);border-radius:12px;padding:24px;text-align:center;margin-top:6px}
+.contact-cta p{font-size:.84rem;color:var(--muted);margin-bottom:8px}
+.contact-cta a{color:var(--teal);font-weight:500;text-decoration:none}
+.ts{text-align:center;font-size:.76rem;color:var(--muted);margin-bottom:28px}
+footer{background:var(--dark);color:rgba(255,255,255,.45);padding:28px;text-align:center;font-size:.77rem}
+footer a{color:rgba(255,255,255,.4);text-decoration:none;margin:0 8px;transition:.2s}
+footer a:hover{color:#fff}
+@media(max-width:600px){.nav{padding:12px 20px}.hero{padding:96px 20px 40px}.card{padding:22px 18px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body id="pg">
+
+<nav class="nav">
+  <a class="nav-logo" href="/">Al<span>jaser</span></a>
+  <div class="nav-right">
+    <button class="btn-sm btn-outline" onclick="toggleLang()" id="lang-btn">🌐 عربي</button>
+    <a class="btn-sm btn-teal" href="/" id="back-btn">← Back to Store</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1 id="h-title">Return & <em>Refund</em> Policy</h1>
+  <p id="h-sub">Your consumer rights under Saudi Arabia's E-Commerce Law — Royal Decree M/126</p>
+  <div class="badges">
+    <span class="badge">⚖️ Saudi E-Commerce Law M/126</span>
+    <span class="badge">7-Day Return Right</span>
+    <span class="badge">✅ Consumer Protected</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <p class="ts" id="ts-text">Last updated: March 2026 | هذه الصفحة متاحة باللغتين</p>
+
+  <!-- 7 DAY BOX -->
+  <div class="days-box">
+    <div class="days-num">7</div>
+    <div class="days-label" id="days-label">Day Return Right</div>
+    <div class="days-sub" id="days-sub">Guaranteed by Saudi E-Commerce Law — Article 13, Royal Decree M/126</div>
+  </div>
+
+  <!-- WHO WE ARE -->
+  <div class="card">
+    <h2 id="s1h">🏪 Who You Are Buying From</h2>
+    <div class="notice" id="s1-note">You are purchasing from an <strong>independent authorized reseller</strong> of Aljaser Water products — not from شركة مصنع الجسر directly. All returns and refunds are handled by us, not by the manufacturer.</div>
+  </div>
+
+  <!-- YOUR RIGHT TO RETURN -->
+  <div class="card">
+    <h2 id="s2h">⚖️ Your Legal Right to Return</h2>
+    <p id="s2p">Under Article 13 of Saudi Arabia's E-Commerce Law (Royal Decree M/126, 2019), you have the right to return any product within <strong>7 days</strong> of receiving your order — no questions asked — provided the conditions below are met.</p>
+    <div class="good" id="s2-good">✅ This right is guaranteed by Saudi law and cannot be waived or removed by any seller.</div>
+    <div class="grid2">
+      <div class="box-yes">
+        <div class="box-label" id="yes-label">✅ Eligible for Return</div>
+        <ul id="yes-list">
+          <li>Unopened, unused products</li>
+          <li>Original packaging intact</li>
+          <li>Within 7 days of receiving your order</li>
+          <li>Product arrived damaged or defective</li>
+          <li>Wrong item was sent</li>
+        </ul>
+      </div>
+      <div class="box-no">
+        <div class="box-label" id="no-label">❌ Not Eligible for Return</div>
+        <ul id="no-list">
+          <li>Products that have been opened or used</li>
+          <li>Products with broken seals</li>
+          <li>More than 7 days since delivery</li>
+          <li>Products returned without original packaging</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO RETURN -->
+  <div class="card">
+    <h2 id="s3h">📦 How to Return a Product</h2>
+    <p id="s3p">Follow these steps to request a return:</p>
+    <ol class="steps" id="steps-list">
+      <li id="st1">Contact us within 7 days of receiving your order — via WhatsApp or email (details below)</li>
+      <li id="st2">Tell us your order number and the reason for return</li>
+      <li id="st3">We will confirm your return request within 24 hours</li>
+      <li id="st4">Return the product in its original, unopened condition. Return shipping costs are your responsibility unless the product was damaged or incorrect.</li>
+      <li id="st5">Once we receive and inspect the product, your refund will be processed within 5–7 business days</li>
+    </ol>
+    <div class="notice" id="s3-note">📱 The fastest way to start a return is via WhatsApp. Send us your order number and a photo of the product.</div>
+  </div>
+
+  <!-- REFUND PROCESS -->
+  <div class="card">
+    <h2 id="s4h">💳 Refunds</h2>
+    <p id="s4p1">Approved refunds will be returned to your original payment method:</p>
+    <ul>
+      <li id="rf1">MADA / Visa / Mastercard — refunded within 5–7 business days</li>
+      <li id="rf2">STC Pay — refunded within 3–5 business days</li>
+      <li id="rf3">Apple Pay — refunded within 5–7 business days</li>
+    </ul>
+    <p id="s4p2">Refunds are processed through Moyasar (our payment gateway). The exact time depends on your bank.</p>
+    <div class="alert" id="s4-alert">⚠️ Shipping fees are non-refundable unless the return is due to a defective, damaged, or incorrect item sent by us.</div>
+  </div>
+
+  <!-- DAMAGED ITEMS -->
+  <div class="card">
+    <h2 id="s5h">📸 Damaged or Wrong Items</h2>
+    <p id="s5p">If your order arrives damaged or you received the wrong product:</p>
+    <ul>
+      <li id="dmg1">Take a photo of the item immediately</li>
+      <li id="dmg2">Contact us via WhatsApp within 48 hours of delivery</li>
+      <li id="dmg3">We will arrange a replacement or full refund at no cost to you</li>
+      <li id="dmg4">Return shipping will be covered by us for damaged/wrong items</li>
+    </ul>
+  </div>
+
+  <!-- CANCELLATIONS -->
+  <div class="card">
+    <h2 id="s6h">🚫 Order Cancellations</h2>
+    <p id="s6p">You may cancel your order under these conditions:</p>
+    <ul>
+      <li id="cn1">✅ Before the order is shipped — full refund, no charge</li>
+      <li id="cn2">✅ After delivery — within the 7-day return window above</li>
+      <li id="cn3">❌ After 7 days from delivery — cancellation is not possible</li>
+    </ul>
+    <p id="s6p2">To cancel before shipping, contact us as soon as possible via WhatsApp.</p>
+  </div>
+
+  <!-- COMPLAINTS -->
+  <div class="card">
+    <h2 id="s7h">🏛️ Escalating a Complaint</h2>
+    <p id="s7p">If you are unsatisfied with our response, you have the right under Saudi Consumer Protection Law to escalate your complaint:</p>
+    <ul>
+      <li id="cp1">📱 Ministry of Commerce consumer complaints: <strong>1900</strong> (toll-free)</li>
+      <li id="cp2">🌐 Online: <a href="https://mc.gov.sa" target="_blank" style="color:var(--teal)">mc.gov.sa</a></li>
+      <li id="cp3">🌐 Consumer Protection Association: <a href="https://cpa.org.sa" target="_blank" style="color:var(--teal)">cpa.org.sa</a></li>
+    </ul>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="card">
+    <h2 id="s8h">📞 Contact Us to Start a Return</h2>
+    <p id="s8p">Reach out within 7 days of receiving your order:</p>
+    <div class="contact-cta">
+      <p id="ct1">💬 WhatsApp (Fastest): <a href="https://wa.me/966XXXXXXXXX">+966 XX XXX XXXX</a></p>
+      <p id="ct2">📧 Email: <a href="/cdn-cgi/l/email-protection#93e0fcf0faf2ffd3f2fff9f2e0f6e1bdf0fcfebdf1fb"><span class="__cf_email__" data-cfemail="11627e7278707d51707d7b706274633f727e7c3f7379">[email&#160;protected]</span></a></p>
+      <p id="ct3" style="margin-top:12px;font-size:.78rem;color:var(--muted)">Please include your order number and reason for return. We respond within 24 hours.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div><a href="/">Store</a><a href="privacy.html">Privacy Policy</a><a href="refund.html">Refund Policy</a><a href="shipping.html">Shipping Policy</a></div>
+  <div style="margin-top:10px;opacity:.5">© 2026 Aljaser Water Store — Independent Authorized Reseller — موزّع مستقل</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+let isAr=false;
+const T={
+  'h-title':{en:'Return & <em>Refund</em> Policy',ar:'سياسة <em>الإرجاع</em> والاسترداد'},
+  'h-sub':{en:"Your consumer rights under Saudi Arabia's E-Commerce Law — Royal Decree M/126",ar:'حقوقك كمستهلك بموجب نظام التجارة الإلكترونية السعودي — المرسوم الملكي M/126'},
+  'back-btn':{en:'← Back to Store',ar:'العودة إلى المتجر →'},
+  'days-label':{en:'Day Return Right',ar:'أيام حق الإرجاع'},
+  'days-sub':{en:'Guaranteed by Saudi E-Commerce Law — Article 13, Royal Decree M/126',ar:'مكفول بموجب نظام التجارة الإلكترونية السعودي — المادة ١٣، المرسوم الملكي M/126'},
+  's1h':{en:'🏪 Who You Are Buying From',ar:'🏪 من تشتري؟'},
+  's1-note':{en:'You are purchasing from an <strong>independent authorized reseller</strong> of Aljaser Water products — not from شركة مصنع الجسر directly. All returns and refunds are handled by us, not by the manufacturer.',ar:'أنت تشتري من <strong>موزّع مستقل ومعتمد</strong> لمنتجات مياه الجسر — وليس من شركة مصنع الجسر مباشرة. جميع حالات الإرجاع والاسترداد تُعالج من قِبلنا وليس من الشركة المصنّعة.'},
+  's2h':{en:'⚖️ Your Legal Right to Return',ar:'⚖️ حقك القانوني في الإرجاع'},
+  's2p':{en:'Under Article 13 of Saudi Arabia\'s E-Commerce Law (Royal Decree M/126, 2019), you have the right to return any product within <strong>7 days</strong> of receiving your order — no questions asked — provided the conditions below are met.',ar:'بموجب المادة ١٣ من نظام التجارة الإلكترونية السعودي (المرسوم الملكي M/126، ٢٠١٩)، يحق لك إرجاع أي منتج خلال <strong>٧ أيام</strong> من استلام طلبك — دون الحاجة لتقديم أسباب — شريطة استيفاء الشروط أدناه.'},
+  's2-good':{en:'✅ This right is guaranteed by Saudi law and cannot be waived or removed by any seller.',ar:'✅ هذا الحق مكفول بالقانون السعودي ولا يمكن لأي بائع إلغاؤه أو التنازل عنه.'},
+  'yes-label':{en:'✅ Eligible for Return',ar:'✅ قابل للإرجاع'},
+  'yes-list':{en:'<li>Unopened, unused products</li><li>Original packaging intact</li><li>Within 7 days of receiving your order</li><li>Product arrived damaged or defective</li><li>Wrong item was sent</li>',ar:'<li>منتجات لم تُفتح ولم تُستخدم</li><li>العبوة الأصلية سليمة</li><li>خلال ٧ أيام من استلام الطلب</li><li>وصل المنتج تالفاً أو معيباً</li><li>تم إرسال منتج خاطئ</li>'},
+  'no-label':{en:'❌ Not Eligible for Return',ar:'❌ غير قابل للإرجاع'},
+  'no-list':{en:'<li>Products that have been opened or used</li><li>Products with broken seals</li><li>More than 7 days since delivery</li><li>Products returned without original packaging</li>',ar:'<li>منتجات تم فتحها أو استخدامها</li><li>منتجات كُسر ختمها</li><li>مرور أكثر من ٧ أيام على التوصيل</li><li>منتجات مُرجعة بدون عبوتها الأصلية</li>'},
+  's3h':{en:'📦 How to Return a Product',ar:'📦 كيفية إرجاع منتج'},
+  's3p':{en:'Follow these steps to request a return:',ar:'اتبع هذه الخطوات لطلب الإرجاع:'},
+  'st1':{en:'Contact us within 7 days of receiving your order — via WhatsApp or email (details below)',ar:'تواصل معنا خلال ٧ أيام من استلام طلبك — عبر واتساب أو البريد الإلكتروني'},
+  'st2':{en:'Tell us your order number and the reason for return',ar:'أخبرنا برقم طلبك وسبب الإرجاع'},
+  'st3':{en:'We will confirm your return request within 24 hours',ar:'سنؤكد طلب إرجاعك خلال ٢٤ ساعة'},
+  'st4':{en:'Return the product in its original, unopened condition. Return shipping costs are your responsibility unless the product was damaged or incorrect.',ar:'أعد المنتج بحالته الأصلية غير المفتوحة. تكاليف شحن الإرجاع على عاتقك إلا إذا كان المنتج تالفاً أو خاطئاً.'},
+  'st5':{en:'Once we receive and inspect the product, your refund will be processed within 5–7 business days',ar:'بمجرد استلامنا وفحص المنتج، سنعالج استردادك خلال ٥-٧ أيام عمل'},
+  's3-note':{en:'📱 The fastest way to start a return is via WhatsApp. Send us your order number and a photo of the product.',ar:'📱 أسرع طريقة لبدء الإرجاع هي عبر واتساب. أرسل لنا رقم طلبك وصورة للمنتج.'},
+  's4h':{en:'💳 Refunds',ar:'💳 الاسترداد'},
+  's4p1':{en:'Approved refunds will be returned to your original payment method:',ar:'سيتم رد المبالغ المعتمدة إلى وسيلة الدفع الأصلية:'},
+  'rf1':{en:'MADA / Visa / Mastercard — refunded within 5–7 business days',ar:'مدى / فيزا / ماستركارد — خلال ٥-٧ أيام عمل'},
+  'rf2':{en:'STC Pay — refunded within 3–5 business days',ar:'STC Pay — خلال ٣-٥ أيام عمل'},
+  'rf3':{en:'Apple Pay — refunded within 5–7 business days',ar:'Apple Pay — خلال ٥-٧ أيام عمل'},
+  's4p2':{en:'Refunds are processed through Moyasar (our payment gateway). The exact time depends on your bank.',ar:'تُعالج المبالغ المستردة عبر بوابة الدفع ميسّر. الوقت الدقيق يعتمد على بنكك.'},
+  's4-alert':{en:'⚠️ Shipping fees are non-refundable unless the return is due to a defective, damaged, or incorrect item sent by us.',ar:'⚠️ رسوم الشحن غير قابلة للاسترداد إلا إذا كان الإرجاع بسبب منتج معيب أو تالف أو خاطئ من طرفنا.'},
+  's5h':{en:'📸 Damaged or Wrong Items',ar:'📸 المنتجات التالفة أو الخاطئة'},
+  's5p':{en:'If your order arrives damaged or you received the wrong product:',ar:'إذا وصل طلبك تالفاً أو استلمت منتجاً خاطئاً:'},
+  'dmg1':{en:'Take a photo of the item immediately',ar:'التقط صورة للمنتج فوراً'},
+  'dmg2':{en:'Contact us via WhatsApp within 48 hours of delivery',ar:'تواصل معنا عبر واتساب خلال ٤٨ ساعة من التوصيل'},
+  'dmg3':{en:'We will arrange a replacement or full refund at no cost to you',ar:'سنرتب استبدالاً أو استرداداً كاملاً دون أي تكلفة عليك'},
+  'dmg4':{en:'Return shipping will be covered by us for damaged/wrong items',ar:'نتحمّل نحن تكاليف شحن الإرجاع في حالات التلف أو الخطأ'},
+  's6h':{en:'🚫 Order Cancellations',ar:'🚫 إلغاء الطلبات'},
+  's6p':{en:'You may cancel your order under these conditions:',ar:'يمكنك إلغاء طلبك في الحالات التالية:'},
+  'cn1':{en:'✅ Before the order is shipped — full refund, no charge',ar:'✅ قبل شحن الطلب — استرداد كامل بدون رسوم'},
+  'cn2':{en:'✅ After delivery — within the 7-day return window above',ar:'✅ بعد التوصيل — خلال فترة الإرجاع ٧ أيام المذكورة أعلاه'},
+  'cn3':{en:'❌ After 7 days from delivery — cancellation is not possible',ar:'❌ بعد ٧ أيام من التوصيل — لا يمكن الإلغاء'},
+  's6p2':{en:'To cancel before shipping, contact us as soon as possible via WhatsApp.',ar:'للإلغاء قبل الشحن، تواصل معنا في أقرب وقت عبر واتساب.'},
+  's7h':{en:'🏛️ Escalating a Complaint',ar:'🏛️ تصعيد الشكوى'},
+  's7p':{en:'If you are unsatisfied with our response, you have the right under Saudi Consumer Protection Law to escalate your complaint:',ar:'إذا لم تكن راضياً عن ردنا، يحق لك بموجب نظام حماية المستهلك السعودي تصعيد شكواك:'},
+  'cp1':{en:'📱 Ministry of Commerce consumer complaints: <strong>1900</strong> (toll-free)',ar:'📱 شكاوى وزارة التجارة: <strong>1900</strong> (مجاناً)'},
+  'cp2':{en:'🌐 Online: <a href="https://mc.gov.sa" target="_blank" style="color:var(--teal)">mc.gov.sa</a>',ar:'🌐 إلكترونياً: <a href="https://mc.gov.sa" target="_blank" style="color:var(--teal)">mc.gov.sa</a>'},
+  'cp3':{en:'🌐 Consumer Protection Association: <a href="https://cpa.org.sa" target="_blank" style="color:var(--teal)">cpa.org.sa</a>',ar:'🌐 جمعية حماية المستهلك: <a href="https://cpa.org.sa" target="_blank" style="color:var(--teal)">cpa.org.sa</a>'},
+  's8h':{en:'📞 Contact Us to Start a Return',ar:'📞 تواصل معنا لبدء الإرجاع'},
+  's8p':{en:'Reach out within 7 days of receiving your order:',ar:'تواصل معنا خلال ٧ أيام من استلام طلبك:'},
+  'ct1':{en:'💬 WhatsApp (Fastest): <a href="https://wa.me/966XXXXXXXXX">+966 XX XXX XXXX</a>',ar:'💬 واتساب (الأسرع): <a href="https://wa.me/966XXXXXXXXX">+966 XX XXX XXXX</a>'},
+  'ct2':{en:'📧 Email: <a href="mailto:social@aljaser.com.bh">social@aljaser.com.bh</a>',ar:'📧 البريد: <a href="mailto:social@aljaser.com.bh">social@aljaser.com.bh</a>'},
+  'ct3':{en:'Please include your order number and reason for return. We respond within 24 hours.',ar:'يرجى تضمين رقم طلبك وسبب الإرجاع. سنرد خلال ٢٤ ساعة.'}
+};
+function toggleLang(){
+  isAr=!isAr;
+  document.getElementById('pg').className=isAr?'ar':'';
+  document.documentElement.lang=isAr?'ar':'en';
+  document.documentElement.dir=

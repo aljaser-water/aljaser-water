@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Privacy Policy — Aljaser Water Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=DM+Sans:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--teal:#0d6e6e;--teal2:#4ecdc4;--gold:#c9a84c;--cream:#fdfaf4;--dark:#0f1f1f;--muted:#6b7280;--border:#e8e2d9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);line-height:1.7}
+body.ar{font-family:'Tajawal',sans-serif;direction:rtl;text-align:right}
+.nav{position:fixed;top:0;width:100%;z-index:99;padding:14px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,250,244,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--teal);text-decoration:none}
+.nav-logo span{color:var(--gold);font-style:italic}
+.nav-right{display:flex;gap:12px;align-items:center}
+.btn-sm{font-size:.8rem;cursor:pointer;padding:7px 16px;border-radius:50px;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-outline{border:1.5px solid var(--border);background:transparent;color:var(--dark)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-teal{border:1.5px solid var(--teal);background:transparent;color:var(--teal)}
+.btn-teal:hover{background:var(--teal);color:#fff}
+.hero{background:linear-gradient(135deg,var(--dark) 0%,#0d4040 100%);padding:120px 60px 60px;text-align:center;color:#fff}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:300;margin-bottom:12px}
+.hero h1 em{color:var(--gold);font-style:italic}
+.hero p{font-size:.85rem;color:rgba(255,255,255,.6);max-width:580px;margin:0 auto 20px}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:6px 14px;font-size:.74rem;color:rgba(255,255,255,.75)}
+.wrap{max-width:820px;margin:0 auto;padding:56px 24px 80px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:18px}
+.card h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--teal);margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+.card h3{font-size:.88rem;font-weight:600;margin:18px 0 8px}
+.card p{font-size:.86rem;color:#4b5563;margin-bottom:10px;line-height:1.85}
+.card ul{margin:0 0 12px 0;padding-left:20px}
+body.ar .card ul{padding-left:0;padding-right:20px}
+.card ul li{font-size:.86rem;color:#4b5563;margin-bottom:5px;line-height:1.8}
+.notice{background:rgba(13,110,110,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .notice{border-left:none;border-right:3px solid var(--teal);border-radius:8px 0 0 8px}
+.warn{background:rgba(201,168,76,.08);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem}
+body.ar .warn{border-left:none;border-right:3px solid var(--gold);border-radius:8px 0 0 8px}
+table{width:100%;border-collapse:collapse;font-size:.83rem;margin-bottom:12px}
+table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+table td:first-child{font-weight:600;color:var(--dark);width:38%}
+table td:last-child{color:#4b5563}
+.contact-cta{background:linear-gradient(135deg,rgba(13,110,110,.07),rgba(78,205,196,.04));border:1px solid rgba(13,110,110,.15);border-radius:12px;padding:24px;text-align:center;margin-top:6px}
+.contact-cta p{font-size:.84rem;color:var(--muted);margin-bottom:8px}
+.contact-cta a{color:var(--teal);font-weight:500;text-decoration:none}
+.ts{text-align:center;font-size:.76rem;color:var(--muted);margin-bottom:28px}
+footer{background:var(--dark);color:rgba(255,255,255,.45);padding:28px;text-align:center;font-size:.77rem}
+footer a{color:rgba(255,255,255,.4);text-decoration:none;margin:0 8px;transition:.2s}
+footer a:hover{color:#fff}
+@media(max-width:600px){.nav{padding:12px 20px}.hero{padding:96px 20px 40px}.card{padding:22px 18px}}
+</style>
+</head>
+<body id="pg">
+
+<nav class="nav">
+  <a class="nav-logo" href="/">Al<span>jaser</span></a>
+  <div class="nav-right">
+    <button class="btn-sm btn-outline" onclick="toggleLang()" id="lang-btn">🌐 عربي</button>
+    <a class="btn-sm btn-teal" href="/" id="back-btn">← Back to Store</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1 id="h-title"><em>Privacy</em> Policy</h1>
+  <p id="h-sub">How we collect, use and protect your personal data — compliant with Saudi Arabia's Personal Data Protection Law (PDPL) and E-Commerce Law M/126</p>
+  <div class="badges">
+    <span class="badge">🔒 Saudi PDPL Compliant</span>
+    <span class="badge">📋 E-Commerce Law M/126</span>
+    <span class="badge">✅ Your Data Is Protected</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <p class="ts" id="ts-text">Last updated: March 2026 | هذه الصفحة متاحة باللغتين العربية والإنجليزية</p>
+
+  <div class="card">
+    <h2 id="s1h">🏪 1. Who We Are</h2>
+    <div class="notice" id="s1-note">This store is operated by an <strong>independent authorized reseller</strong> of Aljaser Water products. We are NOT شركة مصنع الجسر (Aljaser Factory Company) — we are a separate Saudi business that buys and resells Aljaser's products to customers in the Kingdom.</div>
+    <table>
+      <tr><td id="r1a">Business Type</td><td id="r1b">Independent Authorized Reseller — موزّع مستقل ومعتمد</td></tr>
+      <tr><td id="r2a">Products</td><td id="r2b">Aljaser herbal water products (manufactured by شركة مصنع الجسر, Bahrain)</td></tr>
+      <tr><td id="r3a">Market</td><td id="r3b">Kingdom of Saudi Arabia — المملكة العربية السعودية</td></tr>
+      <tr><td id="r4a">Email</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6c1f030f050d002c0d00060d1f091e420f0301420e04">[email&#160;protected]</a></td></tr>
+      <tr><td id="r5a">WhatsApp</td><td>+966 XX XXX XXXX</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 id="s2h">📋 2. What Data We Collect</h2>
+    <p id="s2p">Under Article 5 of the Saudi E-Commerce Law Implementing Regulations, we collect only what is strictly necessary to process your order.</p>
+    <h3 id="s2h1">When you place an order:</h3>
+    <ul>
+      <li id="d1">Full name | الاسم الكامل</li>
+      <li id="d2">Delivery address in Saudi Arabia | عنوان التوصيل</li>
+      <li id="d3">Phone number for delivery coordination | رقم الجوال</li>
+      <li id="d4">Email address for order confirmation | البريد الإلكتروني</li>
+      <li id="d5">Payment info — encrypted and processed by Moyasar. We never see or store your card details.</li>
+    </ul>
+    <h3 id="s2h2">When you browse:</h3>
+    <ul>
+      <li id="d6">Browser type and device type (site performance only)</li>
+      <li id="d7">Pages visited (to improve your experience)</li>
+      <li id="d8">We do NOT use advertising cookies or share browsing data with any third party</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2 id="s3h">🎯 3. How We Use Your Data</h2>
+    <p id="s3p">Per Saudi PDPL requirements, we use your personal data only for:</p>
+    <ul>
+      <li id="u1">✅ Processing and fulfilling your order</li>
+      <li id="u2">✅ Sending delivery updates and order confirmation</li>
+      <li id="u3">✅ Responding to your questions and complaints</li>
+      <li id="u4">✅ Issuing VAT-compliant invoices (required by ZATCA)</li>
+      <li id="u5">✅ Improving our store and your shopping experience</li>
+    </ul>
+    <div class="warn" id="s3-warn">
+      ❌ We do NOT sell, rent, or share your personal data with any third party for marketing.<br/>
+      ❌ We do NOT use your data for any other purpose without your explicit consent.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="s4h">⏳ 4. How Long We Keep Your Data</h2>
+    <p id="s4p">We keep your data only as long as needed for the transaction and legal compliance:</p>
+    <ul>
+      <li id="r1">Order records — up to 5 years (Saudi commercial record-keeping law)</li>
+      <li id="r2">Account data — until you request account deletion</li>
+      <li id="r3">Payment records — retained by Moyasar under SAMA regulations</li>
+    </ul>
+    <p id="s4p2">You can request deletion of your data at any time. We will process your request within 30 days.</p>
+  </div>
+
+  <div class="card">
+    <h2 id="s5h">⚖️ 5. Your Rights — Saudi PDPL</h2>
+    <p id="s5p">As a consumer in Saudi Arabia, the Personal Data Protection Law (PDPL — effective September 2023) gives you the following rights:</p>
+    <ul>
+      <li id="rg1"><strong>Right to Know</strong> — Request info about what data we hold on you</li>
+      <li id="rg2"><strong>Right to Access</strong> — Request a copy of your personal data</li>
+      <li id="rg3"><strong>Right to Correction</strong> — Request correction of inaccurate data</li>
+      <li id="rg4"><strong>Right to Deletion</strong> — Request erasure of your data (subject to legal requirements)</li>
+      <li id="rg5"><strong>Right to Withdraw Consent</strong> — Withdraw consent for data use at any time</li>
+      <li id="rg6"><strong>Right to Complain</strong> — File a complaint with SDAIA at <a href="https://sdaia.gov.sa" target="_blank" style="color:var(--teal)">sdaia.gov.sa</a></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2 id="s6h">🔒 6. Payment Security</h2>
+    <p id="s6p1">All payments are processed by <strong>Moyasar</strong> — a payment gateway licensed by the Saudi Central Bank (SAMA). Your card details are fully encrypted and never stored on our servers.</p>
+    <ul>
+      <li id="py1">All transactions use SSL/TLS encryption</li>
+      <li id="py2">Moyasar is PCI-DSS certified</li>
+      <li id="py3">Accepted: MADA, Visa, Mastercard, STC Pay, Apple Pay</li>
+      <li id="py4">All prices include 15% VAT as required by ZATCA (هيئة الزكاة والضريبة والجمارك)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2 id="s7h">🍪 7. Cookies & Local Storage</h2>
+    <p id="s7p1">This website uses your browser's local storage (not tracking cookies) to save your cart and language preferences. This data stays only on your device and is never transmitted to us or any third party.</p>
+    <p id="s7p2">We do not use Google Analytics, advertising cookies, or any third-party tracking.</p>
+  </div>
+
+  <div class="card">
+    <h2 id="s8h">📝 8. Policy Updates</h2>
+    <p id="s8p">We may update this policy to reflect changes in Saudi law or our practices. The "Last Updated" date shows when it was last revised. Continued use of the store after updates means you accept the revised policy.</p>
+  </div>
+
+  <div class="card">
+    <h2 id="s9h">📞 9. Contact & Complaints</h2>
+    <p id="s9p">For privacy questions, data requests, or complaints:</p>
+    <div class="contact-cta">
+      <p id="ct1">💬 WhatsApp: <a href="https://wa.me/966XXXXXXXXX">+966 XX XXX XXXX</a></p>
+      <p id="ct2">📧 Email: <a href="/cdn-cgi/l/email-protection#6a190509030b062a0b06000b190f1844090507440802"><span class="__cf_email__" data-cfemail="a9dac6cac0c8c5e9c8c5c3c8daccdb87cac6c487cbc1">[email&#160;protected]</span></a></p>
+      <p id="ct3" style="margin-top:14px;font-size:.78rem;color:var(--muted)">You may also file a data privacy complaint directly with the Saudi Data & AI Authority (SDAIA): <a href="https://sdaia.gov.sa" target="_blank">sdaia.gov.sa</a></p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div><a href="/">Store</a><a href="privacy.html">Privacy Policy</a><a href="refund.html">Refund Policy</a><a href="shipping.html">Shipping Policy</a></div>
+  <div style="margin-top:10px;opacity:.5">© 2026 Aljaser Water Store — Independent Authorized Reseller — موزّع مستقل</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+let isAr=false;
+const T={
+  'h-title':{en:'<em>Privacy</em> Policy',ar:'سياسة <em>الخصوصية</em>'},
+  'h-sub':{en:"How we collect, use and protect your personal data — compliant with Saudi Arabia's Personal Data Protection Law (PDPL) and E-Commerce Law M/126",ar:'كيف نجمع بياناتك الشخصية ونستخدمها ونحميها — وفقاً لنظام حماية البيانات الشخصية (PDPL) ونظام التجارة الإلكترونية M/126'},
+  'back-btn':{en:'← Back to Store',ar:'العودة إلى المتجر →'},
+  's1h':{en:'🏪 1. Who We Are',ar:'🏪 ١. من نحن'},
+  's1-note':{en:'This store is operated by an <strong>independent authorized reseller</strong> of Aljaser Water products. We are NOT شركة مصنع الجسر (Aljaser Factory Company) — we are a separate Saudi business that buys and resells Aljaser\'s products to customers in the Kingdom.',ar:'هذا المتجر يُدار من قِبل <strong>موزّع مستقل ومعتمد</strong> لمنتجات مياه الجسر. نحن لسنا شركة مصنع الجسر — نحن جهة تجارية سعودية مستقلة تشتري وتعيد بيع منتجات الجسر للعملاء في المملكة.'},
+  'r1a':{en:'Business Type',ar:'نوع النشاط'},
+  'r1b':{en:'Independent Authorized Reseller — موزّع مستقل ومعتمد',ar:'موزّع مستقل ومعتمد'},
+  'r2a':{en:'Products',ar:'المنتجات'},
+  'r2b':{en:'Aljaser herbal water products (manufactured by شركة مصنع الجسر, Bahrain)',ar:'منتجات مياه الجسر العشبية (تصنيع: شركة مصنع الجسر، البحرين)'},
+  'r3a':{en:'Market',ar:'السوق'},
+  'r3b':{en:'Kingdom of Saudi Arabia',ar:'المملكة العربية السعودية'},
+  'r4a':{en:'Email',ar:'البريد الإلكتروني'},
+  'r5a':{en:'WhatsApp',ar:'واتساب'},
+  's2h':{en:'📋 2. What Data We Collect',ar:'📋 ٢. البيانات التي نجمعها'},
+  's2p':{en:'Under Article 5 of the Saudi E-Commerce Law Implementing Regulations, we collect only what is strictly necessary to process your order.',ar:'وفقاً للمادة الخامسة من اللائحة التنفيذية لنظام التجارة الإلكترونية السعودي، نجمع فقط البيانات الضرورية لمعالجة طلبك.'},
+  's2h1':{en:'When you place an order:',ar:'عند تقديم طلب:'},
+  'd1':{en:'Full name | الاسم الكامل',ar:'الاسم الكامل'},
+  'd2':{en:'Delivery address in Saudi Arabia',ar:'عنوان التوصيل داخل المملكة'},
+  'd3':{en:'Phone number for delivery coordination',ar:'رقم الجوال للتنسيق مع المندوب'},
+  'd4':{en:'Email address for order confirmation',ar:'البريد الإلكتروني لتأكيد الطلب'},
+  'd5':{en:'Payment info — encrypted and processed by Moyasar. We never see or store your card details.',ar:'بيانات الدفع — مشفّرة ومعالجة بواسطة ميسّر. لا نرى ولا نخزّن بيانات بطاقتك أبداً.'},
+  's2h2':{en:'When you browse:',ar:'عند تصفح المتجر:'},
+  'd6':{en:'Browser type and device type (site performance only)',ar:'نوع المتصفح والجهاز (لأداء الموقع فقط)'},
+  'd7':{en:'Pages visited (to improve your experience)',ar:'الصفحات التي زرتها (لتحسين تجربتك)'},
+  'd8':{en:'We do NOT use advertising cookies or share browsing data with any third party',ar:'لا نستخدم ملفات تتبع إعلانية ولا نشارك بيانات التصفح مع أي طرف ثالث'},
+  's3h':{en:'🎯 3. How We Use Your Data',ar:'🎯 ٣. كيف نستخدم بياناتك'},
+  's3p':{en:'Per Saudi PDPL requirements, we use your personal data only for:',ar:'وفقاً لمتطلبات نظام حماية البيانات الشخصية، نستخدم بياناتك فقط في:'},
+  'u1':{en:'✅ Processing and fulfilling your order',ar:'✅ معالجة طلبك وتنفيذه'},
+  'u2':{en:'✅ Sending delivery updates and order confirmation',ar:'✅ إرسال تحديثات التوصيل وتأكيد الطلب'},
+  'u3':{en:'✅ Responding to your questions and complaints',ar:'✅ الرد على استفساراتك وشكاواك'},
+  'u4':{en:'✅ Issuing VAT-compliant invoices (required by ZATCA)',ar:'✅ إصدار فواتير ضريبية معتمدة (متطلب من هيئة الزكاة والضريبة)'},
+  'u5':{en:'✅ Improving our store and your shopping experience',ar:'✅ تحسين متجرنا وتجربة التسوق لديك'},
+  's3-warn':{en:'❌ We do NOT sell, rent, or share your personal data with any third party for marketing.<br/>❌ We do NOT use your data for any other purpose without your explicit consent.',ar:'❌ لا نبيع أو نؤجر أو نشارك بياناتك الشخصية مع أي طرف ثالث للتسويق.<br/>❌ لا نستخدم بياناتك لأي غرض آخر دون موافقتك الصريحة.'},
+  's4h':{en:'⏳ 4. How Long We Keep Your Data',ar:'⏳ ٤. مدة الاحتفاظ ببياناتك'},
+  's4p':{en:'We keep your data only as long as needed for the transaction and legal compliance:',ar:'نحتفظ ببياناتك فقط طالما كان ذلك ضرورياً للمعاملة والامتثال القانوني:'},
+  'r1':{en:'Order records — up to 5 years (Saudi commercial record-keeping law)',ar:'سجلات الطلبات — حتى ٥ سنوات (قانون السجلات التجارية السعودية)'},
+  'r2':{en:'Account data — until you request account deletion',ar:'بيانات الحساب — حتى تطلب حذفه'},
+  'r3':{en:'Payment records — retained by Moyasar under SAMA regulations',ar:'سجلات الدفع — تحتفظ بها ميسّر وفق لوائح ساما'},
+  's4p2':{en:'You can request deletion of your data at any time. We will process your request within 30 days.',ar:'يمكنك طلب حذف بياناتك في أي وقت. سنعالج طلبك خلال ٣٠ يوماً.'},
+  's5h':{en:'⚖️ 5. Your Rights — Saudi PDPL',ar:'⚖️ ٥. حقوقك بموجب نظام حماية البيانات الشخصية'},
+  's5p':{en:'As a consumer in Saudi Arabia, the Personal Data Protection Law (PDPL — effective September 2023) gives you the following rights:',ar:'بصفتك مستهلكاً في المملكة العربية السعودية، يمنحك نظام حماية البيانات الشخصية (نافذ منذ سبتمبر ٢٠٢٣) الحقوق التالية:'},
+  'rg1':{en:'<strong>Right to Know</strong> — Request info about what data we hold on you',ar:'<strong>حق المعرفة</strong> — طلب معلومات عن البيانات التي نحتفظ بها'},
+  'rg2':{en:'<strong>Right to Access</strong> — Request a copy of your personal data',ar:'<strong>حق الوصول</strong> — طلب نسخة من بياناتك الشخصية'},
+  'rg3':{en:'<strong>Right to Correction</strong> — Request correction of inaccurate data',ar:'<strong>حق التصحيح</strong> — طلب تصحيح البيانات غير الدقيقة'},
+  'rg4':{en:'<strong>Right to Deletion</strong> — Request erasure of your data (subject to legal requirements)',ar:'<strong>حق الحذف</strong> — طلب مسح بياناتك (مع مراعاة المتطلبات القانونية)'},
+  'rg5':{en:'<strong>Right to Withdraw Consent</strong> — Withdraw consent for data use at any time',ar:'<strong>حق سحب الموافقة</strong> — سحب موافقتك على استخدام البيانات في أي وقت'},
+  'rg6':{en:'<strong>Right to Complain</strong> — File a complaint with SDAIA at <a href="https://sdaia.gov.sa" target="_blank" style="color:var(--teal)">sdaia.gov.sa</a>',ar:'<strong>حق الشكوى</strong> — تقديم شكوى إلى هيئة البيانات والذكاء الاصطناعي (SDAIA) على <a href="https://sdaia.gov.sa" target="_blank" style="color:var(--teal)">sdaia.gov.sa</a>'},
+  's6h':{en:'🔒 6. Payment Security',ar:'🔒 ٦. أمان الدفع'},
+  's6p1':{en:'All payments are processed by <strong>Moyasar</strong> — a payment gateway licensed by the Saudi Central Bank (SAMA). Your card details are fully encrypted and never stored on our servers.',ar:'جميع المدفوعات تعالجها <strong>ميسّر</strong> — بوابة دفع مرخصة من البنك المركزي السعودي (ساما). بيانات بطاقتك مشفّرة بالكامل ولا تُخزَّن على خوادمنا أبداً.'},
+  'py1':{en:'All transactions use SSL/TLS encryption',ar:'جميع المعاملات مشفّرة بتقنية SSL/TLS'},
+  'py2':{en:'Moyasar is PCI-DSS certified',ar:'ميسّر حاصل على شهادة PCI-DSS'},
+  'py3':{en:'Accepted: MADA, Visa, Mastercard, STC Pay, Apple Pay',ar:'وسائل الدفع: مدى، فيزا، ماستركارد، STC Pay، Apple Pay'},
+  'py4':{en:'All prices include 15% VAT as required by ZATCA',ar:'جميع الأسعار تشمل ضريبة القيمة المضافة ١٥٪ وفق متطلبات هيئة الزكاة والضريبة والجمارك'},
+  's7h':{en:'🍪 7. Cookies & Local Storage',ar:'🍪 ٧. ملفات الارتباط والتخزين المحلي'},
+  's7p1':{en:"This website uses your browser's local storage (not tracking cookies) to save your cart and language preferences. This data stays only on your device and is never transmitted to us or any third party.",ar:'يستخدم هذا الموقع التخزين المحلي للمتصفح (وليس ملفات التتبع) لحفظ سلة التسوق وتفضيلات اللغة. تبقى هذه البيانات على جهازك فقط ولا تُرسل إلينا أو لأي طرف ثالث.'},
+  's7p2':{en:'We do not use Google Analytics, advertising cookies, or any third-party tracking.',ar:'لا نستخدم Google Analytics أو ملفات تتبع إعلانية أو أي أدوات تتبع خارجية.'},
+  's8h':{en:'📝 8. Policy Updates',ar:'📝 ٨. تحديثات السياسة'},
+  's8p':{en:'We may update this policy to reflect changes in Saudi law or our practices. The "Last Updated" date shows when it was last revised. Continued use of the store after updates means you accept the revised policy.',ar:'قد نحدّث هذه السياسة لتعكس التغييرات في النظام السعودي أو ممارساتنا. تاريخ "آخر تحديث" يُظهر متى تمت المراجعة الأخيرة. الاستمرار في استخدام المتجر بعد التحديثات يعني قبولك للسياسة المعدّلة.'},
+  's9h':{en:'📞 9. Contact & Complaints',ar:'📞 ٩. التواصل والشكاوى'},
+  's9p':{en:'For privacy questions, data requests, or complaints:',ar:'لأي استفسارات تتعلق بالخصوصية أو طلبات البيانات أو الشكاوى:'},
+  'ct1':{en:'💬 WhatsApp: <a href="https://wa.me/966XXXXXXXXX">+966 XX XXX XXXX</a>',ar:'💬 واتساب: <a href="https://wa.me/966XXXXXXXXX">+966 XX XXX XXXX</a>'},
+  'ct2':{en:'📧 Email: <a href="mailto:social@aljaser.com.bh">social@aljaser.com.bh</a>',ar:'📧 البريد: <a href="mailto:social@aljaser.com.bh">social@aljaser.com.bh</a>'},
+  'ct3':{en:'You may also file a data privacy complaint directly with the Saudi Data & AI Authority (SDAIA): <a href="https://sdaia.gov.sa" target="_blank">sdaia.gov.sa</a>',ar:'يمكنك أيضاً تقديم شكوى مباشرة إلى هيئة البيانات والذكاء الاصطناعي (SDAIA): <a href="https://sdaia.gov.sa" target="_blank">sdaia.gov.sa</a>'}
+};
+function toggleLang(){
+  isAr=!isAr;
+  document.

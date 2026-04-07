@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Shipping Policy — Aljaser Water Store | سياسة الشحن</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=DM+Sans:wght@300;400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--teal:#0d6e6e;--teal2:#4ecdc4;--gold:#c9a84c;--cream:#fdfaf4;--dark:#0f1f1f;--muted:#6b7280;--border:#e8e2d9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);line-height:1.7}
+body.ar{font-family:'Tajawal',sans-serif;direction:rtl;text-align:right}
+.nav{position:fixed;top:0;width:100%;z-index:99;padding:14px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,250,244,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--teal);text-decoration:none}
+.nav-logo span{color:var(--gold);font-style:italic}
+.nav-right{display:flex;gap:12px;align-items:center}
+.btn-sm{font-size:.8rem;cursor:pointer;padding:7px 16px;border-radius:50px;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-outline{border:1.5px solid var(--border);background:transparent;color:var(--dark)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-teal{border:1.5px solid var(--teal);background:transparent;color:var(--teal)}
+.btn-teal:hover{background:var(--teal);color:#fff}
+.hero{background:linear-gradient(135deg,var(--dark) 0%,#0d4040 100%);padding:120px 60px 60px;text-align:center;color:#fff}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.4rem);font-weight:300;margin-bottom:12px}
+.hero h1 em{color:var(--gold);font-style:italic}
+.hero p{font-size:.85rem;color:rgba(255,255,255,.6);max-width:580px;margin:0 auto 20px}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:6px 14px;font-size:.74rem;color:rgba(255,255,255,.75)}
+.wrap{max-width:820px;margin:0 auto;padding:56px 24px 80px}
+
+/* Summary cards at top */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:32px}
+.s-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px 18px;text-align:center}
+.s-card-icon{font-size:2rem;margin-bottom:10px}
+.s-card-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:4px}
+.s-card-val{font-size:.8rem;color:var(--muted);line-height:1.6}
+.s-card-val strong{color:var(--teal)}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:18px}
+.card h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--teal);margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+.card h3{font-size:.88rem;font-weight:600;margin:18px 0 8px;color:var(--dark)}
+.card p{font-size:.86rem;color:#4b5563;margin-bottom:10px;line-height:1.85}
+.card ul{margin:0 0 12px 0;padding-left:20px}
+body.ar .card ul{padding-left:0;padding-right:20px}
+.card ul li{font-size:.86rem;color:#4b5563;margin-bottom:5px;line-height:1.8}
+.notice{background:rgba(13,110,110,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .notice{border-left:none;border-right:3px solid var(--teal);border-radius:8px 0 0 8px}
+.warn{background:rgba(201,168,76,.08);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .warn{border-left:none;border-right:3px solid var(--gold);border-radius:8px 0 0 8px}
+.success{background:rgba(39,174,96,.07);border-left:3px solid #27ae60;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:14px;font-size:.84rem;color:var(--dark)}
+body.ar .success{border-left:none;border-right:3px solid #27ae60;border-radius:8px 0 0 8px}
+table{width:100%;border-collapse:collapse;font-size:.83rem;margin-bottom:12px}
+table th{background:rgba(13,110,110,.06);padding:10px 14px;text-align:left;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);border-bottom:2px solid var(--border)}
+body.ar table th{text-align:right}
+table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;color:#4b5563}
+table td:first-child{font-weight:600;color:var(--dark)}
+.contact-cta{background:linear-gradient(135deg,rgba(13,110,110,.07),rgba(78,205,196,.04));border:1px solid rgba(13,110,110,.15);border-radius:12px;padding:24px;text-align:center;margin-top:6px}
+.contact-cta p{font-size:.84rem;color:var(--muted);margin-bottom:10px}
+.wa-btn{display:inline-flex;align-items:center;gap:8px;background:#25d366;color:#fff;border:none;border-radius:50px;padding:11px 24px;font-size:.8rem;cursor:pointer;font-family:inherit;font-weight:600;letter-spacing:.04em;text-decoration:none;transition:all .25s}
+.wa-btn:hover{background:#1db954;transform:translateY(-1px)}
+.wa-btn svg{width:16px;height:16px;fill:currentColor}
+.ts{text-align:center;font-size:.76rem;color:var(--muted);margin-bottom:28px}
+footer{background:var(--dark);color:rgba(255,255,255,.45);padding:28px;text-align:center;font-size:.77rem}
+footer a{color:rgba(255,255,255,.4);text-decoration:none;margin:0 8px;transition:.2s}
+footer a:hover{color:#fff}
+@media(max-width:600px){.nav{padding:12px 20px}.hero{padding:96px 20px 40px}.card{padding:22px 18px}}
+</style>
+</head>
+<body id="pg">
+
+<nav class="nav">
+  <a class="nav-logo" href="/">Al<span>jaser</span></a>
+  <div class="nav-right">
+    <button class="btn-sm btn-outline" onclick="toggleLang()" id="lang-btn">🌐 عربي</button>
+    <a class="btn-sm btn-teal" href="/" id="back-btn">← Back to Store</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1 id="h-title"><em>Shipping</em> Policy</h1>
+  <p id="h-sub">Delivery times, costs, and everything you need to know about receiving your Aljaser Water order across Saudi Arabia.</p>
+  <div class="badges">
+    <span class="badge" id="b1">🚚 Free Shipping Over 50 SAR</span>
+    <span class="badge" id="b2">📦 2–5 Business Days</span>
+    <span class="badge" id="b3">🇸🇦 Delivery Across KSA</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <p class="ts" id="ts-text">Last updated: April 2026 | هذه الصفحة متاحة باللغتين العربية والإنجليزية</p>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="s-card">
+      <div class="s-card-icon">🚀</div>
+      <div class="s-card-title" id="sc1t">Processing Time</div>
+      <div class="s-card-val" id="sc1v">Orders processed within <strong>1–2 business days</strong></div>
+    </div>
+    <div class="s-card">
+      <div class="s-card-icon">📦</div>
+      <div class="s-card-title" id="sc2t">Delivery Time</div>
+      <div class="s-card-val" id="sc2v"><strong>2–5 business days</strong> across Saudi Arabia</div>
+    </div>
+    <div class="s-card">
+      <div class="s-card-icon">💰</div>
+      <div class="s-card-title" id="sc3t">Shipping Cost</div>
+      <div class="s-card-val" id="sc3v"><strong>15 SAR</strong> — or <strong>Free</strong> on orders over 50 SAR</div>
+    </div>
+    <div class="s-card">
+      <div class="s-card-icon">💬</div>
+      <div class="s-card-title" id="sc4t">Order Tracking</div>
+      <div class="s-card-val" id="sc4v">Updates sent via <strong>WhatsApp</strong></div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="card">
+    <h2 id="s1h">🚚 1. Shipping Destinations</h2>
+    <p id="s1p1">We currently ship to all cities and regions across the <strong>Kingdom of Saudi Arabia (KSA)</strong>.</p>
+    <div class="notice" id="s1note">We do not currently ship outside Saudi Arabia. For international inquiries, please contact us on WhatsApp.</div>
+    <h3 id="s1h2">Cities we deliver to include:</h3>
+    <ul id="s1ul">
+      <li>Riyadh (الرياض) — 2–3 business days</li>
+      <li>Jeddah (جدة) — 2–3 business days</li>
+      <li>Dammam & Eastern Province (الدمام والمنطقة الشرقية) — 2–3 business days</li>
+      <li>Mecca (مكة المكرمة) — 2–4 business days</li>
+      <li>Medina (المدينة المنورة) — 2–4 business days</li>
+      <li>Khobar, Dhahran, Jubail — 2–3 business days</li>
+      <li>Abha, Taif, Tabuk, Hail and other regions — 3–5 business days</li>
+    </ul>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="card">
+    <h2 id="s2h">💰 2. Shipping Costs</h2>
+    <div class="success" id="s2success">🎉 <strong>Free shipping on all orders over 50 SAR!</strong> Add more items to your cart to qualify.</div>
+    <table>
+      <thead>
+        <tr>
+          <th id="th1">Order Value</th>
+          <th id="th2">Shipping Cost</th>
+          <th id="th3">Estimated Delivery</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="tr1a">Under 50 SAR</td>
+          <td id="tr1b">15 SAR</td>
+          <td id="tr1c">2–5 business days</td>
+        </tr>
+        <tr>
+          <td id="tr2a">50 SAR and above</td>
+          <td id="tr2b" style="color:#27ae60;font-weight:700">FREE 🎉</td>
+          <td id="tr2c">2–5 business days</td>
+        </tr>
+      </tbody>
+    </table>
+    <p id="s2note" style="font-size:.8rem;color:var(--muted)">* Shipping costs include VAT (15%) as required by ZATCA.</p>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="card">
+    <h2 id="s3h">⏱️ 3. Processing & Delivery Times</h2>
+    <h3 id="s3h1">Order Processing</h3>
+    <p id="s3p1">Once you place your order via WhatsApp, we will confirm it within <strong>a few hours</strong> during working hours. Orders are processed and handed to the courier within <strong>1–2 business days</strong>.</p>
+    <div class="warn" id="s3warn">Orders placed on <strong>Friday, Saturday, or public holidays</strong> will be processed on the next working day (Sunday).</div>
+    <h3 id="s3h2">Delivery Times</h3>
+    <p id="s3p2">After dispatch, expect delivery within:</p>
+    <ul id="s3ul">
+      <li>Major cities (Riyadh, Jeddah, Dammam): <strong>2–3 business days</strong></li>
+      <li>Other regions: <strong>3–5 business days</strong></li>
+      <li>Remote areas: up to <strong>7 business days</strong></li>
+    </ul>
+    <p id="s3p3">These are estimates and may vary during peak seasons (Ramadan, Eid holidays).</p>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="card">
+    <h2 id="s4h">📍 4. Order Tracking</h2>
+    <p id="s4p1">Once your order is dispatched, we will send you:</p>
+    <ul id="s4ul">
+      <li>A <strong>WhatsApp message</strong> confirming your order has been shipped</li>
+      <li>The <strong>courier name</strong> and tracking number (when available)</li>
+      <li>An estimated delivery date</li>
+    </ul>
+    <p id="s4p2">You can always check your order status by messaging us directly on WhatsApp at any time.</p>
+    <div class="contact-cta">
+      <p id="s4cta-p">Need an update on your order? Message us now.</p>
+      <a class="wa-btn" href="https://wa.me/966599650860" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span id="wa-btn-label">Track My Order</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="card">
+    <h2 id="s5h">📦 5. Packaging</h2>
+    <p id="s5p1">All orders are carefully packed to ensure your products arrive safely and in perfect condition.</p>
+    <ul id="s5ul">
+      <li>Products are wrapped in protective padding</li>
+      <li>Glass bottles are individually wrapped to prevent breakage</li>
+      <li>Boxes are sealed and labeled with your delivery details</li>
+    </ul>
+    <p id="s5p2">If your package arrives damaged, please take photos immediately and contact us on WhatsApp within <strong>24 hours</strong> of receiving it.</p>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="card">
+    <h2 id="s6h">⚠️ 6. Failed or Missed Deliveries</h2>
+    <p id="s6p1">If the courier is unable to deliver your order:</p>
+    <ul id="s6ul">
+      <li>They will attempt delivery a <strong>second time</strong> the following day</li>
+      <li>You will be contacted via phone or WhatsApp to arrange re-delivery</li>
+      <li>After <strong>2 failed attempts</strong>, the order will be returned to us</li>
+    </ul>
+    <div class="warn" id="s6warn">If your order is returned due to a wrong address or unavailability, you may be charged an additional shipping fee for re-delivery.</div>
+    <p id="s6p2">Please ensure your delivery address and phone number are correct when placing your order.</p>
+  </div>
+
+  <!-- Section 7 -->
+  <div class="card">
+    <h2 id="s7h">🔄 7. Relationship with Refund Policy</h2>
+    <p id="s7p1">If you wish to return an item, shipping costs for returns are handled as follows:</p>
+    <table>
+      <thead>
+        <tr>
+          <th id="r-th1">Reason for Return</th>
+          <th id="r-th2">Who Pays Return Shipping?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="rr1a">Wrong item sent / damaged on arrival</td>
+          <td id="rr1b" style="color:#27ae60;font-weight:600">We cover the cost ✅</td>
+        </tr>
+        <tr>
+          <td id="rr2a">Changed your mind (within 7 days)</td>
+          <td id="rr2b">Customer pays return shipping</td>
+        </tr>
+        <tr>
+          <td id="rr3a">Product defect</td>
+          <td id="rr3b" style="color:#27ae60;font-weight:600">We cover the cost ✅</td>
+        </tr>
+      </tbody>
+    </table>
+    <p id="s7p2">For full details, please read our <a href="refund.html" style="color:var(--teal);font-weight:500" id="refund-link">Refund & Return Policy →</a></p>
+  </div>
+
+  <!-- Section 8 -->
+  <div class="card">
+    <h2 id="s8h">📞 8. Contact Us</h2>
+    <p id="s8p1">For any shipping questions, order status updates, or delivery concerns:</p>
+    <div class="contact-cta">
+      <p id="s8cta-p">Our team is available on WhatsApp — fast, friendly, and personal.</p>
+      <a class="wa-btn" href="https://wa.me/966599650860" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span id="wa-btn-label2">Chat on WhatsApp</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div style="margin-bottom:10px">
+    <a href="/" id="f-home">Home</a>
+    <a href="privacy.html" id="f-privacy">Privacy Policy</a>
+    <a href="refund.html" id="f-refund">Refund Policy</a>
+    <a href="account.html" id="f-account">My Account</a>
+  </div>
+  <div id="f-copy">© 2026 Aljaser Water Store — Independent Authorized Reseller</div>
+</footer>
+
+<script>
+let isAr = false;
+
+const T = {
+  en: {
+    'lang-btn':'🌐 عربي','back-btn':'← Back to Store',
+    'h-title':'<em>Shipping</em> Policy',
+    'h-sub':'Delivery times, costs, and everything you need to know about receiving your Aljaser Water order across Saudi Arabia.',
+    'b1':'🚚 Free Shipping Over 50 SAR','b2':'📦 2–5 Business Days','b3':'🇸🇦 Delivery Across KSA',
+    'ts-text':'Last updated: April 2026 | هذه الصفحة متاحة باللغتين العربية والإنجليزية',
+    'sc1t':'Processing Time','sc1v':'Orders processed within <strong>1–2 business days</strong>',
+    'sc2t':'Delivery Time','sc2v':'<strong>2–5 business days</strong> across Saudi Arabia',
+    'sc3t':'Shipping Cost','sc3v':'<strong>15 SAR</strong> — or <strong>Free</strong> on orders over 50 SAR',
+    'sc4t':'Order Tracking','sc4v':'Updates sent via <strong>WhatsApp</strong>',
+    's1h':'🚚 1. Shipping Destinations',
+    's1p1':'We currently ship to all cities and regions across the <strong>Kingdom of Saudi Arabia (KSA)</strong>.',
+    's1note':'We do not currently ship outside Saudi Arabia. For international inquiries, please contact us on WhatsApp.',
+    's1h2':'Cities we deliver to include:',
+    's2h':'💰 2. Shipping Costs',
+    's2success':'🎉 <strong>Free shipping on all orders over 50 SAR!</strong> Add more items to your cart to qualify.',
+    'th1':'Order Value','th2':'Shipping Cost','th3':'Estimated Delivery',
+    'tr1a':'Under 50 SAR','tr1b':'15 SAR','tr1c':'2–5 business days',
+    'tr2a':'50 SAR and above','tr2b':'FREE 🎉','tr2c':'2–5 business days',
+    's2note':'* Shipping costs include VAT (15%) as required by ZATCA.',
+    's3h':'⏱️ 3. Processing & Delivery Times','s3h1':'Order Processing',
+    's3p1':'Once you place your order via WhatsApp, we will confirm it within <strong>a few hours</strong> during working hours. Orders are processed and handed to the courier within <strong>1–2 business days</strong>.',
+    's3warn':'Orders placed on <strong>Friday, Saturday, or public holidays</strong> will be processed on the next working day (Sunday).',
+    's3h2':'Delivery Times','s3p2':'After dispatch, expect delivery within:',
+    's3p3':'These are estimates and may vary during peak seasons (Ramadan, Eid holidays).',
+    's4h':'📍 4. Order Tracking',
+    's4p1':'Once your order is dispatched, we will send you:',
+    's4p2':'You can always check your order status by messaging us directly on WhatsApp at any time.',
+    's4cta-p':'Need an update on your order? Message us now.',
+    'wa-btn-label':'Track My Order',
+    's5h':'📦 5. Packaging',
+    's5p1':'All orders are carefully packed to ensure your products arrive safely and in perfect condition.',
+    's5p2':'If your package arrives damaged, please take photos immediately and contact us on WhatsApp within <strong>24 hours</strong> of receiving it.',
+    's6h':'⚠️ 6. Failed or Missed Deliveries',
+    's6p1':'If the courier is unable to deliver your order:',
+    's6warn':'If your order is returned due to a wrong address or unavailability, you may be charged an additional shipping fee for re-delivery.',
+    's6p2':'Please ensure your delivery address and phone number are correct when placing your order.',
+    's7h':'🔄 7. Relationship with Refund Policy',
+    's7p1':'If you wish to return an item, shipping costs for returns are handled as follows:',
+    'r-th1':'Reason for Return','r-th2':'Who Pays Return Shipping?',
+    'rr1a':'Wrong item sent / damaged on arrival','rr1b':'We cover the cost ✅',
+    'rr2a':'Changed your mind (within 7 days)','rr2b':'Customer pays return shipping',
+    'rr3a':'Product defect','rr3b':'We cover the cost ✅',
+    's7p2':'For full details, please read our',
+    'refund-link':'Refund & Return Policy →',
+    's8h':'📞 8. Contact Us',
+    's8p1':'For any shipping questions, order status updates, or delivery concerns:',
+    's8cta-p':'Our team is available on WhatsApp — fast, friendly, and personal.',
+    'wa-btn-label2':'Chat on WhatsApp',
+    'f-home':'Home','f-privacy':'Privacy Policy','f-refund':'Refund Policy','f-account':'My Account',
+    'f-copy':'© 2026 Aljaser Water Store — Independent Authorized Reseller',
+  },
+  ar: {
+    'lang-btn':'🌐 English','back-btn':'→ العودة للمتجر',
+    'h-title':'سياسة <em>الشحن</em>',
+    'h-sub':'مواعيد التوصيل والتكاليف وكل ما تحتاج معرفته حول استلام طلبك من مياه الجسر في أنحاء المملكة العربية السعودية.',
+    'b1':'🚚 شحن مجاني فوق ٥٠ ريال','b2':'📦 ٢–٥ أيام عمل','b3':'🇸🇦 توصيل في جميع أنحاء المملكة',
+    'ts-text':'آخر تحديث: أبريل ٢٠٢٦ | This page is available in Arabic and English',
+    'sc1t':'وقت المعالجة','sc1v':'تُعالج الطلبات خلال <strong>١–٢ يوم عمل</strong>',
+    'sc2t':'وقت التوصيل','sc2v':'<strong>٢–٥ أيام عمل</strong> في جميع أنحاء المملكة',
+    'sc3t':'تكلفة الشحن','sc3v':'<strong>١٥ ريال</strong> — أو <strong>مجاني</strong> للطلبات فوق ٥٠ ريال',
+    'sc4t':'تتبع الطلب','sc4v':'التحديثات تُرسل عبر <strong>واتساب</strong>',
+    's1h':'🚚 ١. مناطق الشحن',
+    's1p1':'نشحن حالياً إلى جميع المدن والمناطق في <strong>المملكة العربية السعودية</strong>.',
+    's1note':'لا نشحن خارج المملكة العربية السعودية حالياً. للاستفسارات الدولية، تواصل معنا عبر واتساب.',
+    's1h2':'المدن التي نوصّل إليها تشمل:',
+    's2h':'💰 ٢. تكاليف الشحن',
+    's2success':'🎉 <strong>شحن مجاني لجميع الطلبات فوق ٥٠ ريال!</strong> أضف المزيد لسلتك للاستفادة.',
+    'th1':'قيمة الطلب','th2':'تكلفة الشحن','th3':'وقت التوصيل المتوقع',
+    'tr1a':'أقل من ٥٠ ريال','tr1b':'١٥ ريال','tr1c':'٢–٥ أيام عمل',
+    'tr2a':'٥٠ ريال فما فوق','tr2b':'مجاني 🎉','tr2c':'٢–٥ أيام عمل',
+    's2note':'* تشمل تكاليف الشحن ضريبة القيمة المضافة (١٥٪) وفق متطلبات هيئة الزكاة والضريبة والجمارك.',
+    's3h':'⏱️ ٣. أوقات المعالجة والتوصيل','s3h1':'معالجة الطلب',
+    's3p1':'بمجرد تقديم طلبك عبر واتساب، سنؤكده خلال <strong>بضع ساعات</strong> أثناء ساعات العمل. تُعالج الطلبات وتُسلَّم للناقل خلال <strong>١–٢ يوم عمل</strong>.',
+    's3warn':'الطلبات المقدّمة يوم <strong>الجمعة أو السبت أو الإجازات الرسمية</strong> ستُعالج في يوم العمل التالي (الأحد).',
+    's3h2':'أوقات التوصيل','s3p2':'بعد الإرسال، توقّع الاستلام خلال:',
+    's3p3':'هذه تقديرات وقد تختلف في مواسم الذروة (رمضان وإجازات العيد).',
+    's4h':'📍 ٤. تتبع الطلب',
+    's4p1':'بمجرد إرسال طلبك، سنرسل لك:',
+    's4p2':'يمكنك دائماً الاستعلام عن حالة طلبك بمراسلتنا مباشرة على واتساب في أي وقت.',
+    's4cta-p':'هل تحتاج تحديثاً عن طلبك؟ راسلنا الآن.',
+    'wa-btn-label':'تتبع طلبي',
+    's5h':'📦 ٥. التغليف',
+    's5p1':'تُعبَّأ جميع الطلبات بعناية لضمان وصول منتجاتك بأمان وفي حالة مثالية.',
+    's5p2':'إذا وصل طردك تالفاً، يرجى التقاط صور فوراً والتواصل معنا عبر واتساب خلال <strong>٢٤ ساعة</strong> من الاستلام.',
+    's6h':'⚠️ ٦. حالات فشل التسليم',
+    's6p1':'إذا لم يتمكن الناقل من توصيل طلبك:',
+    's6warn':'إذا أُعيد طلبك بسبب عنوان خاطئ أو عدم توافرك، قد تتحمل رسوم شحن إضافية لإعادة التوصيل.',
+    's6p2':'يرجى التأكد من صحة عنوان التوصيل ورقم الهاتف عند تقديم طلبك.',
+    's7h':'🔄 ٧. العلاقة بسياسة الإرجاع',
+    's7p1':'إذا رغبت في إرجاع منتج، يتم التعامل مع تكاليف شحن الإرجاع كما يلي:',
+    'r-th1':'سبب الإرجاع','r-th2':'من يتحمل تكلفة الشحن؟',
+    'rr1a':'منتج خاطئ / تلف عند الوصول','rr1b':'نتحمل التكلفة ✅',
+    'rr2a':'تغيير الرأي (خلال ٧ أيام)','rr2b':'العميل يتحمل تكلفة الشحن',
+    'rr3a':'عيب في المنتج','rr3b':'نتحمل التكلفة ✅',
+    's7p2':'للتفاصيل الكاملة، يرجى قراءة',
+    'refund-link':'سياسة الإرجاع والاسترداد →',
+    's8h':'📞 ٨. تواصل معنا',
+    's8p1':'لأي استفسارات حول الشحن أو تحديثات الطلبات أو مخاوف التوصيل:',
+    's8cta-p':'فريقنا متاح على واتساب — سريع، ودود، وشخصي.',
+    'wa-btn-label2':'تواصل عبر واتساب',
+    'f-home':'الرئيسية','f-privacy':'سياسة الخصوصية','f-refund':'سياسة الإرجاع','f-account':'حسابي',
+    'f-copy':'© ٢٠٢٦ متجر مياه الجسر — موزّع مستقل معتمد',
+  }
+};
+
+// Items that need innerHTML (contain HTML tags)
+const htmlKeys=['h-title','s1p1','s1note','s2success','s2note','s3p1','s3warn','s5p2','s6warn','sc1v','sc2v','sc3v','sc4v'];
+
+function applyLang(lang){
+  isAr = lang==='ar';
+  document.documentElement.setAttribute('lang',lang);
+  document.documentElement.setAttribute('dir',isAr?'rtl':'ltr');
+  isAr ? document.body.classList.add('ar') : document.body.classList.remove('ar');
+  const t = T[lang];
+  Object.keys(t).forEach(k=>{
+    const el=document.getElementById(k);
+    if(!el) return;
+    if(htmlKeys.includes(k)) el.innerHTML=t[k];
+    else el.textContent=t[k];
+  });
+  // Rebuild city list
+  renderCities();
+  renderSec3List();
+  renderSec4List();
+  renderSec5List();
+  renderSec6List();
+}
+
+function renderCities(){
+  const items = isAr ? [
+    'الرياض — ٢–٣ أيام عمل',
+    'جدة — ٢–٣ أيام عمل',
+    'الدمام والمنطقة الشرقية — ٢–٣ أيام عمل',
+    'مكة المكرمة — ٢–٤ أيام عمل',
+    'المدينة المنورة — ٢–٤ أيام عمل',
+    'الخبر والظهران والجبيل — ٢–٣ أيام عمل',
+    'أبها والطائف وتبوك وحائل وغيرها — ٣–٥ أيام عمل',
+  ] : [
+    'Riyadh (الرياض) — 2–3 business days',
+    'Jeddah (جدة) — 2–3 business days',
+    'Dammam & Eastern Province (الدمام والمنطقة الشرقية) — 2–3 business days',
+    'Mecca (مكة المكرمة) — 2–4 business days',
+    'Medina (المدينة المنورة) — 2–4 business days',
+    'Khobar, Dhahran, Jubail — 2–3 business days',
+    'Abha, Taif, Tabuk, Hail and other regions — 3–5 business days',
+  ];
+  document.getElementById('s1ul').innerHTML=items.map(i=>`<li>${i}</li>`).join('');
+}
+
+function renderSec3List(){
+  const items = isAr ? [
+    'المدن الكبرى (الرياض، جدة، الدمام): <strong>٢–٣ أيام عمل</strong>',
+    'المناطق الأخرى: <strong>٣–٥ أيام عمل</strong>',
+    'المناطق النائية: حتى <strong>٧ أيام عمل</strong>',
+  ] : [
+    'Major cities (Riyadh, Jeddah, Dammam): <strong>2–3 business days</strong>',
+    'Other regions: <strong>3–5 business days</strong>',
+    'Remote areas: up to <strong>7 business days</strong>',
+  ];
+  document.getElementById('s3ul').innerHTML=items.map(i=>`<li>${i}</li>`).join('');
+}
+
+function renderSec4List(){
+  const items = isAr ? [
+    'رسالة <strong>واتساب</strong> تؤكد شحن طلبك',
+    '<strong>اسم الناقل</strong> ورقم التتبع (عند توفره)',
+    'تاريخ التسليم المتوقع',
+  ] : [
+    'A <strong>WhatsApp message</strong> confirming your order has been shipped',
+    'The <strong>courier name</strong> and tracking number (when available)',
+    'An estimated delivery date',
+  ];
+  document.getElementById('s4ul').innerHTML=items.map(i=>`<li>${i}</li>`).join('');
+}
+
+function renderSec5List(){
+  const items = isAr ? [
+    'تُغلَّف المنتجات بمواد واقية',
+    'تُلفَّف الزجاجات بشكل فردي لمنع الكسر',
+    'تُغلق الصناديق وتُعلَّم ببيانات توصيلك',
+  ] : [
+    'Products are wrapped in protective padding',
+    'Glass bottles are individually wrapped to prevent breakage',
+    'Boxes are sealed and labeled with your delivery details',
+  ];
+  document.getElementById('s5ul').innerHTML=items.map(i=>`<li>${i}</li>`).join('');
+}
+
+function renderSec6List(){
+  const items = isAr ? [
+    'ستُحاوَل التوصيل <strong>مرة ثانية</strong> في اليوم التالي',
+    'ستُتصل بك عبر الهاتف أو واتساب لترتيب إعادة التوصيل',
+    'بعد <strong>محاولتين فاشلتين</strong>، سيُعاد الطلب إلينا',
+  ] : [
+    'They will attempt delivery a <strong>second time</strong> the following day',
+    'You will be contacted via phone or WhatsApp to arrange re-delivery',
+    'After <strong>2 failed attempts</strong>, the order will be returned to us',
+  ];
+  document.getElementById('s6ul').innerHTML=items.map(i=>`<li>${i}</li>`).join('');
+}
+
+function toggleLang(){ applyLang(isAr?'en':'ar'); }
+
+// Init
+renderCities(); renderSec3List(); renderSec4List(); renderSec5List(); renderSec6List();
+</script>
+</body>
+</html>
