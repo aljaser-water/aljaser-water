@@ -1140,7 +1140,7 @@ function openCheckoutModal(user){
   document.getElementById('co-sub').textContent = isAr ? 'راجع طلبك وأكمل البيانات.' : 'Review your order and confirm details.';
   document.getElementById('co-name-lbl').textContent = isAr ? 'اسمك' : 'Your Name';
   document.getElementById('co-phone-lbl').textContent = isAr ? 'رقم واتساب' : 'WhatsApp Number';
-  document.getElementById('co-address-lbl').textContent = isAr ? 'مدينة التوصيل' : 'Delivery City';
+  document.getElementById('co-address-lbl').textContent = isAr ? 'الرقم المختصر للعنوان الوطني' : 'National Address Short Code';
   document.getElementById('co-btn-label').textContent = isAr ? 'تأكيد وإرسال عبر واتساب' : 'Confirm & Send via WhatsApp';
 
   document.getElementById('checkout-overlay').classList.add('open');
@@ -1211,8 +1211,8 @@ async function submitOrder(){
   // Build WhatsApp message
   const lines = cart.map(i=>isAr?`• ${i.ar} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} ريال`:`• ${i.en} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} SAR`).join('%0A');
   const msg = isAr
-    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالمدينة: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
-    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ACity: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
+    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالعنوان الوطني: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
+    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ANational Address: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
 
   closeCheckoutModal();
   cart = [];
