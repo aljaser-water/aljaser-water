@@ -698,19 +698,31 @@ footer{background:var(--dark);padding:70px 60px 36px}
   <div class="checkout-modal">
     <button class="co-close" onclick="closeCheckoutModal()">✕</button>
     <h2 id="co-title">Almost There!</h2>
-    <p id="co-sub">Enter your details and we'll send your order via WhatsApp.</p>
+    <p id="co-sub">Review your order and confirm.</p>
+    <!-- User info display (shown when logged in) -->
+    <div id="co-user-info" style="display:none;background:rgba(13,110,110,.06);border:1px solid rgba(13,110,110,.12);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0" id="co-avatar">?</div>
+        <div>
+          <div style="font-weight:600;color:var(--dark);font-size:.87rem" id="co-user-name-display">—</div>
+          <div style="font-size:.74rem;color:var(--muted)" id="co-user-email-display">—</div>
+        </div>
+      </div>
+    </div>
     <div class="co-order-summary" id="co-summary"></div>
-    <div class="co-field">
-      <label id="co-name-lbl">Your Name</label>
-      <input type="text" id="co-name" placeholder="Mohammed Al-..." autocomplete="name"/>
-    </div>
-    <div class="co-field">
-      <label id="co-phone-lbl">WhatsApp Number</label>
-      <input type="tel" id="co-phone" placeholder="05xxxxxxxx" autocomplete="tel"/>
-    </div>
-    <div class="co-field">
-      <label id="co-address-lbl">Delivery City</label>
-      <input type="text" id="co-address" placeholder="Riyadh, Dammam..." autocomplete="address-level2"/>
+    <div id="co-fields">
+      <div class="co-field">
+        <label id="co-name-lbl">Your Name</label>
+        <input type="text" id="co-name" placeholder="Mohammed Al-..." autocomplete="name"/>
+      </div>
+      <div class="co-field">
+        <label id="co-phone-lbl">WhatsApp Number</label>
+        <input type="tel" id="co-phone" placeholder="05xxxxxxxx" autocomplete="tel"/>
+      </div>
+      <div class="co-field">
+        <label id="co-address-lbl">Delivery City</label>
+        <input type="text" id="co-address" placeholder="Riyadh, Dammam..." autocomplete="address-level2"/>
+      </div>
     </div>
     <button class="co-wa-btn" onclick="submitOrder()">
       <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -1080,31 +1092,52 @@ function closeCart(){document.getElementById('cart-overlay').classList.remove('o
 // ═══════════════════════════════════════════════════════════
 function goCheckout(){
   if(cart.length===0){showToast(isAr?'⚠️ سلتك فارغة!':'⚠️ Your cart is empty!');return;}
-  openCheckoutModal();
+  // Must be signed in to order
+  _supa.auth.getSession().then(({data:{session}})=>{
+    if(!session || !session.user){
+      // Not signed in — redirect to account page
+      showToast(isAr?'⚠️ يجب تسجيل الدخول أولاً للطلب':'⚠️ Please sign in to place an order');
+      setTimeout(()=>{ window.location.href='account.html'; },1200);
+      return;
+    }
+    openCheckoutModal(session.user);
+  });
 }
 
-function openCheckoutModal(){
+function openCheckoutModal(user){
   const sub=getSub(), ship=getShip(sub), total=getTotal();
+  const meta = user.user_metadata || {};
+  const name  = meta.full_name || user.email.split('@')[0];
+  const phone = meta.phone || '';
 
-  // Pre-fill if logged in via Supabase
-  _supa.auth.getSession().then(({data:{session}})=>{
-    if(session && session.user){
-      const meta = session.user.user_metadata || {};
-      const nameEl = document.getElementById('co-name');
-      if(nameEl && meta.full_name) nameEl.value = meta.full_name;
-    }
-  });
+  // Show user info card
+  const userInfoEl = document.getElementById('co-user-info');
+  if(userInfoEl){
+    userInfoEl.style.display='flex';
+    const avatarEl = document.getElementById('co-avatar');
+    const nameDisp = document.getElementById('co-user-name-display');
+    const emailDisp = document.getElementById('co-user-email-display');
+    if(avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+    if(nameDisp) nameDisp.textContent = name;
+    if(emailDisp) emailDisp.textContent = user.email;
+  }
+
+  // Pre-fill fields from account
+  const nameEl  = document.getElementById('co-name');
+  const phoneEl = document.getElementById('co-phone');
+  if(nameEl)  nameEl.value  = name;
+  if(phoneEl) phoneEl.value = phone;
 
   // Build order summary
   const summaryEl = document.getElementById('co-summary');
   const itemLines = cart.map(i=>`<div class="co-row"><span>${isAr?i.ar:i.en} ×${i.qty}</span><span>${(i.price*i.qty).toFixed(2)} SAR</span></div>`).join('');
   summaryEl.innerHTML = itemLines +
-    `<div class="co-row"><span>${isAr?'الشحن':'Shipping'}</span><span>${`${SHIP_COST} SAR`}</span></div>` +
+    `<div class="co-row"><span>${isAr?'الشحن':'Shipping'}</span><span>${SHIP_COST} SAR</span></div>` +
     `<div class="co-row total"><span>${isAr?'الإجمالي':'Total'}</span><span>${total.toFixed(2)} SAR</span></div>`;
 
   // i18n
-  document.getElementById('co-title').textContent = isAr ? 'أكمل طلبك' : 'Almost There!';
-  document.getElementById('co-sub').textContent = isAr ? 'أدخل بياناتك وسنرسل طلبك عبر واتساب.' : "Enter your details and we'll send your order via WhatsApp.";
+  document.getElementById('co-title').textContent = isAr ? 'تأكيد الطلب' : 'Confirm Your Order';
+  document.getElementById('co-sub').textContent = isAr ? 'راجع طلبك وأكمل البيانات.' : 'Review your order and confirm details.';
   document.getElementById('co-name-lbl').textContent = isAr ? 'اسمك' : 'Your Name';
   document.getElementById('co-phone-lbl').textContent = isAr ? 'رقم واتساب' : 'WhatsApp Number';
   document.getElementById('co-address-lbl').textContent = isAr ? 'مدينة التوصيل' : 'Delivery City';
@@ -1135,9 +1168,20 @@ async function submitOrder(){
   const orderId = '#AJW-' + Date.now().toString().slice(-6);
   const now = new Date().toISOString();
 
-  // Get user session if logged in
+  // Always require session
   const { data: { session } } = await _supa.auth.getSession();
-  const userEmail = session?.user?.email || null;
+  if(!session || !session.user){
+    showToast(isAr?'⚠️ يجب تسجيل الدخول للطلب':'⚠️ Please sign in to order');
+    setTimeout(()=>window.location.href='account.html',1200);
+    return;
+  }
+  const userEmail = session.user.email;
+
+  // Save phone to user profile if not already saved
+  const meta = session.user.user_metadata || {};
+  if(!meta.phone && phone){
+    await _supa.auth.updateUser({ data: { ...meta, phone } });
+  }
 
   // Build order object
   const orderData = {
