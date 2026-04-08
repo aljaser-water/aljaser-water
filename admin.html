@@ -595,18 +595,34 @@ body.ar .modal-footer{flex-direction:row-reverse}
     <div class="form-group">
       <label id="pm-img-l">Product Image</label>
       <div class="img-source-btns">
-        <button class="img-src-btn active" onclick="setImgMode('url',this)" id="imgmode-url">🔗 Image URL</button>
+        <button class="img-src-btn active" onclick="setImgMode('upload',this)" id="imgmode-upload">📤 Upload Image</button>
+        <button class="img-src-btn" onclick="setImgMode('url',this)" id="imgmode-url">🔗 Image URL</button>
         <button class="img-src-btn" onclick="setImgMode('emoji',this)" id="imgmode-emoji">😊 Emoji</button>
       </div>
-      <div id="img-url-section">
-        <input id="pm-img" placeholder="https://aljaser.com.bh/wp-content/uploads/..." oninput="previewImg(this.value)" style="margin-top:8px"/>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.5" id="img-hint-txt">💡 To get the real image: visit aljaser.com.bh → open any product → right-click the image → Copy Image Address → paste here</div>
+
+      <!-- UPLOAD MODE -->
+      <div id="img-upload-section">
+        <div class="upload-area" id="upload-area" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <input type="file" id="img-file-input" accept="image/*" onchange="handleFileSelect(event)"/>
+          <div class="upload-icon">🖼️</div>
+          <div class="upload-txt"><strong>Click to upload</strong> or drag & drop<br>JPG, PNG, WEBP — max 5MB</div>
+          <div class="upload-progress" id="upload-progress"><div class="upload-progress-bar" id="upload-bar"></div></div>
+          <div class="upload-status" id="upload-status"></div>
+        </div>
       </div>
+
+      <!-- URL MODE -->
+      <div id="img-url-section" style="display:none">
+        <input id="pm-img" placeholder="https://example.com/image.jpg" oninput="previewImg(this.value)" style="margin-top:8px"/>
+      </div>
+
+      <!-- EMOJI MODE -->
       <div id="img-emoji-section" style="display:none">
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="emoji-picker">
           💧🌿🌹🌼🍃💙🌾🟣🟢🌸🫐🍋🌻🫛🍃🧪🌊🍀🌱✨
         </div>
       </div>
+
       <div class="img-preview" id="img-preview"><span id="img-prev-empty">No image yet</span></div>
     </div>
     <div class="stock-warn" id="stock-warn">⚠️ Low stock — consider restocking soon</div>
@@ -645,9 +661,27 @@ body.ar .modal-footer{flex-direction:row-reverse}
 
 <!-- ORDER STATUS MODAL -->
 <div class="modal-overlay" id="order-modal">
-  <div class="modal" style="width:420px">
-    <div class="modal-title" id="order-modal-title">🧾 Update Order</div>
+  <div class="modal" style="width:480px">
+    <div class="modal-title" id="order-modal-title">🧾 Order Details</div>
     <div id="order-detail-info" style="background:rgba(0,0,0,.2);border-radius:8px;padding:14px;margin-bottom:14px;font-size:.82rem;line-height:1.8;color:var(--muted)"></div>
+
+    <!-- OTO SHIPPING SECTION -->
+    <div id="oto-section" style="background:rgba(78,205,196,.05);border:1px solid rgba(78,205,196,.15);border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:.82rem;font-weight:600;color:var(--teal)">🚚 OTO Shipping</div>
+        <div id="oto-tracking-display" style="font-size:.76rem;color:var(--muted)"></div>
+      </div>
+      <div id="oto-ship-btn-wrap">
+        <button class="btn btn-primary" onclick="createOTOShipment()" id="oto-ship-btn" style="width:100%;background:linear-gradient(135deg,#0d6e6e,#0a5252)">
+          📦 Create Shipment on OTO
+        </button>
+      </div>
+      <div id="oto-label-btn-wrap" style="display:none;margin-top:8px">
+        <a id="oto-label-link" href="#" target="_blank" class="btn btn-ghost btn-sm" style="width:100%;text-align:center;display:block">🖨️ Print Shipping Label (AWB)</a>
+      </div>
+      <div id="oto-status-msg" style="font-size:.75rem;color:var(--muted);margin-top:8px;text-align:center"></div>
+    </div>
+
     <div class="form-group">
       <label id="order-status-l">Order Status</label>
       <select id="order-status-sel">
@@ -801,7 +835,8 @@ let orders   = JSON.parse(localStorage.getItem(ORDERS_KEY)) || defaultOrders;
 let isAr = false;
 let editingProductId = null;
 let editingOrderId = null;
-let imgMode = 'url';
+let imgMode = 'upload';
+let uploadedImgUrl = ''; // stores Supabase public URL after upload
 let emojiChosen = '';
 
 // Save
@@ -1165,7 +1200,16 @@ function openProductModal(id=null){
   document.getElementById('pm-stock').value=p?p.stock:'';
   document.getElementById('pm-cat').value=p?p.cat:'drinking';
   document.getElementById('pm-badge').value=p?p.badge:'';
-  document.getElementById('pm-img').value=p?p.img:'';
+  uploadedImgUrl = p ? (p.img||'') : '';
+  document.getElementById('pm-img').value = p ? (p.img||'') : '';
+  // Set correct image mode
+  if(p && p.img && p.img.startsWith('https://') && p.img.includes('supabase')){
+    setImgMode('upload', document.getElementById('imgmode-upload'));
+  } else if(p && p.img){
+    setImgMode('url', document.getElementById('imgmode-url'));
+  } else {
+    setImgMode('upload', document.getElementById('imgmode-upload'));
+  }
   document.getElementById('pm-desc-en').value=p?p.descEn:'';
   document.getElementById('pm-desc-ar').value=p?p.descAr:'';
   document.getElementById('pm-active').checked=p?p.active:true;
@@ -1177,11 +1221,76 @@ function openProductModal(id=null){
 }
 
 function setImgMode(mode, btn){
-  imgMode=mode;
+  imgMode = mode;
   document.querySelectorAll('.img-src-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('img-url-section').style.display=mode==='url'?'block':'none';
-  document.getElementById('img-emoji-section').style.display=mode==='emoji'?'block':'none';
+  if(btn) btn.classList.add('active');
+  document.getElementById('img-upload-section').style.display = mode==='upload' ? 'block' : 'none';
+  document.getElementById('img-url-section').style.display    = mode==='url'    ? 'block' : 'none';
+  document.getElementById('img-emoji-section').style.display  = mode==='emoji'  ? 'block' : 'none';
+}
+
+// ── DRAG & DROP UPLOAD ──
+function handleDragOver(e){ e.preventDefault(); document.getElementById('upload-area').classList.add('drag'); }
+function handleDragLeave(e){ document.getElementById('upload-area').classList.remove('drag'); }
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-area').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file) uploadImage(file);
+}
+function handleFileSelect(e){
+  const file = e.target.files[0];
+  if(file) uploadImage(file);
+}
+
+async function uploadImage(file){
+  if(!file.type.startsWith('image/')){ showToast('⚠️ Please upload an image file'); return; }
+  if(file.size > 5*1024*1024){ showToast('⚠️ Image must be under 5MB'); return; }
+
+  const progressWrap = document.getElementById('upload-progress');
+  const progressBar  = document.getElementById('upload-bar');
+  const statusEl     = document.getElementById('upload-status');
+
+  progressWrap.style.display = 'block';
+  progressBar.style.background = 'var(--teal)';
+  progressBar.style.width = '20%';
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = 'Uploading...';
+
+  try {
+    const ext  = file.name.split('.').pop().toLowerCase();
+    const name = 'product-' + Date.now() + '.' + ext;
+    const path = 'products/' + name;
+
+    progressBar.style.width = '50%';
+
+    const { data, error } = await _supa.storage
+      .from('product-images')
+      .upload(path, file, { cacheControl: '3600', upsert: false });
+
+    if(error) throw error;
+
+    progressBar.style.width = '90%';
+
+    const { data: urlData } = _supa.storage
+      .from('product-images')
+      .getPublicUrl(path);
+
+    uploadedImgUrl = urlData.publicUrl;
+    progressBar.style.width = '100%';
+    statusEl.textContent = '✅ Uploaded!';
+
+    document.getElementById('img-preview').innerHTML =
+      `<img src="${uploadedImgUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>`;
+
+    setTimeout(()=>{ progressWrap.style.display='none'; statusEl.textContent=''; }, 2000);
+
+  } catch(e) {
+    progressBar.style.background = 'var(--red)';
+    progressBar.style.width = '100%';
+    statusEl.textContent = '❌ ' + (e.message || 'Upload failed');
+    statusEl.style.color = 'var(--red)';
+  }
 }
 
 function buildEmojiPicker(){
@@ -1221,7 +1330,7 @@ function saveProduct(){
     stock,
     cat:document.getElementById('pm-cat').value,
     badge:document.getElementById('pm-badge').value,
-    img:imgMode==='url'?document.getElementById('pm-img').value.trim():'',
+    img:imgMode==='upload'?uploadedImgUrl:(imgMode==='url'?document.getElementById('pm-img').value.trim():''),
     emoji:imgMode==='emoji'?emojiChosen:(document.getElementById('pm-emoji-section')&&emojiChosen?emojiChosen:'💧'),
     descEn:document.getElementById('pm-desc-en').value,
     descAr:document.getElementById('pm-desc-ar').value,
@@ -1299,6 +1408,32 @@ function openOrderModal(id){
     <strong style="color:var(--teal)">Total: ${o.total} SAR</strong>`;
   document.getElementById('order-status-sel').value=o.status||'pending';
   document.getElementById('order-note').value=o.note||'';
+
+  // OTO section — show if already shipped
+  const trackDisp = document.getElementById('oto-tracking-display');
+  const shipBtnWrap = document.getElementById('oto-ship-btn-wrap');
+  const labelWrap = document.getElementById('oto-label-btn-wrap');
+  const statusMsg = document.getElementById('oto-status-msg');
+  const shipBtn = document.getElementById('oto-ship-btn');
+
+  // Reset
+  statusMsg.textContent = '';
+  shipBtn.disabled = false;
+  shipBtn.innerHTML = '📦 Create Shipment on OTO';
+
+  if(o.otoId){
+    trackDisp.innerHTML = `<span style="color:var(--green);font-weight:600">OTO ID: ${o.otoId}</span>`;
+    shipBtnWrap.style.display = 'none';
+    labelWrap.style.display = 'block';
+    document.getElementById('oto-label-link').href = `https://api.tryoto.com/rest/v2/print/${o.id}`;
+    statusMsg.textContent = `✅ Shipment already created (${o.otoStatus||'in progress'})`;
+    statusMsg.style.color = 'var(--green)';
+  } else {
+    trackDisp.textContent = 'Not shipped yet';
+    shipBtnWrap.style.display = 'block';
+    labelWrap.style.display = 'none';
+  }
+
   document.getElementById('order-modal').classList.add('open');
 }
 
@@ -1311,6 +1446,146 @@ function saveOrderStatus(){
   initDashboard();
   closeModal('order-modal');
   showToast('✅ Order status updated!');
+}
+
+// ============================================================
+//  OTO SHIPPING INTEGRATION
+// ============================================================
+const OTO_REFRESH_TOKEN = 'AMf-vByhCnBHQXbi7NEFaeGER15xk297U7ZxMUmNL3ZL4vceTwWjwfW3R2VNInv2-IuZqZlT3cyS4vOl7ZoH3PK9ld8W_jD-y7SMcQB3aY9DYHCqhAGZBPrFJDFw_Co_e2qTGKWf1oIers1wIHZ4BJdI6rbI7RE8CFxN6VIHXYhQ9apB9GhxYr9I-JFX8wsHEPNFl6m8cr3qyC-gPDXyuBVinp4u-NKx2A';
+const OTO_PICKUP_CODE   = 'almallaha';
+const OTO_SENDER_NAME   = 'Faisal al mubayrik';
+const OTO_SENDER_PHONE  = '966548030919';
+const OTO_BASE_URL      = 'https://api.tryoto.com';
+
+let otoAccessToken = null;
+let otoTokenExpiry = 0;
+
+async function getOTOAccessToken(){
+  if(otoAccessToken && Date.now() < otoTokenExpiry){
+    return otoAccessToken;
+  }
+  try {
+    const res = await fetch(`${OTO_BASE_URL}/rest/v2/refreshToken`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: OTO_REFRESH_TOKEN })
+    });
+    const data = await res.json();
+    if(data.access_token || data.accessToken){
+      otoAccessToken = data.access_token || data.accessToken;
+      otoTokenExpiry = Date.now() + (50 * 60 * 1000); // 50 min
+      return otoAccessToken;
+    }
+    throw new Error(data.message || 'Token fetch failed');
+  } catch(e){
+    console.error('OTO token error:', e);
+    throw e;
+  }
+}
+
+async function createOTOShipment(){
+  const o = orders.find(x => x.id === editingOrderId);
+  if(!o){ showToast('⚠️ Order not found'); return; }
+
+  const btnWrap  = document.getElementById('oto-ship-btn-wrap');
+  const statusEl = document.getElementById('oto-status-msg');
+  const btn      = document.getElementById('oto-ship-btn');
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin" style="margin:0 auto"></div>';
+  statusEl.textContent = 'Connecting to OTO...';
+  statusEl.style.color = 'var(--muted)';
+
+  try {
+    // Get access token
+    const token = await getOTOAccessToken();
+    statusEl.textContent = '✅ Authenticated — creating shipment...';
+
+    // Build order payload
+    const items = Array.isArray(o.items)
+      ? o.items.map(i=>({ productId: i.id||1, name: i.en||i.ar, price: i.price, rowTotal: i.price*i.qty, quantity: i.qty, sku: String(i.id||1) }))
+      : [{ productId: 1, name: o.itemsText||'Herbal Water', price: o.total, rowTotal: o.total, quantity: 1, sku: 'AJW001' }];
+
+    const payload = {
+      orderId: o.id,
+      pickupLocationCode: OTO_PICKUP_CODE,
+      createShipment: 'true',
+      payment_method: 'paid',
+      amount: o.total,
+      amount_due: 0,
+      currency: 'SAR',
+      packageCount: 1,
+      packageWeight: 1,
+      senderName: OTO_SENDER_NAME,
+      senderPhone: OTO_SENDER_PHONE,
+      orderDate: new Date().toLocaleDateString('en-GB').split('/').reverse().join('/') + ' ' + new Date().toTimeString().slice(0,5),
+      customer: {
+        name: o.customer || 'Customer',
+        mobile: (o.phone||'').replace(/\D/g,'').replace(/^966/,'0'),
+        email: o.email || '',
+        address: o.national || o.city || 'Saudi Arabia',
+        city: o.city || 'Riyadh',
+        country: 'SA',
+        shortAddress: o.national || ''
+      },
+      items
+    };
+
+    const res = await fetch(`${OTO_BASE_URL}/rest/v2/createOrder`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if(data.success || data.otoId){
+      const otoId = data.otoId || data.id;
+      statusEl.textContent = `✅ Shipment created! OTO ID: ${otoId}`;
+      statusEl.style.color = 'var(--green)';
+
+      // Save OTO ID and update status
+      orders = orders.map(x => x.id===editingOrderId ? {...x, otoId, status:'processing', otoStatus:'searchingDriver'} : x);
+      saveOrders();
+      renderOrders();
+
+      // Show tracking info
+      document.getElementById('oto-tracking-display').innerHTML =
+        `<span style="color:var(--green);font-weight:600">OTO ID: ${otoId}</span>`;
+
+      // Show print label button
+      btnWrap.style.display = 'none';
+      const labelWrap = document.getElementById('oto-label-btn-wrap');
+      labelWrap.style.display = 'block';
+      document.getElementById('oto-label-link').href = `${OTO_BASE_URL}/rest/v2/print/${o.id}`;
+
+      showToast(`✅ Shipment created on OTO! ID: ${otoId}`);
+
+    } else {
+      throw new Error(data.otoErrorMessage || data.message || JSON.stringify(data));
+    }
+
+  } catch(e){
+    console.error('OTO shipment error:', e);
+    statusEl.textContent = '❌ ' + (e.message || 'Shipment creation failed');
+    statusEl.style.color = 'var(--red)';
+    btn.disabled = false;
+    btn.innerHTML = '📦 Create Shipment on OTO';
+  }
+}
+
+async function getOTOShipmentStatus(orderId){
+  try {
+    const token = await getOTOAccessToken();
+    const res = await fetch(`${OTO_BASE_URL}/rest/v2/getOrder?orderId=${orderId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    return data;
+  } catch(e){ return null; }
 }
 
 // ============================================================
