@@ -70,6 +70,23 @@ body.ar .co-close{right:auto;left:16px}
 .co-coupon-result.success{background:rgba(39,174,96,.1);color:#27ae60;border:1px solid rgba(39,174,96,.2);display:block}
 .co-coupon-result.error{background:rgba(224,82,82,.08);color:var(--red);border:1px solid rgba(224,82,82,.15);display:block}
 
+
+/* ─── SHIPPING OPTIONS ─── */
+.ship-options{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.ship-option{border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;background:#fff}
+.ship-option:hover{border-color:var(--teal);background:rgba(13,110,110,.03)}
+.ship-option.selected{border-color:var(--teal);background:rgba(13,110,110,.05);box-shadow:0 2px 12px rgba(13,110,110,.1)}
+.ship-option-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.ship-option.selected .ship-option-radio{border-color:var(--teal);background:var(--teal)}
+.ship-option.selected .ship-option-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.ship-option-logo{font-size:1.6rem;flex-shrink:0}
+.ship-option-info{flex:1}
+.ship-option-name{font-weight:600;font-size:.86rem;color:var(--dark)}
+.ship-option-days{font-size:.74rem;color:var(--muted);margin-top:2px}
+.ship-option-price{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--teal)}
+.ship-loading{text-align:center;padding:20px;color:var(--muted);font-size:.84rem}
+.ship-error{text-align:center;padding:14px;color:var(--red);font-size:.82rem;background:rgba(224,82,82,.06);border-radius:10px}
+
 /* ─── GRAIN ─── */
 body::after{content:'';position:fixed;inset:0;z-index:8000;pointer-events:none;opacity:.022;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");}
@@ -735,6 +752,12 @@ footer{background:var(--dark);padding:70px 60px 36px}
         <input type="text" id="co-address" placeholder="Riyadh, Dammam..." autocomplete="address-level2"/>
       </div>
     </div>
+    <!-- SHIPPING OPTIONS -->
+    <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:8px" id="co-ship-lbl">Choose Shipping</div>
+    <div id="co-ship-options" class="ship-options">
+      <div class="ship-loading" id="co-ship-loading">⏳ Loading shipping options...</div>
+    </div>
+
     <!-- COUPON -->
     <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:6px" id="co-coupon-lbl">Coupon Code (optional)</div>
     <div class="co-coupon-wrap">
@@ -814,6 +837,8 @@ let FREE_SHIP = 50;
 let SHIP_COST = 15;
 let cart=JSON.parse(localStorage.getItem('aljaser_cart')||'[]'), isAr=false, activeFilter='all', modalProduct=null, modalQtyVal=1;
 let appliedCoupon=null; // {code, type, value, descEn, descAr}
+let selectedShipping=null; // {id, name, price, days, logo}
+let shippingOptions=[]; // available options from OTO
 
 // ═══════════════════════════════════════════════════════════
 //  SUPABASE LOAD
@@ -1054,7 +1079,7 @@ function changeQty(id,d){
   if(item.qty<=0) removeFromCart(id); else updateCartUI();
 }
 function getSub(){return cart.reduce((s,i)=>s+i.price*i.qty,0);}
-function getShip(sub){return sub===0?0:SHIP_COST;} // No free shipping
+function getShip(sub){return sub===0?0:(selectedShipping?selectedShipping.price:SHIP_COST);}
 function getTotal(){const s=getSub();return s+getShip(s);}
 
 function saveCart(){ localStorage.setItem('aljaser_cart', JSON.stringify(cart)); }
@@ -1112,6 +1137,96 @@ function closeCart(){document.getElementById('cart-overlay').classList.remove('o
 // ═══════════════════════════════════════════════════════════
 //  CHECKOUT FLOW
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  SHIPPING OPTIONS FROM OTO
+// ═══════════════════════════════════════════════════════════
+const OTO_PROXY = 'https://zpscjsufkqxvckdsohrj.supabase.co/functions/v1/oto-proxy';
+
+async function loadShippingOptions(city){
+  const el = document.getElementById('co-ship-options');
+  if(!el) return;
+  el.innerHTML = `<div class="ship-loading" id="co-ship-loading">⏳ ${isAr?'جاري تحميل خيارات الشحن...':'Loading shipping options...'}</div>`;
+
+  try {
+    const res = await fetch(OTO_PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'checkDeliveryFee',
+        pickupLocationCode: 'almallaha',
+        packageWeight: 1,
+        packageCount: 1,
+        city: city || 'Riyadh',
+        country: 'SA'
+      })
+    });
+    const data = await res.json();
+
+    // Map courier logos
+    const logos = {
+      'aramex': '📦', 'smsa': '🚚', 'dhl': '✈️',
+      'naqel': '🏎️', 'oto': '🔵', 'fetchr': '🟠'
+    };
+
+    const options = data.deliveryOptions || data.options || data.data || [];
+
+    if(!options.length){
+      // Fallback — show fixed 15 SAR option
+      shippingOptions = [{
+        id: null, name: 'Standard Shipping', nameAr: 'شحن عادي',
+        price: 15, days: '2-5', logo: '🚚', deliveryOptionId: null
+      }];
+    } else {
+      shippingOptions = options.map((o, i) => ({
+        id: o.deliveryOptionId || o.id || i,
+        name: o.deliveryCompanyName || o.name || 'Courier',
+        nameAr: o.deliveryCompanyNameAr || o.nameAr || 'ناقل',
+        price: parseFloat(o.price || o.shippingPrice || o.fee || 15),
+        days: o.estimatedDays || o.days || '2-5',
+        logo: logos[((o.deliveryCompanyName||o.name||'').toLowerCase())] || '🚚',
+        deliveryOptionId: o.deliveryOptionId || o.id,
+      }));
+    }
+
+    renderShippingOptions();
+    // Auto-select cheapest
+    if(shippingOptions.length){
+      selectShipping(shippingOptions.reduce((a,b)=>a.price<b.price?a:b));
+    }
+
+  } catch(e){
+    console.log('Shipping options error:', e);
+    // Fallback to fixed price
+    shippingOptions = [{
+      id: null, name: 'Standard Shipping', nameAr: 'شحن عادي',
+      price: 15, days: '2-5', logo: '🚚', deliveryOptionId: null
+    }];
+    renderShippingOptions();
+    selectShipping(shippingOptions[0]);
+  }
+}
+
+function renderShippingOptions(){
+  const el = document.getElementById('co-ship-options');
+  if(!el) return;
+  el.innerHTML = shippingOptions.map((o,i) => `
+    <div class="ship-option ${selectedShipping?.id===o.id?'selected':''}" onclick="selectShipping(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+      <div class="ship-option-radio"></div>
+      <div class="ship-option-logo">${o.logo}</div>
+      <div class="ship-option-info">
+        <div class="ship-option-name">${isAr?o.nameAr:o.name}</div>
+        <div class="ship-option-days">${isAr?'التوصيل خلال':'Delivery in'} ${o.days} ${isAr?'أيام عمل':'business days'}</div>
+      </div>
+      <div class="ship-option-price">${o.price} SAR</div>
+    </div>`).join('');
+}
+
+function selectShipping(option){
+  selectedShipping = typeof option === 'string' ? JSON.parse(option) : option;
+  renderShippingOptions();
+  updateCheckoutSummary();
+}
+
 // ═══════════════════════════════════════════════════════════
 //  COUPONS
 // ═══════════════════════════════════════════════════════════
@@ -1245,13 +1360,19 @@ function openCheckoutModal(user){
   document.getElementById('co-address-lbl').textContent = isAr ? 'الرقم المختصر للعنوان الوطني' : 'National Address Short Code';
   document.getElementById('co-btn-label').textContent = isAr ? 'تأكيد وإرسال عبر واتساب' : 'Confirm & Send via WhatsApp';
 
-  // Reset coupon
+  // Reset coupon and shipping
   appliedCoupon = null;
+  selectedShipping = null;
   const couponInput = document.getElementById('co-coupon-input');
   const couponResult = document.getElementById('co-coupon-result');
   if(couponInput) couponInput.value = '';
   if(couponResult){ couponResult.className='co-coupon-result'; couponResult.textContent=''; }
+  // Load shipping options from OTO
+  const cityForShipping = meta?.national || 'Riyadh';
+  loadShippingOptions(cityForShipping);
   // i18n coupon label
+  const shipLbl = document.getElementById('co-ship-lbl');
+  if(shipLbl) shipLbl.textContent = isAr ? 'اختر خيار الشحن' : 'Choose Shipping';
   const couponLbl = document.getElementById('co-coupon-lbl');
   if(couponLbl) couponLbl.textContent = isAr ? 'كود الخصم (اختياري)' : 'Coupon Code (optional)';
   const couponBtn = document.getElementById('co-coupon-apply-btn');
@@ -1320,6 +1441,8 @@ async function submitOrder(){
     discount: disc,
     coupon: appliedCoupon ? appliedCoupon.code : null,
     total: total,
+    deliveryOptionId: selectedShipping?.deliveryOptionId || null,
+    courierName: selectedShipping ? (isAr?selectedShipping.nameAr:selectedShipping.name) : 'Standard',
     status: 'pending',
     note: '',
     date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),

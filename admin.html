@@ -1451,36 +1451,20 @@ function saveOrderStatus(){
 // ============================================================
 //  OTO SHIPPING INTEGRATION
 // ============================================================
-const OTO_REFRESH_TOKEN = 'AMf-vByhCnBHQXbi7NEFaeGER15xk297U7ZxMUmNL3ZL4vceTwWjwfW3R2VNInv2-IuZqZlT3cyS4vOl7ZoH3PK9ld8W_jD-y7SMcQB3aY9DYHCqhAGZBPrFJDFw_Co_e2qTGKWf1oIers1wIHZ4BJdI6rbI7RE8CFxN6VIHXYhQ9apB9GhxYr9I-JFX8wsHEPNFl6m8cr3qyC-gPDXyuBVinp4u-NKx2A';
-const OTO_PICKUP_CODE   = 'almallaha';
-const OTO_SENDER_NAME   = 'Faisal al mubayrik';
-const OTO_SENDER_PHONE  = '966548030919';
-const OTO_BASE_URL      = 'https://api.tryoto.com';
+const OTO_PICKUP_CODE  = 'almallaha';
+const OTO_SENDER_NAME  = 'Faisal al mubayrik';
+const OTO_SENDER_PHONE = '966548030919';
+// All OTO calls go through Supabase Edge Function (no CORS issues)
+const OTO_PROXY = 'https://zpscjsufkqxvckdsohrj.supabase.co/functions/v1/oto-proxy';
 
-let otoAccessToken = null;
-let otoTokenExpiry = 0;
-
-async function getOTOAccessToken(){
-  if(otoAccessToken && Date.now() < otoTokenExpiry){
-    return otoAccessToken;
-  }
-  try {
-    const res = await fetch(`${OTO_BASE_URL}/rest/v2/refreshToken`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: OTO_REFRESH_TOKEN })
-    });
-    const data = await res.json();
-    if(data.access_token || data.accessToken){
-      otoAccessToken = data.access_token || data.accessToken;
-      otoTokenExpiry = Date.now() + (50 * 60 * 1000); // 50 min
-      return otoAccessToken;
-    }
-    throw new Error(data.message || 'Token fetch failed');
-  } catch(e){
-    console.error('OTO token error:', e);
-    throw e;
-  }
+async function callOTO(action, extra={}){
+  const res = await fetch(OTO_PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...extra })
+  });
+  if(!res.ok) throw new Error(`Proxy error: ${res.status}`);
+  return res.json();
 }
 
 async function createOTOShipment(){
@@ -1497,9 +1481,7 @@ async function createOTOShipment(){
   statusEl.style.color = 'var(--muted)';
 
   try {
-    // Get access token
-    const token = await getOTOAccessToken();
-    statusEl.textContent = '✅ Authenticated — creating shipment...';
+    statusEl.textContent = 'Connecting to OTO via proxy...';
 
     // Build order payload
     const items = Array.isArray(o.items)
@@ -1521,7 +1503,7 @@ async function createOTOShipment(){
       orderDate: new Date().toLocaleDateString('en-GB').split('/').reverse().join('/') + ' ' + new Date().toTimeString().slice(0,5),
       customer: {
         name: o.customer || 'Customer',
-        mobile: (o.phone||'').replace(/\D/g,'').replace(/^966/,'0'),
+        mobile: (o.phone||'').replace(/[^0-9]/g,'').replace(/^966/,'0'),
         email: o.email || '',
         address: o.national || o.city || 'Saudi Arabia',
         city: o.city || 'Riyadh',
@@ -1531,16 +1513,8 @@ async function createOTOShipment(){
       items
     };
 
-    const res = await fetch(`${OTO_BASE_URL}/rest/v2/createOrder`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
+    statusEl.textContent = '✅ Connected — creating shipment...';
+    const data = await callOTO('createOrder', { payload });
 
     if(data.success || data.otoId){
       const otoId = data.otoId || data.id;
@@ -1560,7 +1534,7 @@ async function createOTOShipment(){
       btnWrap.style.display = 'none';
       const labelWrap = document.getElementById('oto-label-btn-wrap');
       labelWrap.style.display = 'block';
-      document.getElementById('oto-label-link').href = `${OTO_BASE_URL}/rest/v2/print/${o.id}`;
+      document.getElementById('oto-label-link').onclick = async(e)=>{ e.preventDefault(); try{ const d=await callOTO('printLabel',{orderId:o.id}); if(d.url||d.printUrl) window.open(d.url||d.printUrl,'_blank'); else showToast('Label: check OTO dashboard'); }catch(err){showToast('❌ Could not get label');} };
 
       showToast(`✅ Shipment created on OTO! ID: ${otoId}`);
 
