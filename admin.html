@@ -344,8 +344,9 @@ body.ar .modal-footer{flex-direction:row-reverse}
         <div class="table-toolbar"><input class="search-inp" placeholder="Search customers..." oninput="filterCustomers(this.value)"/></div>
         <table>
           <thead><tr>
-            <th id="th-cu-name">Name</th><th id="th-cu-email">Email</th><th id="th-cu-city">City</th>
-            <th id="th-cu-orders">Orders</th><th id="th-cu-spent">Total Spent</th><th id="th-cu-joined">Joined</th>
+            <th id="th-cu-name">Name</th><th id="th-cu-email">Email</th><th id="th-cu-phone">Phone</th>
+            <th id="th-cu-national">National Address</th><th id="th-cu-orders">Orders</th>
+            <th id="th-cu-spent">Total Spent</th><th id="th-cu-joined">Joined</th>
           </tr></thead>
           <tbody id="customers-tbody"></tbody>
         </table>
@@ -864,7 +865,7 @@ async function showAdminApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='grid';
   await loadFromSupabase();
-  initDashboard(); renderProducts(); renderOrders(); renderCats(); renderCustomers(); renderPromos(); loadCoupons();
+  initDashboard(); renderProducts(); renderOrders(); renderCats(); loadCustomers(); renderPromos(); loadCoupons();
   updateLowStockBadge(); updateProductCount();
 }
 
@@ -883,6 +884,7 @@ _supa.channel('admin-orders-live')
       renderOrders();
       initDashboard();
       showToast('🛒 New order: ' + newOrder.id);
+    loadCustomers();
       document.getElementById('pending-badge').textContent = orders.filter(o=>o.status==='pending').length;
     }
   })
@@ -1342,22 +1344,89 @@ function saveCat(){
 function deleteCategory(i){ categories.splice(i,1); renderCats(); showToast('🗑 Category removed'); }
 
 // ============================================================
-//  CUSTOMERS
+//  CUSTOMERS — loaded from Supabase
 // ============================================================
-let customers=[...defaultCustomers];
+let customers = [];
+let customersFilter = '';
+
+async function loadCustomers(){
+  try {
+    // Build customer list from orders (group by email)
+    const { data: rows, error } = await _supa
+      .from('orders')
+      .select('data, created_at')
+      .order('created_at', { ascending: false });
+
+    if(error) throw error;
+
+    const map = {};
+    (rows||[]).forEach(r => {
+      const o = r.data;
+      if(!o || !o.email) return;
+      const key = o.email.toLowerCase();
+      if(!map[key]){
+        map[key] = {
+          name: o.customer || '—',
+          email: o.email,
+          phone: o.phone || '—',
+          national: o.national || '—',
+          orders: 0,
+          spent: 0,
+          joined: o.date || '—',
+          city: o.city || '—',
+        };
+      }
+      map[key].orders++;
+      map[key].spent += (o.total || 0);
+      // Update national address if available
+      if(o.national && o.national !== '—') map[key].national = o.national;
+      if(o.phone && o.phone !== '—') map[key].phone = o.phone;
+    });
+
+    customers = Object.values(map);
+
+    // Update customer count on dashboard
+    const custEl = document.getElementById('s-customers');
+    if(custEl) custEl.textContent = customers.length;
+
+    renderCustomers();
+  } catch(e){
+    console.error('Customers load error:', e);
+  }
+}
+
 function renderCustomers(filter=''){
-  let list=customers;
-  if(filter) list=list.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase())||c.email.toLowerCase().includes(filter.toLowerCase()));
-  document.getElementById('customers-tbody').innerHTML=list.map(c=>`
+  customersFilter = filter || customersFilter;
+  let list = customers;
+  if(customersFilter) list = list.filter(c =>
+    c.name.toLowerCase().includes(customersFilter.toLowerCase()) ||
+    c.email.toLowerCase().includes(customersFilter.toLowerCase()) ||
+    (c.phone||'').includes(customersFilter) ||
+    (c.national||'').toLowerCase().includes(customersFilter.toLowerCase())
+  );
+
+  const tbody = document.getElementById('customers-tbody');
+  if(!tbody) return;
+
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">
+      ${customers.length === 0 ? 'No customers yet — they appear here when orders are placed' : 'No results found'}
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => `
     <tr>
       <td><strong>${c.name}</strong></td>
-      <td style="color:var(--muted)">${c.email}</td>
-      <td>${c.city}</td>
-      <td>${c.orders}</td>
-      <td><strong style="color:var(--teal)">${c.spent} SAR</strong></td>
-      <td style="color:var(--muted)">${c.joined}</td>
+      <td style="color:var(--muted);font-size:.78rem">${c.email}</td>
+      <td style="font-size:.78rem">${c.phone}</td>
+      <td><code style="background:rgba(78,205,196,.08);color:var(--teal);padding:2px 8px;border-radius:5px;font-size:.76rem;letter-spacing:.06em">${c.national}</code></td>
+      <td><span style="background:rgba(78,205,196,.1);color:var(--teal);padding:2px 10px;border-radius:50px;font-size:.76rem;font-weight:600">${c.orders}</span></td>
+      <td><strong style="color:var(--teal)">${c.spent.toFixed(0)} SAR</strong></td>
+      <td style="color:var(--muted);font-size:.78rem">${c.joined}</td>
     </tr>`).join('');
 }
+
 function filterCustomers(v){ renderCustomers(v); }
 
 // ============================================================

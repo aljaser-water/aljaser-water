@@ -1227,6 +1227,8 @@ function openCheckoutModal(user){
   const phoneEl = document.getElementById('co-phone');
   if(nameEl)  nameEl.value  = name;
   if(phoneEl) phoneEl.value = phone;
+  const nationalEl = document.getElementById('co-national');
+  if(nationalEl && meta.national) nationalEl.value = meta.national;
 
   // Build order summary
   const summaryEl = document.getElementById('co-summary');
@@ -1271,10 +1273,18 @@ function handleCheckoutOverlay(e){
 async function submitOrder(){
   const name    = document.getElementById('co-name').value.trim();
   const phone   = document.getElementById('co-phone').value.trim();
-  const city    = document.getElementById('co-address').value.trim();
+  const national = document.getElementById('co-national')?.value.trim().toUpperCase() || '';
 
   if(!name){ showToast(isAr?'⚠️ أدخل اسمك':'⚠️ Enter your name'); return; }
   if(!phone){ showToast(isAr?'⚠️ أدخل رقم الواتساب':'⚠️ Enter your WhatsApp number'); return; }
+  // Save national address to user profile
+  if(national){
+    const { data:{ session } } = await _supa.auth.getSession();
+    if(session?.user){
+      const meta = session.user.user_metadata || {};
+      if(!meta.national) await _supa.auth.updateUser({ data: {...meta, national} });
+    }
+  }
 
   const sub=getSub(), ship=getShip(sub), disc=getDiscount(), total=getTotalAfterDiscount();
   const orderId = '#AJW-' + Date.now().toString().slice(-6);
@@ -1300,7 +1310,8 @@ async function submitOrder(){
     id: orderId,
     customer: name,
     phone: phone,
-    city: city || '—',
+    national: national || '—',
+    city: national || '—',
     email: userEmail,
     items: cart.map(i=>({id:i.id,en:i.en,ar:i.ar,qty:i.qty,price:i.price})),
     itemsText: cart.map(i=>`${isAr?i.ar:i.en} ×${i.qty}`).join(', '),
@@ -1325,8 +1336,8 @@ async function submitOrder(){
   // Build WhatsApp message
   const lines = cart.map(i=>isAr?`• ${i.ar} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} ريال`:`• ${i.en} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} SAR`).join('%0A');
   const msg = isAr
-    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A${disc>0?'كود الخصم: '+appliedCoupon.code+' (-'+disc.toFixed(2)+' ريال)%0A':''}*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالعنوان الوطني: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
-    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A${disc>0?'Coupon: '+appliedCoupon.code+' (-'+disc.toFixed(2)+' SAR)%0A':''}*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ANational Address: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
+    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A${disc>0?'كود الخصم: '+appliedCoupon.code+' (-'+disc.toFixed(2)+' ريال)%0A':''}*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالعنوان الوطني: ${national||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
+    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A${disc>0?'Coupon: '+appliedCoupon.code+' (-'+disc.toFixed(2)+' SAR)%0A':''}*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0Aالعنوان الوطني: ${national||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
 
   closeCheckoutModal();
   cart = [];
