@@ -794,7 +794,7 @@ let products = JSON.parse(localStorage.getItem(STORE_KEY)) || fallbackProducts;
 let visibleProducts = products.filter(p => p.active !== false);
 let FREE_SHIP = 50;
 let SHIP_COST = 15;
-let cart=[], isAr=false, activeFilter='all', modalProduct=null, modalQtyVal=1;
+let cart=JSON.parse(localStorage.getItem('aljaser_cart')||'[]'), isAr=false, activeFilter='all', modalProduct=null, modalQtyVal=1;
 
 // ═══════════════════════════════════════════════════════════
 //  SUPABASE LOAD
@@ -1038,7 +1038,10 @@ function getSub(){return cart.reduce((s,i)=>s+i.price*i.qty,0);}
 function getShip(sub){return sub===0?0:SHIP_COST;} // No free shipping
 function getTotal(){const s=getSub();return s+getShip(s);}
 
+function saveCart(){ localStorage.setItem('aljaser_cart', JSON.stringify(cart)); }
+
 function updateCartUI(){
+  saveCart();
   const count=cart.reduce((s,i)=>s+i.qty,0);
   const countEl=document.getElementById('cart-count');
   countEl.textContent=count;
@@ -1216,6 +1219,7 @@ async function submitOrder(){
 
   closeCheckoutModal();
   cart = [];
+  localStorage.removeItem('aljaser_cart');
   updateCartUI();
   closeCart();
   showToast(isAr?`✅ تم تقديم الطلب ${orderId}`:`✅ Order ${orderId} placed!`);
