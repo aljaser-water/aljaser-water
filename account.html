@@ -691,6 +691,11 @@ function showPage(name) {
 // ══════════════════════════════════════════════
 //  TAB SWITCHING — matches ptab / pnav-item
 // ══════════════════════════════════════════════
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('open');
+}
+
 function switchTab(name) {
   // Hide all tabs
   document.querySelectorAll('.ptab').forEach(p => p.classList.remove('active'));
@@ -1215,6 +1220,26 @@ const T = {
     'wish-tab-title':'❤️ My Wishlist',
     // Badge
     'prof-badge-lbl':'Loyal Member',
+    // Address modal
+    'addr-modal-title':'Add New Address',
+    'am-name-lbl':'Full Name',
+    'am-national-lbl':'National Address Short Code',
+    'am-city-lbl':'City',
+    'am-dist-lbl':'District',
+    'am-street-lbl':'Street & Building',
+    'am-default-lbl':'Set as default address',
+    'am-cancel':'Cancel',
+    'am-save':'Save Address',
+    // Delete modal
+    'del-modal-title':'⚠️ Delete Account',
+    'del-modal-sub':'This action is permanent and cannot be undone. Type DELETE to confirm.',
+    'del-cancel':'Cancel',
+    'del-confirm-btn':'Delete Account',
+    // Confirm signup
+    'confirm-h':'Check Your Email',
+    'confirm-sub':'We sent a confirmation link to your email. Click it to activate your account, then come back to sign in.',
+    'confirm-btn-txt':'Back to Sign In',
+    'ov-promo-title':'🏷️ Available Coupons',
   },
   ar: {
     'lang-btn':'🌐 English','back-link':'→ العودة للمتجر',
@@ -1246,12 +1271,33 @@ const T = {
     // Overview
     'stat-orders-lbl':'الطلبات','stat-spent-lbl':'ريال منفق','stat-pts-lbl':'النقاط',
     'ov-orders-title':'📦 آخر الطلبات','view-all-btn':'عرض كل الطلبات →',
-    'ov-promo-title':'🏷️ كود الخصم الخاص بك',
-    'copy-code-btn':'📋 نسخ الكود',
+    'ov-promo-title':'🏷️ الكوبونات المتاحة',
+    'copy-code-btn':'📋 نسخ',
     'orders-tab-title':'📦 طلباتي',
     'wish-tab-title':'❤️ المفضلة',
     // Badge
     'prof-badge-lbl':'عضو مخلص',
+    // Address modal
+    'addr-modal-title':'إضافة عنوان جديد',
+    'am-name-lbl':'الاسم الكامل',
+    'am-national-lbl':'الرقم المختصر للعنوان الوطني',
+    'am-city-lbl':'المدينة',
+    'am-dist-lbl':'الحي',
+    'am-street-lbl':'الشارع والمبنى',
+    'am-default-lbl':'تعيين كعنوان افتراضي',
+    'am-cancel':'إلغاء',
+    'am-save':'حفظ العنوان',
+    // Delete modal
+    'del-modal-title':'⚠️ حذف الحساب',
+    'del-modal-sub':'هذا الإجراء دائم ولا يمكن التراجع عنه. اكتب DELETE للتأكيد.',
+    'del-cancel':'إلغاء',
+    'del-confirm-btn':'حذف حسابي',
+    // Confirm signup
+    'confirm-h':'تحقق من بريدك',
+    'confirm-sub':'أرسلنا رابط تأكيد إلى بريدك الإلكتروني. انقر عليه لتفعيل حسابك، ثم عد لتسجيل الدخول.',
+    'confirm-btn-txt':'العودة لتسجيل الدخول',
+    // Promo exp
+    'promo-exp-txt':'خصم ١٠٪ على طلبك القادم',
   }
 };
 
