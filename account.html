@@ -531,13 +531,9 @@ body.ar .tab-title{direction:rtl}
           <button class="act-btn" onclick="switchTab('orders')" id="view-all-btn" style="margin-top:4px">View All Orders →</button>
         </div>
         <div class="tab-card">
-          <div class="tab-title" id="ov-promo-title">🏷️ Your Promo Code</div>
-          <div style="background:var(--sand);border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-            <div>
-              <div style="font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:var(--teal);letter-spacing:2px">WELCOME10</div>
-              <div style="font-size:.76rem;color:var(--muted);margin-top:2px" id="promo-exp-txt">10% off your next order — expires Dec 2025</div>
-            </div>
-            <button class="act-btn" onclick="copyCode()" id="copy-code-btn">📋 Copy Code</button>
+          <div class="tab-title" id="ov-promo-title">🏷️ Available Coupons</div>
+          <div id="coupons-list">
+            <p style="color:var(--muted);font-size:.84rem;text-align:center;padding:20px">Loading coupons...</p>
           </div>
         </div>
       </div>
@@ -562,21 +558,8 @@ body.ar .tab-title{direction:rtl}
       <div class="ptab" id="ptab-addresses">
         <div class="tab-card">
           <div class="tab-title" id="addr-tab-title">📍 My Addresses</div>
-          <div class="addr-grid">
-            <div class="addr-card default">
-              <div class="addr-def-badge" id="addr-default-badge">Default</div>
-              <div class="addr-name-txt" id="addr1-name">Mohammed Al-Rashidi</div>
-              <div class="addr-detail-txt" id="addr1-detail">Al-Olaya District<br>King Fahd Road, Building 7<br>Riyadh, 12345</div>
-              <div class="addr-acts">
-                <button class="addr-act-btn" onclick="toast('✏️ Edit address')"><span id="edit-lbl">✏️ Edit</span></button>
-                <button class="addr-act-btn" onclick="toast('🗑️ Address removed')"><span id="del-lbl">🗑️ Delete</span></button>
-              </div>
-            </div>
-            <div class="addr-add" onclick="openAddrModal()">
-              <div class="addr-add-icon">＋</div>
-              <div class="addr-add-txt" id="add-addr-lbl">Add New Address</div>
-            </div>
-          </div>
+          <div class="addr-grid" id="addr-grid-list"></div>
+          <button class="act-btn" onclick="openAddrModal(null)" style="margin-top:14px" id="add-addr-btn">＋ Add New Address</button>
         </div>
       </div>
 
@@ -626,19 +609,32 @@ body.ar .tab-title{direction:rtl}
 </div>
 
 <!-- ADDRESS MODAL -->
-<div class="modal-overlay" id="addr-modal">
+<div class="modal-overlay" id="addr-modal" onclick="handleAddrOverlay(event)">
   <div class="modal">
     <div class="modal-title" id="addr-modal-title">Add New Address</div>
     <div class="fg"><label id="am-name-lbl">Full Name</label><div class="inp-wrap"><input type="text" id="am-name" placeholder="Mohammed Al-Rashidi"/></div></div>
+    <div class="fg"><label id="am-national-lbl">National Address Short Code</label><div class="inp-wrap"><input type="text" id="am-national" placeholder="e.g. RRDD1234" style="letter-spacing:.08em"/></div></div>
     <div class="fg"><label id="am-city-lbl">City</label>
       <div class="inp-wrap">
         <select id="am-city">
-          <option>Riyadh · الرياض</option><option>Jeddah · جدة</option><option>Dammam · الدمام</option><option>Khobar · الخبر</option>
+          <option value="Riyadh">Riyadh · الرياض</option>
+          <option value="Jeddah">Jeddah · جدة</option>
+          <option value="Dammam">Dammam · الدمام</option>
+          <option value="Khobar">Khobar · الخبر</option>
+          <option value="Mecca">Mecca · مكة</option>
+          <option value="Medina">Medina · المدينة</option>
+          <option value="Abha">Abha · أبها</option>
+          <option value="Tabuk">Tabuk · تبوك</option>
+          <option value="Other">Other · أخرى</option>
         </select>
       </div>
     </div>
     <div class="fg"><label id="am-dist-lbl">District</label><div class="inp-wrap"><input type="text" id="am-dist" placeholder="Al-Olaya / العليا"/></div></div>
     <div class="fg"><label id="am-street-lbl">Street & Building</label><div class="inp-wrap"><input type="text" id="am-street" placeholder="King Fahd Rd, Building 7"/></div></div>
+    <div class="fg" style="display:flex;align-items:center;gap:10px;padding:10px 0">
+      <input type="checkbox" id="am-default" style="width:18px;height:18px;accent-color:var(--teal)"/>
+      <label for="am-default" id="am-default-lbl" style="font-size:.84rem;color:var(--text);cursor:pointer">Set as default address</label>
+    </div>
     <div class="modal-footer">
       <button class="btn-sm" onclick="closeModal('addr-modal')" id="am-cancel">Cancel</button>
       <button class="btn-sm primary" onclick="saveAddr()" id="am-save">Save Address</button>
@@ -833,9 +829,10 @@ function loadProfile() {
   if(s('set-email')) s('set-email').value = email;
   if(s('set-phone')) s('set-phone').value = meta.phone || '';
 
-  // Load orders and wishlist
+  // Load orders, wishlist and addresses
   renderOrders();
   renderWishlist();
+  renderAddrs();
 }
 
 // ══════════════════════════════════════════════
@@ -983,12 +980,162 @@ async function changePassword() {
 // ══════════════════════════════════════════════
 //  MISC
 // ══════════════════════════════════════════════
-function copyCode() {
-  navigator.clipboard?.writeText('WELCOME10').then(()=>toast('📋 Code copied!')).catch(()=>toast('Code: WELCOME10'));
+function copyCode(code) {
+  navigator.clipboard?.writeText(code).then(()=>toast('📋 ' + code + ' copied!')).catch(()=>toast('Code: ' + code));
 }
 
-function openAddrModal() { toast(isAr?'قريباً — إضافة العناوين':'Coming soon — address management'); }
-function openDeleteModal() { toast(isAr?'تواصل معنا لحذف حسابك':'Contact us to delete your account'); }
+async function loadCoupons(){
+  const el = document.getElementById('coupons-list');
+  if(!el) return;
+  try {
+    const { data, error } = await _supa.from('coupons').select('*').eq('active', true).order('created_at',{ascending:false});
+    if(error || !data || data.length===0){
+      el.innerHTML = `<p style="color:var(--muted);font-size:.84rem;text-align:center;padding:20px">${isAr?'لا توجد كوبونات نشطة حالياً':'No active coupons right now'}</p>`;
+      return;
+    }
+    const now = new Date();
+    const activeCoupons = data.filter(c => !c.exp || new Date(c.exp) > now);
+    if(!activeCoupons.length){
+      el.innerHTML = `<p style="color:var(--muted);font-size:.84rem;text-align:center;padding:20px">${isAr?'لا توجد كوبونات نشطة حالياً':'No active coupons right now'}</p>`;
+      return;
+    }
+    el.innerHTML = activeCoupons.map(c => {
+      const valLabel = c.type==='percent' ? c.value+'% off' : c.type==='fixed' ? c.value+' SAR off' : 'Free shipping';
+      const valLabelAr = c.type==='percent' ? 'خصم '+c.value+'%' : c.type==='fixed' ? 'خصم '+c.value+' ريال' : 'شحن مجاني';
+      const desc = isAr ? (c.descAr||valLabelAr) : (c.descEn||valLabel);
+      const expTxt = c.exp ? (isAr?'ينتهي: ':'Expires: ')+c.exp : (isAr?'بدون تاريخ انتهاء':'No expiry');
+      const minTxt = c.minOrder>0 ? (isAr?` · الحد الأدنى ${c.minOrder} ريال`:` · Min. order ${c.minOrder} SAR`) : '';
+      return `<div style="background:var(--sand);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;border:1.5px dashed rgba(13,110,110,.2)">
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--teal);letter-spacing:2px">${c.code}</div>
+          <div style="font-size:.76rem;color:var(--muted);margin-top:3px">${desc} · ${expTxt}${minTxt}</div>
+        </div>
+        <button class="act-btn" onclick="copyCode('${c.code}')">📋 ${isAr?'نسخ':'Copy'}</button>
+      </div>`;
+    }).join('');
+  } catch(e){
+    el.innerHTML = `<p style="color:var(--muted);font-size:.84rem;text-align:center;padding:20px">Could not load coupons</p>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  ADDRESS MANAGEMENT — saved to localStorage per user
+// ══════════════════════════════════════════════
+let editingAddrIdx = null;
+
+function getAddrKey(){ return currentUser ? 'aljaser_addrs_'+currentUser.id : 'aljaser_addrs_guest'; }
+function loadAddrs(){ try{ return JSON.parse(localStorage.getItem(getAddrKey())||'[]'); }catch(e){return [];} }
+function saveAddrs(list){ localStorage.setItem(getAddrKey(), JSON.stringify(list)); }
+
+function renderAddrs(){
+  const el = document.getElementById('addr-grid-list');
+  if(!el) return;
+  const addrs = loadAddrs();
+
+  if(addrs.length === 0){
+    el.innerHTML = `<div style="color:var(--muted);font-size:.85rem;padding:20px 0">${isAr?'لا توجد عناوين محفوظة بعد':'No saved addresses yet'}</div>`;
+    return;
+  }
+
+  el.innerHTML = addrs.map((a,i)=>`
+    <div class="addr-card ${a.isDefault?'default':''}">
+      ${a.isDefault?`<div class="addr-def-badge">${isAr?'الافتراضي':'Default'}</div>`:''}
+      <div class="addr-name-txt">${a.name}</div>
+      <div class="addr-detail-txt">
+        ${a.national?`<strong>${a.national}</strong><br>`:''}
+        ${a.district?a.district+', ':''} ${a.city}<br>
+        ${a.street||''}
+      </div>
+      <div class="addr-acts">
+        <button class="addr-act-btn" onclick="openAddrModal(${i})">✏️ ${isAr?'تعديل':'Edit'}</button>
+        <button class="addr-act-btn" onclick="deleteAddr(${i})" style="color:var(--red)">🗑️ ${isAr?'حذف':'Delete'}</button>
+        ${!a.isDefault?`<button class="addr-act-btn" onclick="setDefaultAddr(${i})">${isAr?'اجعله افتراضياً':'Set Default'}</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function openAddrModal(idx){
+  editingAddrIdx = idx;
+  const isEdit = idx !== null && idx !== undefined;
+  const addrs = loadAddrs();
+  const a = isEdit ? addrs[idx] : {};
+
+  document.getElementById('addr-modal-title').textContent = isEdit ? (isAr?'تعديل العنوان':'Edit Address') : (isAr?'إضافة عنوان جديد':'Add New Address');
+  document.getElementById('am-name').value    = a.name    || (currentUser?.user_metadata?.full_name || '');
+  document.getElementById('am-national').value= a.national|| '';
+  document.getElementById('am-city').value    = a.city    || 'Riyadh';
+  document.getElementById('am-dist').value    = a.district|| '';
+  document.getElementById('am-street').value  = a.street  || '';
+  document.getElementById('am-default').checked = a.isDefault || addrs.length === 0;
+  document.getElementById('am-save').textContent = isAr?'حفظ العنوان':'Save Address';
+  document.getElementById('am-cancel').textContent = isAr?'إلغاء':'Cancel';
+  document.getElementById('am-default-lbl').textContent = isAr?'اجعله العنوان الافتراضي':'Set as default address';
+  document.getElementById('am-name-lbl').textContent = isAr?'الاسم الكامل':'Full Name';
+  document.getElementById('am-national-lbl').textContent = isAr?'الرقم المختصر للعنوان الوطني':'National Address Short Code';
+  document.getElementById('am-city-lbl').textContent = isAr?'المدينة':'City';
+  document.getElementById('am-dist-lbl').textContent = isAr?'الحي':'District';
+  document.getElementById('am-street-lbl').textContent = isAr?'الشارع والمبنى':'Street & Building';
+
+  document.getElementById('addr-modal').classList.add('open');
+}
+
+function handleAddrOverlay(e){ if(e.target===document.getElementById('addr-modal')) closeModal('addr-modal'); }
+
+function saveAddr(){
+  const name     = document.getElementById('am-name').value.trim();
+  const national = document.getElementById('am-national').value.trim();
+  const city     = document.getElementById('am-city').value;
+  const district = document.getElementById('am-dist').value.trim();
+  const street   = document.getElementById('am-street').value.trim();
+  const isDef    = document.getElementById('am-default').checked;
+
+  if(!name){ toast(isAr?'⚠️ أدخل الاسم':'⚠️ Enter your name'); return; }
+  if(!national){ toast(isAr?'⚠️ أدخل الرقم المختصر':'⚠️ Enter national address code'); return; }
+
+  let addrs = loadAddrs();
+  if(isDef) addrs = addrs.map(a=>({...a, isDefault:false}));
+
+  const addrObj = { name, national, city, district, street, isDefault: isDef || addrs.length===0 };
+
+  if(editingAddrIdx !== null && editingAddrIdx !== undefined){
+    addrs[editingAddrIdx] = addrObj;
+    toast(isAr?'✅ تم تحديث العنوان':'✅ Address updated!');
+  } else {
+    addrs.push(addrObj);
+    toast(isAr?'✅ تم إضافة العنوان':'✅ Address saved!');
+  }
+
+  saveAddrs(addrs);
+  renderAddrs();
+  closeModal('addr-modal');
+
+  // Pre-fill checkout national address field if default
+  if(isDef){
+    const coAddr = document.getElementById('co-address');
+    if(coAddr) coAddr.value = national;
+  }
+}
+
+function deleteAddr(idx){
+  let addrs = loadAddrs();
+  addrs.splice(idx, 1);
+  // If deleted was default, make first one default
+  if(addrs.length > 0 && !addrs.find(a=>a.isDefault)) addrs[0].isDefault = true;
+  saveAddrs(addrs);
+  renderAddrs();
+  toast(isAr?'🗑️ تم حذف العنوان':'🗑️ Address deleted');
+}
+
+function setDefaultAddr(idx){
+  let addrs = loadAddrs().map((a,i)=>({...a, isDefault: i===idx}));
+  saveAddrs(addrs);
+  renderAddrs();
+  toast(isAr?'✅ تم تعيين العنوان الافتراضي':'✅ Default address set');
+}
+
+function openDeleteModal() {
+  document.getElementById('del-modal').classList.add('open');
+}
 
 // ══════════════════════════════════════════════
 //  PASSWORD STRENGTH
@@ -1034,17 +1181,77 @@ function toast(msg) {
 const T = {
   en: {
     'lang-btn':'🌐 العربية','back-link':'← Back to Store',
+    // Auth
     'login-h':'Welcome Back','go-signup':'Create one free →',
     'signup-h':'Create Account','go-login':'Sign in →',
     'login-btn-txt':'Sign In','signup-btn-txt':'Create Account',
     'forgot-h':'Reset Password',
+    // Profile nav
+    'pn-lbl-overview':'Overview','pn-lbl-orders':'My Orders',
+    'pn-lbl-wishlist':'Wishlist','pn-lbl-addresses':'Addresses',
+    'pn-lbl-settings':'Settings','pn-lbl-logout':'Logout',
+    // Tabs
+    'addr-tab-title':'📍 My Addresses','add-addr-btn':'＋ Add New Address',
+    'settings-tab-title':'⚙️ Account Settings',
+    'set-personal-lbl':'Personal Information',
+    'set-fn-lbl':'First Name','set-ln-lbl':'Last Name',
+    'set-email-lbl':'Email Address','set-phone-lbl':'Phone (WhatsApp)',
+    'set-pass-lbl':'Change Password',
+    'set-oldp-lbl':'Current Password','set-newp-lbl':'New Password','set-confp-lbl':'Confirm',
+    'set-notif-lbl':'Notifications',
+    'n1-lbl':'Order Updates','n1-sub':'SMS & email when order status changes',
+    'n2-lbl':'Promotions & Deals','n2-sub':'Exclusive offers and new products',
+    'n3-lbl':'WhatsApp Notifications','n3-sub':'Receive updates via WhatsApp',
+    'save-btn':'💾 Save Changes',
+    'danger-title':'⚠️ Danger Zone',
+    'danger-sub':'Deleting your account is permanent. All orders, wishlist and data will be removed.',
+    'del-acc-btn':'Delete My Account',
+    // Overview
+    'stat-orders-lbl':'Orders','stat-spent-lbl':'SAR Spent','stat-pts-lbl':'Points',
+    'ov-orders-title':'📦 Recent Orders','view-all-btn':'View All Orders →',
+    'ov-promo-title':'🏷️ Your Promo Code',
+    'copy-code-btn':'📋 Copy Code',
+    'orders-tab-title':'📦 My Orders',
+    'wish-tab-title':'❤️ My Wishlist',
+    // Badge
+    'prof-badge-lbl':'Loyal Member',
   },
   ar: {
     'lang-btn':'🌐 English','back-link':'→ العودة للمتجر',
+    // Auth
     'login-h':'مرحباً بعودتك','go-signup':'أنشئ حساباً مجانياً →',
     'signup-h':'إنشاء حساب','go-login':'تسجيل الدخول →',
     'login-btn-txt':'تسجيل الدخول','signup-btn-txt':'إنشاء الحساب',
     'forgot-h':'استعادة كلمة المرور',
+    // Profile nav
+    'pn-lbl-overview':'نظرة عامة','pn-lbl-orders':'طلباتي',
+    'pn-lbl-wishlist':'المفضلة','pn-lbl-addresses':'العناوين',
+    'pn-lbl-settings':'الإعدادات','pn-lbl-logout':'تسجيل خروج',
+    // Tabs
+    'addr-tab-title':'📍 عناوين التوصيل','add-addr-btn':'＋ إضافة عنوان جديد',
+    'settings-tab-title':'⚙️ إعدادات الحساب',
+    'set-personal-lbl':'المعلومات الشخصية',
+    'set-fn-lbl':'الاسم الأول','set-ln-lbl':'اسم العائلة',
+    'set-email-lbl':'البريد الإلكتروني','set-phone-lbl':'الهاتف (واتساب)',
+    'set-pass-lbl':'تغيير كلمة المرور',
+    'set-oldp-lbl':'كلمة المرور الحالية','set-newp-lbl':'كلمة المرور الجديدة','set-confp-lbl':'تأكيد',
+    'set-notif-lbl':'الإشعارات',
+    'n1-lbl':'تحديثات الطلبات','n1-sub':'رسائل SMS وبريد عند تغيير حالة الطلب',
+    'n2-lbl':'العروض والصفقات','n2-sub':'عروض حصرية ومنتجات جديدة',
+    'n3-lbl':'إشعارات واتساب','n3-sub':'استلام التحديثات عبر واتساب',
+    'save-btn':'💾 حفظ التغييرات',
+    'danger-title':'⚠️ منطقة الخطر',
+    'danger-sub':'حذف حسابك نهائي. ستُحذف جميع الطلبات والمفضلة والبيانات.',
+    'del-acc-btn':'حذف حسابي',
+    // Overview
+    'stat-orders-lbl':'الطلبات','stat-spent-lbl':'ريال منفق','stat-pts-lbl':'النقاط',
+    'ov-orders-title':'📦 آخر الطلبات','view-all-btn':'عرض كل الطلبات →',
+    'ov-promo-title':'🏷️ كود الخصم الخاص بك',
+    'copy-code-btn':'📋 نسخ الكود',
+    'orders-tab-title':'📦 طلباتي',
+    'wish-tab-title':'❤️ المفضلة',
+    // Badge
+    'prof-badge-lbl':'عضو مخلص',
   }
 };
 
@@ -1054,7 +1261,7 @@ function applyLang(lang) {
   document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
   isAr ? document.body.classList.add('ar') : document.body.classList.remove('ar');
   Object.keys(T[lang]).forEach(k => { const el=document.getElementById(k); if(el) el.textContent=T[lang][k]; });
-  if (currentUser) { renderOrders(); renderWishlist(); }
+  if (currentUser) { renderOrders(); renderWishlist(); renderAddrs(); }
 }
 function toggleLang() { applyLang(isAr ? 'en' : 'ar'); }
 

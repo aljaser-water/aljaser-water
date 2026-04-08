@@ -667,23 +667,32 @@ body.ar .modal-footer{flex-direction:row-reverse}
 
 <!-- PROMO MODAL -->
 <div class="modal-overlay" id="promo-modal">
-  <div class="modal" style="width:440px">
-    <div class="modal-title">🏷 Add Coupon</div>
-    <div class="form-group"><label>Coupon Code</label><input id="prom-code" placeholder="SUMMER25" style="text-transform:uppercase"/></div>
+  <div class="modal" style="width:500px">
+    <div class="modal-title">🏷 Create Coupon</div>
     <div class="form-row">
-      <div class="form-group"><label>Type</label>
+      <div class="form-group"><label>Coupon Code</label><input id="prom-code" placeholder="SUMMER25" style="text-transform:uppercase;font-weight:700;letter-spacing:.06em"/></div>
+      <div class="form-group"><label>Min. Order (SAR)</label><input type="number" id="prom-min" placeholder="0 = no minimum"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Discount Type</label>
         <select id="prom-type">
-          <option value="percent">% Percentage</option>
-          <option value="fixed">SAR Fixed Amount</option>
-          <option value="freeship">Free Shipping</option>
+          <option value="percent">% Percentage Off</option>
+          <option value="fixed">SAR Fixed Amount Off</option>
         </select>
       </div>
-      <div class="form-group"><label>Value</label><input type="number" id="prom-val" placeholder="10"/></div>
+      <div class="form-group"><label>Value</label><input type="number" id="prom-val" placeholder="e.g. 10"/></div>
     </div>
     <div class="form-group"><label>Expiry Date</label><input type="date" id="prom-exp"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Description (English)</label><input id="prom-desc-en" placeholder="10% off your order"/></div>
+      <div class="form-group"><label>Description (Arabic)</label><input id="prom-desc-ar" placeholder="خصم ١٠٪ على طلبك"/></div>
+    </div>
+    <div style="background:rgba(78,205,196,.06);border:1px solid rgba(78,205,196,.15);border-radius:10px;padding:12px 14px;font-size:.78rem;color:var(--muted);margin-bottom:14px">
+      💡 Once created, this coupon is available for customers to use at checkout. They enter the code and the discount is applied automatically.
+    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('promo-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="savePromo()">Create Coupon</button>
+      <button class="btn btn-primary" onclick="savePromo()">✅ Create Coupon</button>
     </div>
   </div>
 </div>
@@ -855,7 +864,7 @@ async function showAdminApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='grid';
   await loadFromSupabase();
-  initDashboard(); renderProducts(); renderOrders(); renderCats(); renderCustomers(); renderPromos();
+  initDashboard(); renderProducts(); renderOrders(); renderCats(); renderCustomers(); renderPromos(); loadCoupons();
   updateLowStockBadge(); updateProductCount();
 }
 
@@ -1352,40 +1361,97 @@ function renderCustomers(filter=''){
 function filterCustomers(v){ renderCustomers(v); }
 
 // ============================================================
-//  PROMOTIONS
+//  PROMOTIONS — synced to Supabase
 // ============================================================
 let promos=[...defaultPromos];
+
+async function loadCoupons(){
+  try {
+    const { data, error } = await _supa.from('coupons').select('*').order('created_at',{ascending:false});
+    if(!error && data && data.length > 0){
+      promos = data;
+      renderPromos();
+    }
+  } catch(e){ console.log('Coupons load failed', e); }
+}
+
+async function saveCouponToSupabase(coupon){
+  try {
+    await _supa.from('coupons').upsert(coupon);
+    setSyncStatus('saved');
+  } catch(e){ setSyncStatus('error'); }
+}
+
 function renderPromos(){
-  document.getElementById('promos-tbody').innerHTML=promos.map((pr,i)=>`
-    <tr>
-      <td><code style="background:rgba(78,205,196,.1);color:var(--teal);padding:2px 8px;border-radius:4px;font-size:.8rem">${pr.code}</code></td>
-      <td>${pr.type==='percent'?'% Off':pr.type==='fixed'?'SAR Off':'Free Ship'}</td>
-      <td>${pr.type==='freeship'?'—':pr.type==='percent'?pr.value+'%':pr.value+' SAR'}</td>
-      <td>${pr.used} times</td>
-      <td style="color:${new Date(pr.exp)<new Date()?'var(--red)':'var(--muted)'}">${pr.exp}</td>
-      <td><span class="pill ${pr.active?'pill-green':'pill-muted'}">${pr.active?'Active':'Expired'}</span></td>
+  const tbody = document.getElementById('promos-tbody');
+  if(!tbody) return;
+  if(!promos.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">No coupons yet — create one above</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=promos.map((pr,i)=>{
+    const expired = pr.exp && new Date(pr.exp) < new Date();
+    const typeLabel = pr.type==='percent'?'% Off':pr.type==='fixed'?'SAR Off':'Free Ship';
+    const valLabel  = pr.type==='freeship'?'—':pr.type==='percent'?pr.value+'%':pr.value+' SAR';
+    return `<tr>
+      <td><code style="background:rgba(78,205,196,.1);color:var(--teal);padding:3px 10px;border-radius:6px;font-size:.82rem;font-weight:700;letter-spacing:.06em">${pr.code}</code></td>
+      <td>${typeLabel}</td>
+      <td><strong>${valLabel}</strong></td>
+      <td>${pr.used||0} times</td>
+      <td style="color:${expired?'var(--red)':'var(--muted)'}">${pr.exp||'No expiry'}</td>
+      <td><span class="pill ${pr.active&&!expired?'pill-green':'pill-muted'}">${pr.active&&!expired?'Active':'Inactive'}</span></td>
       <td><div class="action-btns">
-        <button class="btn btn-ghost btn-sm" onclick="togglePromo(${i})">
-          ${pr.active?'Deactivate':'Activate'}
-        </button>
+        <button class="btn btn-ghost btn-sm" onclick="togglePromo(${i})">${pr.active?'Deactivate':'Activate'}</button>
         <button class="btn btn-danger btn-sm" onclick="deletePromo(${i})">🗑</button>
       </div></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
-function openPromoModal(){ document.getElementById('prom-code').value=''; document.getElementById('prom-val').value=''; document.getElementById('promo-modal').classList.add('open'); }
-function savePromo(){
-  const code=document.getElementById('prom-code').value.trim().toUpperCase();
-  const type=document.getElementById('prom-type').value;
-  const value=parseFloat(document.getElementById('prom-val').value)||0;
-  const exp=document.getElementById('prom-exp').value;
+
+function openPromoModal(){
+  document.getElementById('prom-code').value='';
+  document.getElementById('prom-val').value='';
+  document.getElementById('prom-exp').value='';
+  document.getElementById('prom-min').value='';
+  document.getElementById('prom-desc-en').value='';
+  document.getElementById('prom-desc-ar').value='';
+  document.getElementById('promo-modal').classList.add('open');
+}
+
+async function savePromo(){
+  const code    = document.getElementById('prom-code').value.trim().toUpperCase();
+  const type    = document.getElementById('prom-type').value;
+  const value   = parseFloat(document.getElementById('prom-val').value)||0;
+  const exp     = document.getElementById('prom-exp').value||null;
+  const minOrder= parseFloat(document.getElementById('prom-min').value)||0;
+  const descEn  = document.getElementById('prom-desc-en').value.trim();
+  const descAr  = document.getElementById('prom-desc-ar').value.trim();
   if(!code){ showToast('⚠️ Enter a coupon code'); return; }
-  promos.push({code,type,value,used:0,exp:exp||'2025-12-31',active:true});
+  if(promos.find(p=>p.code===code)){ showToast('⚠️ Code already exists'); return; }
+
+  const coupon = { code, type, value, used:0, exp, minOrder, descEn, descAr, active:true, created_at: new Date().toISOString() };
+  promos.unshift(coupon);
   renderPromos();
   closeModal('promo-modal');
-  showToast('✅ Coupon created!');
+  showToast('✅ Coupon created and synced!');
+  setSyncStatus('saving');
+  await saveCouponToSupabase(coupon);
 }
-function togglePromo(i){ promos[i].active=!promos[i].active; renderPromos(); showToast('✅ Coupon updated'); }
-function deletePromo(i){ promos.splice(i,1); renderPromos(); showToast('🗑 Coupon removed'); }
+
+async function togglePromo(i){
+  promos[i].active=!promos[i].active;
+  renderPromos();
+  showToast('✅ Coupon updated');
+  await saveCouponToSupabase(promos[i]);
+}
+
+async function deletePromo(i){
+  const code = promos[i].code;
+  promos.splice(i,1);
+  renderPromos();
+  showToast('🗑 Coupon removed');
+  try { await _supa.from('coupons').delete().eq('code', code); } catch(e){}
+}
 
 // ============================================================
 //  SETTINGS

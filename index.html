@@ -59,6 +59,17 @@ body.ar .co-close{right:auto;left:16px}
 .nav-user-name{font-size:.78rem;font-weight:500;color:var(--teal);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nav-user-hint{font-size:.65rem;color:var(--muted)}
 
+
+/* ─── COUPON ─── */
+.co-coupon-wrap{display:flex;gap:8px;margin-bottom:16px}
+.co-coupon-wrap input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-size:.85rem;font-family:inherit;color:var(--dark);outline:none;background:#fff;transition:border .2s;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.co-coupon-wrap input:focus{border-color:var(--teal)}
+.co-coupon-btn{background:var(--dark);color:#fff;border:none;border-radius:12px;padding:11px 18px;font-size:.78rem;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;transition:all .2s}
+.co-coupon-btn:hover{background:var(--teal)}
+.co-coupon-result{font-size:.78rem;margin-bottom:10px;padding:8px 12px;border-radius:8px;display:none}
+.co-coupon-result.success{background:rgba(39,174,96,.1);color:#27ae60;border:1px solid rgba(39,174,96,.2);display:block}
+.co-coupon-result.error{background:rgba(224,82,82,.08);color:var(--red);border:1px solid rgba(224,82,82,.15);display:block}
+
 /* ─── GRAIN ─── */
 body::after{content:'';position:fixed;inset:0;z-index:8000;pointer-events:none;opacity:.022;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");}
@@ -724,6 +735,13 @@ footer{background:var(--dark);padding:70px 60px 36px}
         <input type="text" id="co-address" placeholder="Riyadh, Dammam..." autocomplete="address-level2"/>
       </div>
     </div>
+    <!-- COUPON -->
+    <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:6px" id="co-coupon-lbl">Coupon Code (optional)</div>
+    <div class="co-coupon-wrap">
+      <input type="text" id="co-coupon-input" placeholder="ENTER CODE"/>
+      <button class="co-coupon-btn" onclick="applyCoupon()" id="co-coupon-apply-btn">Apply</button>
+    </div>
+    <div class="co-coupon-result" id="co-coupon-result"></div>
     <button class="co-wa-btn" onclick="submitOrder()">
       <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       <span id="co-btn-label">Confirm & Send via WhatsApp</span>
@@ -795,6 +813,7 @@ let visibleProducts = products.filter(p => p.active !== false);
 let FREE_SHIP = 50;
 let SHIP_COST = 15;
 let cart=JSON.parse(localStorage.getItem('aljaser_cart')||'[]'), isAr=false, activeFilter='all', modalProduct=null, modalQtyVal=1;
+let appliedCoupon=null; // {code, type, value, descEn, descAr}
 
 // ═══════════════════════════════════════════════════════════
 //  SUPABASE LOAD
@@ -1093,6 +1112,84 @@ function closeCart(){document.getElementById('cart-overlay').classList.remove('o
 // ═══════════════════════════════════════════════════════════
 //  CHECKOUT FLOW
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  COUPONS
+// ═══════════════════════════════════════════════════════════
+async function applyCoupon(){
+  const code = document.getElementById('co-coupon-input').value.trim().toUpperCase();
+  const resultEl = document.getElementById('co-coupon-result');
+  if(!code){ resultEl.className='co-coupon-result error'; resultEl.textContent = isAr?'⚠️ أدخل كود الخصم':'⚠️ Enter a coupon code'; return; }
+
+  try {
+    const { data, error } = await _supa.from('coupons').select('*').eq('code', code).eq('active', true).single();
+    if(error || !data){
+      resultEl.className='co-coupon-result error';
+      resultEl.textContent = isAr?'❌ كود غير صالح أو منتهي الصلاحية':'❌ Invalid or expired coupon';
+      appliedCoupon = null;
+      updateCheckoutSummary();
+      return;
+    }
+    // Check expiry
+    if(data.exp && new Date(data.exp) < new Date()){
+      resultEl.className='co-coupon-result error';
+      resultEl.textContent = isAr?'❌ انتهت صلاحية هذا الكود':'❌ This coupon has expired';
+      appliedCoupon = null;
+      updateCheckoutSummary();
+      return;
+    }
+    // Check minimum order
+    const sub = getSub();
+    if(data.minOrder && sub < data.minOrder){
+      resultEl.className='co-coupon-result error';
+      resultEl.textContent = isAr
+        ? `⚠️ الحد الأدنى للطلب ${data.minOrder} ريال`
+        : `⚠️ Minimum order is ${data.minOrder} SAR`;
+      appliedCoupon = null;
+      updateCheckoutSummary();
+      return;
+    }
+    appliedCoupon = data;
+    const discountAmt = getDiscount();
+    resultEl.className='co-coupon-result success';
+    resultEl.textContent = isAr
+      ? `✅ تم تطبيق الكود! خصم ${discountAmt.toFixed(2)} ريال`
+      : `✅ Coupon applied! You save ${discountAmt.toFixed(2)} SAR`;
+    updateCheckoutSummary();
+  } catch(e){
+    resultEl.className='co-coupon-result error';
+    resultEl.textContent = isAr?'❌ تعذّر التحقق من الكود':'❌ Could not verify coupon';
+  }
+}
+
+function getDiscount(){
+  if(!appliedCoupon) return 0;
+  const sub = getSub();
+  if(appliedCoupon.type==='percent') return Math.min(sub, sub * (appliedCoupon.value/100));
+  if(appliedCoupon.type==='fixed')   return Math.min(sub, appliedCoupon.value);
+  return 0;
+}
+
+function getTotalAfterDiscount(){
+  const sub = getSub();
+  const ship = getShip(sub);
+  return Math.max(0, sub + ship - getDiscount());
+}
+
+function updateCheckoutSummary(){
+  const sub   = getSub();
+  const ship  = getShip(sub);
+  const disc  = getDiscount();
+  const total = getTotalAfterDiscount();
+  const summaryEl = document.getElementById('co-summary');
+  if(!summaryEl) return;
+  const itemLines = cart.map(i=>`<div class="co-row"><span>${isAr?i.ar:i.en} ×${i.qty}</span><span>${(i.price*i.qty).toFixed(2)} SAR</span></div>`).join('');
+  const discRow = disc>0 ? `<div class="co-row" style="color:#27ae60"><span>🏷 ${isAr?'خصم':'Discount'} (${appliedCoupon.code})</span><span>-${disc.toFixed(2)} SAR</span></div>` : '';
+  summaryEl.innerHTML = itemLines +
+    `<div class="co-row"><span>${isAr?'الشحن':'Shipping'}</span><span>${SHIP_COST} SAR</span></div>` +
+    discRow +
+    `<div class="co-row total"><span>${isAr?'الإجمالي':'Total'}</span><span>${total.toFixed(2)} SAR</span></div>`;
+}
+
 function goCheckout(){
   if(cart.length===0){showToast(isAr?'⚠️ سلتك فارغة!':'⚠️ Your cart is empty!');return;}
   // Must be signed in to order
@@ -1146,6 +1243,18 @@ function openCheckoutModal(user){
   document.getElementById('co-address-lbl').textContent = isAr ? 'الرقم المختصر للعنوان الوطني' : 'National Address Short Code';
   document.getElementById('co-btn-label').textContent = isAr ? 'تأكيد وإرسال عبر واتساب' : 'Confirm & Send via WhatsApp';
 
+  // Reset coupon
+  appliedCoupon = null;
+  const couponInput = document.getElementById('co-coupon-input');
+  const couponResult = document.getElementById('co-coupon-result');
+  if(couponInput) couponInput.value = '';
+  if(couponResult){ couponResult.className='co-coupon-result'; couponResult.textContent=''; }
+  // i18n coupon label
+  const couponLbl = document.getElementById('co-coupon-lbl');
+  if(couponLbl) couponLbl.textContent = isAr ? 'كود الخصم (اختياري)' : 'Coupon Code (optional)';
+  const couponBtn = document.getElementById('co-coupon-apply-btn');
+  if(couponBtn) couponBtn.textContent = isAr ? 'تطبيق' : 'Apply';
+  updateCheckoutSummary();
   document.getElementById('checkout-overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -1167,7 +1276,7 @@ async function submitOrder(){
   if(!name){ showToast(isAr?'⚠️ أدخل اسمك':'⚠️ Enter your name'); return; }
   if(!phone){ showToast(isAr?'⚠️ أدخل رقم الواتساب':'⚠️ Enter your WhatsApp number'); return; }
 
-  const sub=getSub(), ship=getShip(sub), total=getTotal();
+  const sub=getSub(), ship=getShip(sub), disc=getDiscount(), total=getTotalAfterDiscount();
   const orderId = '#AJW-' + Date.now().toString().slice(-6);
   const now = new Date().toISOString();
 
@@ -1197,6 +1306,8 @@ async function submitOrder(){
     itemsText: cart.map(i=>`${isAr?i.ar:i.en} ×${i.qty}`).join(', '),
     subtotal: sub,
     shipping: ship,
+    discount: disc,
+    coupon: appliedCoupon ? appliedCoupon.code : null,
     total: total,
     status: 'pending',
     note: '',
@@ -1214,11 +1325,12 @@ async function submitOrder(){
   // Build WhatsApp message
   const lines = cart.map(i=>isAr?`• ${i.ar} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} ريال`:`• ${i.en} × ${i.qty} — ${(i.price*i.qty).toFixed(2)} SAR`).join('%0A');
   const msg = isAr
-    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالعنوان الوطني: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
-    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ANational Address: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
+    ? `مرحباً 👋%0Aأريد أن أطلب:%0A%0A${lines}%0A%0Aالمجموع الفرعي: ${sub.toFixed(2)} ريال%0Aالشحن: ${SHIP_COST} ريال%0A${disc>0?'كود الخصم: '+appliedCoupon.code+' (-'+disc.toFixed(2)+' ريال)%0A':''}*الإجمالي: ${total.toFixed(2)} ريال*%0A%0Aالاسم: ${name}%0Aالهاتف: ${phone}%0Aالعنوان الوطني: ${city||'—'}%0Aرقم الطلب: ${orderId}%0A%0Aالرجاء تأكيد طلبي.`
+    : `Hello 👋%0AI would like to order:%0A%0A${lines}%0A%0ASubtotal: ${sub.toFixed(2)} SAR%0AShipping: ${SHIP_COST} SAR%0A${disc>0?'Coupon: '+appliedCoupon.code+' (-'+disc.toFixed(2)+' SAR)%0A':''}*Total: ${total.toFixed(2)} SAR*%0A%0AName: ${name}%0APhone: ${phone}%0ANational Address: ${city||'—'}%0AOrder ID: ${orderId}%0A%0APlease confirm my order.`;
 
   closeCheckoutModal();
   cart = [];
+  appliedCoupon = null;
   localStorage.removeItem('aljaser_cart');
   updateCartUI();
   closeCart();
